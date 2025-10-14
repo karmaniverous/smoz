@@ -1,28 +1,30 @@
-cliDefaults:
-  run:
-    plan: false
-    sequential: true
-excludes:
-  - '**/.tsbuild/**'
-  - '**/generated/**'
-  - '**/node_modules/**'
-  - '**/*.tsbuildinfo'
-  - CHANGELOG.md
-  - docs
-  - package-lock.json
-includes:
-  - templates/**
 outputPath: .stan
-patchOpenCommand: code -g {file}
-scripts:
-  knip: npm run knip
-  typecheck: npm run typecheck
-  lint: npm run lint:fix
-  openapi: npm run openapi
-  test: npm run test
-  docs: npm run stan:docs
-  build: npm run build
-  package: npm run package
-  templates-lint: npm run templates:lint
-  templates-typecheck: npm run templates:typecheck
-stanPath: .stan
+stan-core:
+  stanPath: .stan
+  includes:
+    - templates/**
+  excludes:
+    - "**/.tsbuild/**"
+    - "**/generated/**"
+    - "**/node_modules/**"
+    - "**/*.tsbuildinfo"
+    - CHANGELOG.md
+    - docs
+    - package-lock.json
+stan-cli:
+  scripts:
+    knip: npm run knip
+    typecheck: npm run typecheck
+    lint: npm run lint:fix
+    openapi: npm run openapi
+    test: npm run test
+    docs: npm run stan:docs
+    build: npm run build
+    package: npm run package
+    templates-lint: npm run templates:lint
+    templates-typecheck: npm run templates:typecheck
+  cliDefaults:
+    run:
+      plan: false
+      sequential: true
+  patchOpenCommand: code -g {file}
