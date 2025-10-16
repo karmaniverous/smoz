@@ -1,25 +1,31 @@
-outputPath: .stan
 stan-core:
   stanPath: .stan
+  imports:
+    get-dotenv:
+      - ../get-dotenv/.stan/system/stan.requirements.md
+      - ../get-dotenv/.stan/system/stan.todo.md
+      - ../get-dotenv/dist/types/index.d.ts
   includes:
     - templates/**
   excludes:
-    - "**/.tsbuild/**"
-    - "**/generated/**"
-    - "**/node_modules/**"
-    - "**/*.tsbuildinfo"
+    - '**/.tsbuild/**'
+    - '**/generated/**'
+    - '**/node_modules/**'
+    - '**/*.tsbuildinfo'
     - CHANGELOG.md
     - docs
     - package-lock.json
 stan-cli:
   scripts:
-    knip: npm run knip
     typecheck: npm run typecheck
     lint: npm run lint:fix
     openapi: npm run openapi
-    test: npm run test
-    docs: npm run stan:docs
-    build: npm run build
+    test: npm run test -- --no-color
+    build: cross-env NO_COLOR=1 npm run build
+    docs:
+      script: npm run docs -- --emit none
+      warnPattern: \\[warning\\]
+    knip: npm run knip
     package: npm run package
     templates-lint: npm run templates:lint
     templates-typecheck: npm run templates:typecheck

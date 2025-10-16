@@ -2,13 +2,14 @@
 
 # Development Plan
 
-When updated: 2025-09-15T13:14:00Z
+When updated: 2025-10-16T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
 1. No immediate items. Monitor dev UX and template lint/typecheck in CI.
 
 ## Completed (recent)
+
 52. App.create overloads: preserve strong type inference when
     eventTypeMapSchema is omitted by defaulting to baseEventTypeMapSchema
     (typed) without making it required; retains runtime default behavior.
@@ -99,3 +100,13 @@ When updated: 2025-09-15T13:14:00Z
     signatures (TypeScript requires all overload signatures to precede
     the implementation). Keeps the “provided schema” signature first
     while satisfying TS2389 and preserving runtime behavior.
+74. Documentation partition & rationalization:
+    - Extracted all durable product/engineering requirements from
+      `.stan/system/stan.project.md` into a new
+      `.stan/system/stan.requirements.md`.
+    - Rewrote `stan.project.md` to contain only project‑specific assistant
+      instructions and clear scope/separation notes.
+    - No content lost; structure clarified to keep requirements separate from assistant policies.
+
+- +- Documentation
+- - Partitioned project docs: extracted all durable product requirements from stan.project.md into a new .stan/system/stan.requirements.md; trimmed stan.project.md to assistant-only instructions and added a scope note. No content lost; structure clarified to keep requirements separate from assistant policies.
