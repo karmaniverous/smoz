@@ -32,6 +32,7 @@ stan-cli:
     templates-typecheck: npm run templates:typecheck
   cliDefaults:
     run:
+      facets: true
       plan: false
       sequential: true
   patchOpenCommand: code -g {file}

@@ -1,10 +1,60 @@
 # Development Plan
 
-When updated: 2025-10-16T00:00:00Z
+When updated: 2025-10-19T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
-- No immediate items. Monitor dev UX and template lint/typecheck in CI.
+- Replace CLI entry with get-dotenv host
+  - Create a GetDotenvCli-based host in src/cli/index.ts (or src/cli/host.ts and re-export).
+  - Branding: “smoz vX.Y.Z”; global flags: -e/--env, --strict, --trace, -V/--verbose.
+  - Remove Commander wiring; no fallback path.
+
+- Install and wire plugins in the host
+  - Always install get-dotenv AWS base plugin (inert unless configured).
+  - Install smoz plugins: init, add, register, openapi, dev (thin wrappers over runInit/runAdd/runRegister/runOpenapi/runDev).
+  - Expose get-dotenv cmd and batch commands alongside smoz commands.
+
+- Validation and diagnostics posture
+  - Host-level validation: Zod (JS/TS) or requiredKeys (JSON/YAML) once per invocation.
+  - Warn by default; fail with --strict.
+  - In verbose/trace, print layered trace with masking and entropy warnings (once per key).
+
+- Adopt spawn-env normalization everywhere
+  - Use get-dotenv’s buildSpawnEnv(base, ctx.dotenv) for:
+    - tsx inline server
+    - serverless offline
+    - serverless package/deploy hooks
+    - prettier/typedoc/other child tools
+  - Log the normalized env snapshot in verbose mode (masked).
+
+- Stage resolution (dev) implementation
+  - Precedence: --stage > plugins.smoz.stage (interpolated) > process.env.STAGE > default inference (first non-”default” stage; else “dev”).
+  - Do not bind -e to stage implicitly; document plugins.smoz.stage: "${ENV:dev}" as the recommended opt-in.
+  - Pass final stage to children via spawn-env (ensure STAGE present for serverless/offline).
+
+- Expose cmd and batch
+  - cmd: honor shell semantics from get-dotenv; ensure quoting guidance documented (single quotes to avoid outer-shell expansion).
+  - batch: implement flags `--concurrency <n>` (default 1) and `--live`; verify buffered capture and end-of-run summary paths; keep logs consistent with get-dotenv.
+
+- Remove deprecated Zod usage
+  - Replace any lingering z.any() placeholders in templates/docs with z.unknown().
+  - Use .catchall(z.unknown()) instead of .passthrough() in examples/doc snippets.
+
+- Serverless STAGE simplification (follow-on)
+  - Inject STAGE from provider.stage/provider.environment.
+  - Remove STAGE from stage.params/schema in the app fixture and template.
+  - Update tests/templates/docs accordingly.
+
+- Tests and CI updates
+  - Register/openapi/package outputs remain byte-for-byte identical.
+  - Dev: stage precedence matrix; inline/offline spawn-env normalization; Windows CI smoke.
+  - Add cmd/batch smoke tests (quote handling and env propagation).
+  - Verify help header branding and flags (-e/--strict/--trace/-V).
+
+- Documentation updates
+  - CLI: clarify host-based design; new commands (cmd/batch); global flags; getdotenv.config.\* surfaces.
+  - Dev guide: stage precedence; recommend plugins.smoz.stage mapping; strict/diagnostics notes.
+  - Troubleshooting: add safe tracing and quoting recipes for cmd; clarify Windows path hygiene is handled by spawn-env.
 
 ## Completed (recent)
 
