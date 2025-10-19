@@ -2,16 +2,17 @@ stan-core:
   stanPath: .stan
   imports:
     get-dotenv:
+      - ../get-dotenv/.stan/interop/smoz/**
       - ../get-dotenv/.stan/system/stan.requirements.md
       - ../get-dotenv/.stan/system/stan.todo.md
       - ../get-dotenv/dist/types/index.d.ts
   includes:
     - templates/**
   excludes:
-    - "**/.tsbuild/**"
-    - "**/generated/**"
-    - "**/node_modules/**"
-    - "**/*.tsbuildinfo"
+    - '**/.tsbuild/**'
+    - '**/generated/**'
+    - '**/node_modules/**'
+    - '**/*.tsbuildinfo'
     - CHANGELOG.md
     - docs
     - package-lock.json
