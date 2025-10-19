@@ -19,6 +19,7 @@ import { packageDirectorySync } from 'package-directory';
 
 import { runAdd } from './add';
 import { runDev } from './dev/index';
+import { runWithHost } from './host/index';
 import { runInit } from './init';
 import { runOpenapi } from './openapi';
 import { runRegister } from './register';
@@ -95,6 +96,16 @@ const main = async (): Promise<void> => {
   const argv = process.argv.slice(2);
   const cmd = argv[0];
 
+  // Optional: route all commands through the get-dotenv host when requested.
+  // This keeps current behavior as default while enabling early host testing.
+  if (process.env.SMOZ_HOST === '1') {
+    try {
+      await runWithHost(argv, branding);
+      return;
+    } catch {
+      // Fall back to legacy mapping below.
+    }
+  }
   if (!cmd) {
     printSignature();
     return;

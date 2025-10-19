@@ -126,11 +126,19 @@ When updated: 2025-10-19T00:00:00Z
 
 - Fix get-dotenv host delegation (exactOptionalPropertyTypes):
   - Updated the adapter to include the optional `branding` field only when defined,
-    eliminating TS2379 errors during typecheck/build/docs.
+    eliminating TS2379 errors during typecheck/build/docs.
+
 - Dev loop stage precedence (implemented):
   - Introduced resolveStage() with precedence: --stage > getdotenv.config.json plugins.smoz.stage > env.STAGE > inferred default ("dev").
   - runDev now uses resolveStage; existing behavior preserved when config is absent.
 
 - Normalize serverless-offline child env via get-dotenv:
   - serverless-offline launcher now builds child process env using buildSpawnEnvMaybe;
-  - verbose logs include a snapshot of normalized temp/home variables; fallback behavior unchanged.
+  - verbose logs include a snapshot of normalized temp/home variables; fallback behavior unchanged.
+
+- Host skeleton (opt-in):
+  - Added a minimal get-dotenv host wrapper (src/cli/host/index.ts) and a placeholder
+    smoz plugin module (src/cli/plugins/smoz.ts).
+  - CLI entry can route all commands through the host when SMOZ_HOST=1 is set,
+    preserving default behavior otherwise. Future iterations will install the AWS base
+    plugin and register smoz commands on the host by default.
