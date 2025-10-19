@@ -8,6 +8,14 @@ When updated: 2025-10-16T00:00:00Z
 
 ## Completed (recent)
 
+- Interop design note for getdotenv:
+  - Added `.stan/interop/get-dotenv/smoz-cli-host-integration.md` capturing host+plugin
+    integration, layered resolution with per‑layer interpolation, Zod validation,
+    key aliasing, tracing/redaction/entropy, spawn env normalization, and SMOZ
+    stage handling (removing STAGE from stage.params and deriving from stage precedence).
+  - This note is the basis for interop negotiation with the getdotenv assistant prior
+    to implementation across both repositories.
+
 - Documentation partition & rationalization:
   - Extracted all durable product/engineering requirements from
     `.stan/system/stan.project.md` into a new `.stan/system/stan.requirements.md`.

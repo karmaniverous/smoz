@@ -8,10 +8,10 @@ stan-core:
   includes:
     - templates/**
   excludes:
-    - '**/.tsbuild/**'
-    - '**/generated/**'
-    - '**/node_modules/**'
-    - '**/*.tsbuildinfo'
+    - "**/.tsbuild/**"
+    - "**/generated/**"
+    - "**/node_modules/**"
+    - "**/*.tsbuildinfo"
     - CHANGELOG.md
     - docs
     - package-lock.json

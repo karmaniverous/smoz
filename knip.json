@@ -11,10 +11,12 @@
     "src/cli/local/inline.server/**"
   ],
   "ignoreBinaries": ["plantuml"],
-  "ignoreDependencies": [    "http-errors",
+  "ignoreDependencies": [
+    "http-errors",
     "@types/http-errors",
     "@types/serverless",
     "@vitest/coverage-v8",
+    "cross-env",
     "serverless-apigateway-log-retention",
     "serverless-deployment-bucket",
     "serverless-domain-manager",
