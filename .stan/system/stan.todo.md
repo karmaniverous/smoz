@@ -123,3 +123,7 @@ When updated: 2025-10-19T00:00:00Z
     `cmd` or `batch`, passing a branding string (“<pkg> v<version>”).
   - Leaves existing smoz commands intact; next step is to install smoz plugins on
     the host and route all CLI through it.
+
+- Fix get-dotenv host delegation (exactOptionalPropertyTypes):
+  - Updated the adapter to include the optional `branding` field only when defined,
+    eliminating TS2379 errors during typecheck/build/docs.

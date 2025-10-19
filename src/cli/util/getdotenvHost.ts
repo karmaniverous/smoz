@@ -19,6 +19,8 @@ export const runGetDotenvHost = async (
     // Prefer a canonical runCli(argv, branding?) if present
 
     if (typeof (mod as { runCli?: unknown }).runCli === 'function') {
+      const opts = ((): { argv: string[]; branding?: string } =>
+        typeof branding === 'string' ? { argv, branding } : { argv })();
       await (
         mod as unknown as {
           runCli: (opts: {
@@ -26,29 +28,33 @@ export const runGetDotenvHost = async (
             branding?: string;
           }) => Promise<void>;
         }
-      ).runCli({ argv, branding });
+      ).runCli(opts);
       return;
     }
     // Fallback: run({ argv, branding? })
 
     if (typeof (mod as { run?: unknown }).run === 'function') {
+      const opts = ((): { argv: string[]; branding?: string } =>
+        typeof branding === 'string' ? { argv, branding } : { argv })();
       await (
         mod as unknown as {
           run: (opts: { argv: string[]; branding?: string }) => Promise<void>;
         }
-      ).run({ argv, branding });
+      ).run(opts);
       return;
     }
     // Fallback: createCli({ branding? }).run(argv)
 
     if (typeof (mod as { createCli?: unknown }).createCli === 'function') {
-      const host = (
-        mod as unknown as {
-          createCli: (opts: { branding?: string }) => {
-            run: (a: string[]) => Promise<void>;
-          };
-        }
-      ).createCli({ branding });
+      const cliFactory = mod as unknown as {
+        createCli: (opts: { branding?: string }) => {
+          run: (a: string[]) => Promise<void>;
+        };
+      };
+      const host =
+        typeof branding === 'string'
+          ? cliFactory.createCli({ branding })
+          : cliFactory.createCli({});
       await host.run(argv);
       return;
     }
