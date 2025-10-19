@@ -1,385 +1,379 @@
-# Project Requirements — get-dotenv
+# Project Requirements — @karmaniverous/smoz
 
-When updated: 2025-10-16T00:00:00Z
-
-## Overview
-
-This document captures durable, project-level requirements for get-dotenv. It consolidates all product requirements that were previously intermingled in the project prompt. Assistant/policy instructions live in stan.project.md; keep requirements here.
-
-## Product positioning (summary)
-
-Where it shines:
-
-- Deterministic dotenv cascade across paths with public/private/global/env axes.
-- Progressive, recursive expansion with defaults; dynamic vars in JS/TS (safe).
-- Plugin-first host with once-per-invocation context and typed options.
-- Cross-platform command execution (argv-aware shell-off; normalized shells).
-- CI-friendly capture and `--trace` diagnostics.
-
-Who will love it:
-
-- Platform/DX/DevOps teams in monorepos.
-- Tooling/CLI authors composing domain plugins.
-- CI/CD engineers needing deterministic env and observability.
-- Cross-platform app teams (Windows + POSIX).
-
-## Mission
-
-Load environment variables from a configurable cascade of dotenv files and/or explicit variables, optionally expand variables recursively, optionally inject into `process.env`, and expose a flexible CLI that can act standalone or as the foundation for child CLIs. Backward compatibility with the existing public API and behaviors is required.
-
-## Compatibility policy (plugin-first vs generated CLI)
-
-- The plugin-first shipped CLI may evolve without strict backward compatibility.
-- The legacy generated CLI (via generateGetDotenvCli) MUST preserve existing flags/behavior for consumers. Changes to flag names or behavior in the plugin-first CLI do not imply changes to the generated CLI unless explicitly coordinated as a breaking change for that surface.
-
-## Supported Node/Runtime
-
-- Node: >= 20
-- ESM-first package with dual exports:
-  - import: dist/index.mjs (types: dist/index.d.mts)
-  - require: dist/index.cjs (types: dist/index.d.cts)
-
-## Tooling
-
-- Build: Rollup
-- TypeScript: strict; ESM module
-- Lint: ESLint v9 (flat config), Prettier formatting
-- Test: Vitest with V8 coverage
-
-## Core behaviors (must be preserved)
-
-### 1) Dotenv cascade and naming (public/private/global/env)
-
-- Public globals: `<token>` (e.g., `.env`)
-- Public env: `<token>.<env>`
-- Private globals: `<token>.<privateToken>`
-- Private env: `<token>.<env>.<privateToken>`
-- Defaults:
-  - `dotenvToken`: `.env`
-  - `privateToken`: `local`
-  - Paths default to `["./"]` unless explicitly overridden (backward compatible).
-
-### 2) Option layering (defaults semantics, “custom overrides defaults”)
-
-- CLI generator defaults resolution (`generateGetDotenvCli`):
-  - Merge order (lowest precedence first): base < global < local < custom
-- getDotenv programmatic defaults (`resolveGetDotenvOptions`):
-  - Merge order: base (from CLI defaults) < local (getdotenv.config.json) < custom
-- Per-subcommand merges (nested CLI):
-  - Merge order: parent < current (current overrides).
-- Behavior: “defaults-deep” semantics for plain objects (no lodash required).
-
-### 3) Variable expansion
-
-- Recursive expansion with defaults:
-  - `$VAR[:default]` and `${VAR[:default]}`
-- Unknown variables resolve to empty string.
-- Progressive expansion supported where later values may reference earlier results.
-
-### 4) Dynamic variables
-
-- `dynamicPath` default-exports a map of:
-  - key → function(dotenv, env?) => value, or
-  - key → literal value
-- Functions evaluate progressively (later keys can depend on earlier).
-- Backward compatibility: JS modules remain the simplest path.
-- Optional TypeScript support (see “Dynamic TypeScript” below).
-
-### 5) CLI execution and nesting
-
-- The base CLI can execute commands via `--command` or the default `cmd` subcommand.
-- Shell resolution:
-  - If `shell === false`, use Execa plain (no shell).
-  - If `shell === true` or `undefined`, use default OS shell:
-    - POSIX: `/bin/bash`
-    - Windows: `powershell.exe`
-  - If `shell` is a string, use that shell.
-  - Script-level overrides (`scripts[name].shell`) take precedence for that script.
-- Nested CLI:
-  - Outer context is passed to inner commands via `process.env.getDotenvCliOptions` (JSON).
-  - Within a single process tree (Commander), the current merged options are placed on the command instance as `getDotenvCliOptions` for subcommands.
-
-#### CLI flag standardization (plugin-first host)
-
-- Use “-c, --cmd <command...>” provided by the cmd plugin as the parent-level option alias. The shipped CLI does not include a root “-c, --command” flag.
-- The legacy generated CLI retains “-c, --command <string>” for compatibility and uses its own command wiring as documented in the generator entry.
-
-#### Command alias on parent (cmd)
-
-The CLI MUST support two equivalent ways to execute a command:
-
-1. Subcommand: `cmd [args...]` (positional arguments are joined verbatim),
-2. Option alias on the parent: `-c, --cmd <command...>` (variadic, joined with spaces).
-
-Notes and guidance:
-
-- Prefer the alias for npm scripts so flags after `--` are routed to getdotenv:
-  - Anti-pattern: `"script": "getdotenv echo $FOO"` (flags passed to `npm run script -- ...` are applied to `echo`, not to `getdotenv`).
-  - Recommended: `"script": "getdotenv -c 'echo $FOO'"`, then `npm run script -- -e dev` applies `-e` to getdotenv itself.
-- Scripts and shell precedence is unchanged:
-  - `scripts[name].shell` (object form) overrides the global `shell` for that script.
-- Scope: For the new plugin-first CLI, the alias is owned by the cmd plugin and attaches to the parent; the old generated CLI retains its original `-c, --command` until a deliberate breaking change is published.
-
-#### Shell expansion guidance (procedural)
-
-- Outer shells (e.g., bash, PowerShell) may expand variables before Node receives argv. Document quoting rules and recommend single quotes for `$FOO` on POSIX and single quotes on PowerShell to suppress outer expansion. Prefer `"getdotenv -c '...'"` in npm scripts.
-- Future optional safety nets may include `--cmd-file <path>` (read command from file) or env-backed alias (`GETDOTENV_CMD`) to avoid outer-shell expansion entirely.
-
-## Prioritized roadmap (requirements)
-
-Must-have (near-term):
-
-1. Batch concurrency (opt-in)
-   - Flag: `--concurrency <n>` (default 1).
-   - Aggregate output by job; buffered flush; end-of-run summary.
-   - Optional `--live` for prefixed interleaved streaming.
-   - Respect per-script hints: `scripts[name].parallel?: boolean`, `concurrency?: number`.
-2. Redacted logging/tracing
-   - `--redact` with default masks (SECRET, TOKEN, KEY, PASSWORD); allow custom patterns.
-   - Apply to `-l/--log` and `--trace`.
-   - Entropy warnings (warning-only; no masking):
-     - Purpose: Provide a low-risk signal for likely secrets without altering values or masking by default. Keeps observability high while nudging safer workflows.
-     - Surfaces:
-       - `--trace`: emit an extra stderr line per affected key (at most once per key per run).
-       - `-l/--log`: same warning policy (since values are printed).
-     - Trigger gating:
-       - Only evaluate entropy when cheap prefilters pass:
-         - Length ≥ `minLen` (default 16).
-         - Character-class: printable ASCII (skip obvious low-entropy human text).
-       - Compute Shannon entropy (over character frequencies); warn when bits/char ≥ `threshold` (default 3.8).
-     - Warning format (no value preview to avoid leakage):
-       - Single concise stderr line:
-         ```
-         [entropy] key=<NAME> score=<X.XX> len=<N> origin=<dotenv|parent>
-         ```
-     - No redaction:
-       - Diagnostic-only. Never alters the environment or output; coexists with deterministic masking (names/regexes) as a separate, opt-in feature.
-     - Noise control:
-       - Once-per-key-per-run to avoid spam.
-       - Optional end-of-run summary may be added later; not required for v1.
-     - CLI flags:
-       - `--entropy-warn` / `--no-entropy-warn` (default: on).
-       - `--entropy-threshold <bitsPerChar>` (default: 3.8).
-       - `--entropy-min-length <n>` (default: 16).
-       - `--entropy-whitelist <pattern>` (repeatable; regex or glob-like) to suppress warnings by key name.
-     - Config mirrors:
-       ```json
-       {
-         "warnEntropy": true,
-         "entropyThreshold": 3.8,
-         "entropyMinLength": 16,
-         "entropyWhitelist": ["^GIT_", "^npm_", "^CI$", "SHLVL"]
-       }
-       ```
-     - Performance:
-       - Compute entropy only after prefilters pass; omit base64 heuristics. Cost is tiny for a handful of keys.
-     - Safety defaults:
-       - Default warn ON for both `--trace` and `-l/--log`.
-3. Required keys / schema checks
-   - Validate final env against a declared keys list or schema (JSON/YAML/TS).
-   - Fail-fast with helpful diagnostics.
-4. Shell completion
-   - Generate bash/zsh/pwsh completion for flags/subcommands.
-
-Nice-to-have (next):
-
-5. First-party secrets provider plugins (AWS/GCP/Vault).
-6. Watch mode for local dev (recompute on file changes; optional command rerun).
-7. Enhanced `--trace` diff (origin/value/overridden-by).
-8. Troubleshooting doc (common shell pitfalls and quoting recipes).
-
-## Architecture: Plugin-first CLI host and schema-driven config (vNext additive)
+When updated: 2025-10-19T00:00:00Z
 
 Purpose
 
-- Introduce a plugin-first CLI host that composes environment-aware CLIs. It validates options strictly, resolves dotenv context once per invocation, and exposes lifecycle hooks for plugins.
+- This document captures durable, repo‑specific requirements for the SMOZ
+  toolkit. It is the single source of truth for product/engineering policy.
+- Assistant/policy instructions live in .stan/system/stan.project.md.
 
-### Architectural split
+Contents
 
-- Core service (unchanged):
-  - getDotenv(options): deterministic env resolution engine.
-  - File cascade and dotenv expansion semantics preserved.
+- 1. Repository scope and publishing
+- 2. Architecture and application model
+- 3. HTTP middleware policy (order and behavior)
+- 4. Aggregation builders (Serverless + OpenAPI)
+- 5. CLI — get-dotenv host, commands (init/add/register/openapi/dev/cmd/batch), flags, and config
+- 6. Register freshness (Serverless plugin) and optional hooks
+- 7. Templates — baseline, TypeScript configs, ESLint, and placeholders
+- 8. Init UX — conflicts, installation, defaults, and manifest handling
+- 9. Routing, path normalization, and portability
+- 10. Event tokens and HTTP tokens
+- 11. App‑level function defaults (env keys)
+- 12. Types hygiene (reuse public platform types)
+- 13. Lint/format and template scalability
+- 14. Documentation structure and Typedoc ordering
+- 15. Integration fixture (/app)
+- 16. Install guard (operators may forget install)
+- 17. Logger shape
+- 18. OpenAPI specs (hand‑crafted; Zod v4 posture)
+- 19. Testability of environment config
+- 20. Environment resolution via get-dotenv (host integration)
+  - Layering model, validation, diagnostics, spawn env, and AWS plugin
+  - Stage resolution precedence
 
-- New CLI host (additive):
-  - class GetDotenvCli extends Commander.Command.
-  - Responsibilities:
-    - Discover and layer configs (packaged root → consumer repo global → consumer repo .local → invocation).
-    - Validate and normalize options with Zod (raw → resolved).
-    - Resolve env with getDotenv and attach a per-invocation context.
-    - Expose a plugin API to register commands/subcommands.
-  - Context:
-    - ctx = { optionsResolved, dotenv, plugins?: Record<string, unknown> }.
-    - Produced once per invocation in a preSubcommand hook.
-    - If `loadProcess` is true, merge ctx.dotenv into process.env; regardless, plugins can read ctx.dotenv and pass it explicitly to subprocesses.
+---
 
-- Plugin API:
-  - definePlugin({ id?, setup(cli), afterResolve?(cli, ctx) }): Plugin.
-  - Composition:
-    - plugin.use(childPlugin): returns the parent for chaining; the host installs children first, then parent.
-  - Setup phase: register commands under the host (e.g., cli.ns('aws').command(...)).
-  - AfterResolve phase: initialize clients/secrets using ctx.dotenv or previously-attached plugin state (e.g., AWS creds), then attach to ctx.plugins (namespaced by convention).
+## 1) Repository scope and publishing
 
-- Built-in commands as plugins:
-  - Batch command refactored to a plugin (first target).
-  - Cmd subcommand may also be offered as a plugin.
-  - The shipped getdotenv CLI can be implemented internally by installing these plugins, preserving user-facing behavior.
+- Publish only the toolkit and templates to npm:
+  - files: ["dist", "templates"]
+  - The /app fixture is not published; it is for CI validation only.
+- Toolkit surface:
+  - Runtime wrapper and HTTP middleware building blocks.
+  - Serverless/OpenAPI aggregators and helpers.
+  - Configuration typing and utilities (e.g., path helpers).
+  - CLI implemented as a get-dotenv host (see §5, §20).
+- Build & publish policy (bundling & path aliases):
+  - Published outputs (ESM/CJS/DTS) MUST NOT contain project‑local TS alias
+    specifiers (e.g., `@/src/...`). The Rollup build resolves `@/` → `src/`
+    via @rollup/plugin‑alias so downstream runtimes never see alias specifiers.
 
-### Zod schemas (single source of truth)
+## 2) Architecture and application model
 
-- Raw vs Resolved:
-  - Raw schemas: all fields optional (undefined = inherit).
-  - Resolved schemas: service-boundary contracts after defaults/inheritance.
-- Schemas:
-  - getDotenvOptionsSchemaRaw/Resolved
-  - getDotenvCliOptionsSchemaRaw/Resolved (extends programmatic shapes with CLI string fields and splitters)
-  - getDotenvCliGenerateOptionsSchemaRaw/Resolved (extends CLI with generator fields)
-- Types:
-  - export type GetDotenvOptions = z.infer<typeof getDotenvOptionsSchemaResolved>
-  - export type GetDotenvCliOptions = z.infer<typeof getDotenvCliOptionsSchemaResolved>
-  - export type GetDotenvCliGenerateOptions = z.infer<typeof getDotenvCliGenerateOptionsSchemaResolved>
+Schema‑first App with a registry:
+
+- App.create(config) captures:
+  - Global/stage parameter schemas and env exposure nodes.
+  - Event type map schema and runtime HTTP tokens.
+  - Stage artifacts: provider environment, params, and a per‑function env builder.
+  - Implementation‑wide Serverless defaults.
+- Author endpoints as small modules:
+  - lambda.ts (register + schemas)
+  - handler.ts (business logic)
+  - openapi.ts (operation)
+  - serverless.ts (non‑HTTP extras)
+- Registry APIs per function: handler(business), openapi(baseOperation), serverless(extras).
+- Side‑effect registers (generated by CLI):
+  - app/generated/register.functions.ts — imports all lambda.ts
+  - app/generated/register.openapi.ts — imports all openapi.ts
+  - app/generated/register.serverless.ts — imports non‑HTTP serverless.ts
+
+## 3) HTTP middleware policy (order and behavior)
+
+Canonical order (must remain stable):
+
+1. HEAD short‑circuit (returns 200 {} immediately)
+2. Header normalizer
+3. APIGateway v1 event normalizer
+4. Content negotiation (JSON + vendor +json)
+5. JSON body parser (no 415 on missing content type)
+6. Zod validation (before handler; after handler)
+7. Error exposure (maps validation failures to 400)
+8. http‑error‑handler (uses ConsoleLogger)
+9. CORS (credentials on; preserves computed origin)
+10. Preferred media defaults across phases
+11. Response shaper (enforce Content‑Type; ensure string body)
+12. Response serializer (JSON + vendor +json)
+
+Acceptance:
+
+- HEAD is finalized to 200 {} and is not post‑validated.
+- Shaped/string bodies pass transparently; others are shaped.
+- Zod validation failures map to 400; other errors are exposed per handler.
+
+## 4) Aggregation builders
+
+- buildAllServerlessFunctions():
+  - For HTTP tokens: derive method/basePath/contexts (or infer from paths)
+    and produce handler strings. Provider env comes from app; per‑function env
+    is built from explicit fnEnvKeys excluding globally exposed keys.
+  - For non‑HTTP tokens: pass through extras supplied via serverless(extras).
+- buildAllOpenApiPaths():
+  - Merge path items for each configured context. operationId is composed as
+    `${segments}_${method}` with a context prefix for non‑public routes.
+
+## 5) CLI — get-dotenv host, commands, flags, and config
+
+CLI as a get-dotenv host (no Commander fallback):
+
+- smoz bin instantiates a GetDotenvCli host with branding (“smoz vX.Y.Z”).
+- Global host options (documented in smoz help):
+  - -e, --env <overlay...> select dotenv overlays
+  - --strict fail on validation errors (warn by default)
+  - --trace print full layered trace (redacted)
+  - -V, --verbose verbose trace with masked values + entropy notes
+- Commands (all installed in the host):
+  - init: scaffold app (templates; conflicts/install per §8)
+  - add: scaffold endpoint skeletons
+  - register: generate side-effect registers
+  - openapi: run the app’s OpenAPI build
+  - dev: watch loop (register/openapi + inline/offline)
+  - cmd: execute an arbitrary command with the resolved env (get-dotenv cmd plugin)
+    - Cross-platform shell handling per get-dotenv (argv-aware; /bin/bash on POSIX; powershell.exe on Windows by default; overridable).
+    - Quoting guidance: recommend single-quoted strings for POSIX and PowerShell when referencing $FOO to avoid outer-shell expansion; in npm scripts, prefer `"smoz cmd -- 'echo $FOO'"` or `"smoz -c echo $FOO"` depending on style; see §20.
+  - batch: run multiple commands (get-dotenv batch plugin)
+    - Concurrency: `--concurrency <n>` (default 1). Buffered capture with end-of-run summary. Optional `--live` for prefixed interleaved streaming.
+    - Per-script hints (when used with getdotenv.config scripts surfaces): `parallel?: boolean`, `concurrency?: number`.
+- Configuration files for env and defaults:
+  - getdotenv.config.{json,yaml,yml,js,ts} at repo root; local variant getdotenv.config.local.{…} for private values.
+  - JSON/YAML = pure data (no dynamic). JS/TS may export:
+    - dynamic (functions for computed keys),
+    - schema (Zod v4 object),
+    - plugins section (see §20),
+    - diagnostics config (redaction/entropy knobs).
+- The host builds a single ctx once per invocation (pre-subcommand), resolving env and validation (see §20). Subcommands/plugins consume ctx; they do not re-resolve env.
+
+## 6) Register freshness (Serverless plugin) and optional hooks
+
+- Provide a lightweight Serverless v4 plugin
+  (@karmaniverous/smoz/serverless‑plugin) that runs `smoz register` before
+  package/deploy steps. Keep it small and fail fast.
+- Optional pre‑commit recipe (documented, not enforced): run `smoz register`
+  when app/functions/\*_ changes and stage updated register._.ts files.
+- Continue chaining `register` ahead of scripts that depend on fresh registers:
+  - openapi: register && tsx app/config/openapi && prettier
+  - package/deploy: register && serverless ...
+
+## 7) Templates — baseline, TypeScript configs, ESLint, and placeholders
+
+Baseline:
+
+- Single "default" template including:
+  - app/config/app.config.ts
+  - app/functions/rest/hello/get/{lambda,handler,openapi}.ts
+  - app/functions/rest/openapi/get/{lambda,handler,openapi}.ts
+  - serverless.ts
+  - app/config/openapi.ts and scripts (register/openapi/package/dev)
+
+TypeScript configs (two‑tsconfig approach):
+
+- Dev tsconfig (templates/default/tsconfig.json):
+  - Maps @karmaniverous/smoz → ../../dist so editors and typed ESLint resolve
+    the toolkit without publishing.
+- Downstream tsconfig (templates/default/tsconfig.downstream.json) — shipped:
+  - `smoz init` renames this to tsconfig.json (writes tsconfig.json.example if a
+    tsconfig already exists).
+  - Contains no repo‑local path mappings.
+- Typed ESLint project (templates/default/tsconfig.eslint.json) — extend‑only:
+  - Extends ./tsconfig.json so typed ESLint resolves types consistently.
+  - Houses lint‑only tweaks without perturbing the compiler.
+
+Template ESLint:
+
+- A unified ESLint flat config (templates/default/eslint.config.ts) drives typed
+  lint for template sources using tseslint with project ['./tsconfig.eslint.json'].
+
+Template typecheck:
+
+- Script discovers templates/\*/tsconfig.json and runs `tsc -p --noEmit`.
+
+Register placeholders policy:
+
+- Templates must typecheck in a clean clone without running CLI steps. Ship a
+  single ambient declarations file that declares:
+  - '@/app/generated/register.functions'
+  - '@/app/generated/register.openapi'
+  - '@/app/generated/register.serverless'
+- Runtime placeholders are created by `smoz init` in real apps and maintained by
+  `smoz register`; templates should not include app/generated artifacts.
+
+## 8) Init UX — conflicts, installation, defaults, and manifest handling
+
+Template selection:
+
+- -t/--template accepts a packaged template name ("default")
+  or a filesystem directory path.
+
+Conflict handling (non‑package.json files):
+
+- Interactive: Overwrite, Add example (<file>.example), Skip. Provide “apply to all”.
+- Non‑interactive (-y): governed by cliDefaults.init.onConflict (ask|overwrite|example|skip);
+  default is "example"; --conflict overrides.
+
+Installation:
+
+- With -y: perform install by default using the detected PM (npm|pnpm|yarn|bun).
+  Overrides: --no-install or --install <pm>.
+- Without -y: prompt for install; in CI, use -y with an explicit --install.
+
+Defaults file (optional): smoz.config.json may provide:
+
+- cliDefaults.init.onConflict, cliDefaults.init.install, cliDefaults.init.template,
+  and cliDefaults.dev.local.
+
+Manifest handling:
+
+- Do not copy the template’s package.json during init.
+- Always handle the manifest via an additive merge:
+  - Create when missing; otherwise merge dependencies/devDependencies/peerDependencies
+    and scripts only when absent; never overwrite existing keys.
+- Avoids unnecessary conflict prompts for package.json while keeping behavior predictable.
+
+## 9) Routing, path normalization, and portability
+
+- One function per method/basePath; HEAD is auto‑handled by the middleware
+  (do not author duplicate HEAD routes).
+- Multiple security contexts via httpContexts (public/private/my); non‑public
+  paths receive a context prefix in Serverless and OpenAPI surfaces.
+- Normalize all paths to POSIX separators in authored code and generated artifacts.
+- Provide small helpers (toPosixPath, dirFromHere) for cross‑platform hygiene.
+
+## 10) Event tokens and HTTP tokens
+
+- The single source of truth for event tokens is baseEventTypeMapSchema
+  (rest, http, sqs, ...). Extend it per project needs.
+- defaultHttpEventTypeTokens establishes which tokens are treated as HTTP at runtime.
+- Step Functions (Lambda Invoke) is a first‑class token:
+  - Token: `step`
+  - Zod v4 shape: `z.object({ Payload: z.unknown().optional() }).catchall(z.unknown())`
+    (use catchall; Zod v4 deprecates passthrough).
+  - Prefer `z.unknown()` over `z.any()` for unknown payloads.
+
+## 11) App‑level function defaults (env keys)
+
+- App.create accepts optional `functionDefaults.fnEnvKeys`.
+- Registry merges defaults and per‑function `fnEnvKeys`.
+- Provider‑level environment is built from globally exposed keys; per‑function
+  env includes only the additional keys (excluding globals).
+
+## 12) Types hygiene (reuse public platform types)
+
+- Do not redeclare platform types that exist in public dependencies; import from
+  aws‑lambda or toolkit contracts.
+- Inline dev server (HTTP):
+  - Use APIGatewayProxyEvent (v1), APIGatewayProxyResult, and Context from aws‑lambda.
+  - Mapping: Node HTTP → APIGatewayProxyEvent (v1) → wrapped handler; pass the
+    resulting envelope through.
+
+## 13) Lint/format and template scalability
+
+- Prettier is the single source of truth for formatting; ESLint defers to Prettier
+  and enforces TypeScript/ordering rules.
+- Keep imports sorted (simple‑import‑sort).
+- A unified templates ESLint config enables typed lint for all templates without
+  per‑template edits.
+- Template typecheck script scales by discovering tsconfig.json under templates/\*.
+
+## 14) Documentation structure and Typedoc ordering
+
+- External docs (docs‑src/\*.md) include front matter (title, sidebar_label, sidebar_position).
+- Typedoc ordering in typedoc.json "projectDocuments":
+  1. Overview
+  2. Why smoz?
+  3. Getting started
+  4. 10‑minute tour
+  5. Middleware
+  6. Recipes (index + subpages)
+  7. Templates
+  8. CLI
+  9. Contributing
+  10. CHANGELOG.md
+- Exclude CLI source symbols (src/cli/\*\*) from API reference; CLI usage is documented in docs‑src/cli.md.
+
+## 15) Integration fixture (/app)
+
+Purpose:
+
+- Keep a small in‑tree example app to validate end‑to‑end flows in CI
+  (register → OpenAPI → package). Not intended for deployment and not published.
+
+Policy:
+
+- Keep /app on main to avoid bitrot; do not move it to a long‑lived branch.
+- Neutral identifiers:
+  - service: smoz‑sample
+  - domains: api.example.test / api.dev.example.test
+  - ARNs: placeholders
+- Provide /app/README.md explaining purpose and non‑publish status.
+- Ensure repository scripts operate against the fixture without deploy (package only).
+- Planned: remove STAGE from stage.params/schema in fixture/template; rely on provider.stage injection (see §20).
+
+## 16) Install guard (operators may forget install)
+
+- Detect and surface likely missing installs (no node_modules/ or common module‑not‑found logs for core dependencies).
+- Prompt users to run their package manager’s install rather than adding shims.
+- Remove accidental shims after install.
+
+## 17) Logger shape
+
+- Any accepted logger must satisfy ConsoleLogger (console‑compatible).
+- Defaults use `console`; middleware and wrappers rely on ConsoleLogger.
+
+## 18) OpenAPI specs (hand‑crafted; Zod v4 posture)
+
+- OpenAPI specs are authored by hand; no automatic derivation from Zod.
+- For unknown payloads, prefer `z.unknown()` (not `z.any()`).
+- For objects that must tolerate additional properties, use `.catchall(z.unknown())` (avoid deprecated passthrough).
+- When useful, use precise object schemas instead of broad unknowns; placeholders should be tightened over time.
+
+## 19) Testability of environment config
+
+- Avoid top‑level ESM imports from config paths that complicate `vi.mock()`;
+  prefer lazy imports inside functions to keep tests predictable.
+- Avoid dynamic type imports.
+
+## 20) Environment resolution via get-dotenv (host integration)
+
+Host responsibilities (smoz is a get-dotenv host):
+
+- One ctx per invocation, resolved before plugins run.
+- Layered processing model (ordered; per‑layer interpolation of string leaves):
+  1. Dotenv overlays selected by -e (with expansion inside files).
+  2. Key aliases (optional; copy defined keys when targets are unset).
+  3. Config data overlays (public "vars" and per-env "envVars") with interpolation against the current env.
+  4. Dynamic (JS/TS) computed values; functions run with the current env.
+  5. Plugin defaults from config with interpolation (e.g., plugins.smoz.stage: "${ENV:dev}").
+  6. CLI options override plugin defaults (normal precedence).
+  7. Validation (Zod schema and/or requiredKeys); warn by default; "--strict" to fail.
+  8. Context built (ctx.dotenv, ctx.options, ctx.dotenvFiles, trace artifacts) and passed to plugins/commands.
 - Validation policy:
-  - New host: strict (schema.parse).
-  - Legacy paths: staged “warn” via safeParse → log (no throws) unless explicitly opted-in to strict.
+  - Zod v4 object schema (JS/TS config) or requiredKeys (JSON/YAML).
+  - Warn by default; fail when --strict is set.
+  - No deprecated Zod APIs (prefer z.unknown over z.any; use .catchall for extras).
+- Diagnostics and redaction:
+  - --trace prints layer order and per-key origins with masked values.
+  - -V/--verbose enables a friendlier trace subset and entropy warnings.
+  - Redaction: mask secret-like keys (defaults configurable). Presentation-only.
+  - Entropy warnings: gated by min length and printable ASCII; threshold in bits/char; once per key per run; configurable via diagnostics.
+- Spawn env normalization (children):
+  - Use get-dotenv’s spawn-env helper for tsx inline, serverless offline/package, prettier/typedoc, etc.
+  - Behavior: drop undefined; dedupe Windows env keys case-insensitively (last wins, casing preserved); HOME fallback from USERPROFILE; TMPDIR/TEMP/TMP normalization.
+  - Always pass ctx.dotenv to spawn-env so children see the resolved environment.
+- AWS base plugin (installed by default; inert unless configured):
+  - Inputs from ctx.dotenv and plugins.aws config:
+    - Profile precedence: plugins.aws.profile > AWS_LOCAL_PROFILE > AWS_PROFILE.
+    - Region precedence: plugins.aws.region > AWS_REGION > “aws configure get region --profile …” > plugins.aws.defaultRegion.
+  - Strategy: cli-export (modern AWS CLI) with optional `aws sso login` once when loginOnDemand=true and export just failed (SSO profile).
+  - Publishing:
+    - setEnv (default true): write AWS\_\* and AWS_REGION into process.env.
+    - addCtx (default true): mirror `{ profile, region, credentials }` into ctx.plugins.aws.
+- Stage resolution (dev) — explicit precedence:
+  1. --stage (CLI wins).
+  2. plugins.smoz.stage from get-dotenv config (interpolated; e.g., "${ENV:dev}").
+  3. process.env.STAGE (from overlays/aliases/plugins).
+  4. Default inference: first non-"default" stage; else "dev".
+  - Do not bind -e to stage implicitly. Teams can opt-in via plugins.smoz.stage or by aliasing ENV→STAGE when unset.
+  - Serverless packaging: inject STAGE from provider.stage/provider.environment instead of carrying it in stage.params (fixture/template follow-on).
+- Exposed utility commands (get-dotenv plugins):
+  - cmd:
+    - Execute a command with the composed env; default shell selection is OS-aware (no shell, default shell, or explicit shell string).
+    - Quoting guidance: use single quotes to prevent outer-shell expansion (POSIX & PowerShell). In npm scripts, pass flags to smoz, not the child, by placing them before `--`.
+  - batch:
+    - Concurrency `--concurrency <n>` (default 1), optional `--live` streaming, buffered capture with end-of-run summary.
+    - Dedicate logs per job under a stable temp/build area if configured by get-dotenv; smoz does not alter the batch plugin’s defaults.
 
-### Config system (additive)
+Implementation note (release posture):
 
-- Packaged root defaults (library root):
-  - getdotenv.config.json|yaml|yml|js|ts at package root.
-  - No `.local` at package level; no parent above it.
-  - Must validate under schemas; missing required defaults are fatal (packaging error).
-
-- Consumer repo configs (project root):
-  - Public: getdotenv.config.{json|yaml|yml|js|ts}
-  - Local (gitignored): getdotenv.config.local.{json|yaml|yml|js|ts}
-  - JSON/YAML: pure data only.
-  - JS/TS: may export `dynamic` (GetDotenvDynamic) and optional CLI-level hooks if retained.
-
-- Config-provided values as an alternative to .env files (pure data):
-  - vars?: Record<string, string> (global, public)
-  - envVars?: Record<string, Record<string,string>> (per-env, public)
-  - Private values live in .local configs with the same keys (privacy derives from filename).
-  - These insert into env overlay with three axes:
-    1. kind: dynamic > env > global
-    2. privacy: local > public
-    3. source: config > file
-  - Programmatic dynamic remains the top of the dynamic tier.
-
-- Dynamic from config (JS/TS only):
-  - `dynamic?: GetDotenvDynamic` permitted only in JS/TS configs.
-  - Order among dynamics (highest → lowest):
-    - programmatic dynamic (passed to getDotenv)
-    - config dynamic (JS/TS configs; .local still prioritized via privacy within the “config” source)
-    - file dynamic (dynamicPath)
-
-### Backward compatibility
-
-- Preserve existing surfaces:
-  - getDotenv(options): no signature/semantic changes.
-  - Shipped getdotenv CLI: same flags, help text (wording may be clarified), behavior and outputs.
-  - generateGetDotenvCli(...) remains available; may be backed internally by the new host but must be functionally identical.
-- New host (GetDotenvCli) and plugins: additive; legacy users are unaffected unless they opt in.
-- Config formats:
-  - Legacy path continues to accept current JSON; loader can be staged to accept YAML/JS/TS + .local as an additive improvement behind a guard.
-
-## Concurrency policy (design)
-
-- Default execution for `batch` is sequential for safety and legibility.
-- Concurrency is explicit and opt-in:
-  - `--concurrency <n>` enables a pool (n workers). Default remains 1.
-  - When `n > 1`, force capture and aggregate per-job output (buffer, then flush).
-  - Write full logs per job to `.tsbuild/batch/<run-id>/<sanitized-path>.{out,err}.log`.
-  - Provide `--live` to stream interleaved updates with `[cwd]` prefixes (optional).
-- Failure policy:
-  - Honor `--ignore-errors`. When false (default), bail early on first failure or stop launching new jobs; print a summary.
-  - When true, run all and summarize at the end.
-- Per-script hints:
-  - Extend scripts entries with `parallel?: boolean` and `concurrency?: number`.
-  - When hints are present, they override the global concurrency for that script (e.g., force sequential for heavy tasks like `npm install`).
-
-## AWS base plugin (plugin-first host)
-
-Purpose
-
-- Provide a minimal “auth context” for AWS that other plugins can rely on, without bundling any domain logic (e.g., secrets, SQS, etc.) and without adding an AWS SDK dependency here.
-- Works only with the plugin-first host (GetDotenvCli definePlugin). The generated CLI path is explicitly out of scope; existing projects using it will continue to own their AWS wiring until they migrate to the host.
-
-Behavior (no commands)
-
-- Implemented as a base plugin with no commands. It runs once per invocation in `afterResolve`, after dotenv overlays/config have been applied.
-- It resolves profile/region, acquires credentials (supporting SSO and non‑SSO profiles), publishes them to process.env when enabled, and mirrors them into `ctx.plugins.aws` for programmatic consumers.
-
-Inputs and where they come from
-
-- Values may come from dotenv (public/local) or getdotenv config (JSON/YAML/TS/JS):
-  - Profiles typically live in local dotenv per environment (e.g., `.env.local`, `.env.dev.local`), since they are developer‑machine specifics.
-  - Region is non‑secret and may live in public dotenv or config.
-  - The plugin reads the already‑resolved dotenv (`ctx.dotenv`) first, then optional config overrides under `plugins.aws`.
-
-Resolution precedence
-
-- Profile:
-  1. `plugins.aws.profile` (explicit override in getdotenv config)
-  2. `ctx.dotenv['AWS_LOCAL_PROFILE']` (default key)
-  3. `ctx.dotenv['AWS_PROFILE']` (fallback key)
-  4. undefined (no profile; acquisition is skipped)
-- Region:
-  1. `plugins.aws.region` (explicit override)
-  2. `ctx.dotenv['AWS_REGION']` (default key)
-  3. If a profile was resolved and region is still missing, best‑effort `aws configure get region --profile <profile>`
-  4. `plugins.aws.defaultRegion` (optional fallback)
-  5. undefined
-- Advanced (optional) key renames:
-  - `plugins.aws.profileKey` (default `'AWS_LOCAL_PROFILE'`)
-  - `plugins.aws.profileFallbackKey` (default `'AWS_PROFILE'`)
-  - `plugins.aws.regionKey` (default `'AWS_REGION'`)
-    Most teams can ignore these and use defaults.
-
-Credentials acquisition (SSO and non‑SSO)
-
-- Env‑first: if `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are already set in `process.env` (e.g., provided by CI or earlier tooling), use them and stop.
-- Otherwise, when a `profile` is present and strategy is enabled:
-  1. Try CLI export (works for SSO, role, and static profiles on modern AWS CLI):
-     `aws configure export-credentials --profile <profile>` (no shell; argv array).
-     If it succeeds, use the returned creds.
-  2. If export fails:
-     - Detect SSO hints for the profile (best‑effort, e.g., `sso_session`, `sso_start_url`).
-     - If it appears SSO and `plugins.aws.loginOnDemand === true`, run `aws sso login --profile <profile>` (once), then retry export once.
-     - If not SSO (static profile) or login is disabled, fall back to static reads:
-       `aws configure get aws_access_key_id/secret_access_key/session_token` with `--profile <profile>`.
-- If none of the above produce credentials, leave env untouched and do not publish a credentials bag (plugin is inert).
-
-Publishing outputs
-
-- `setEnv` (default true): when enabled, the plugin writes the resolved values to `process.env`:
-  - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN?`
-  - `AWS_REGION` (and optionally `AWS_DEFAULT_REGION` for broader compatibility)
-- `addCtx` (default true): publish a programmatic mirror under `ctx.plugins.aws`:
-  ```
-  {
-    profile?: string,
-    region?: string,
-    credentials?: {
-      accessKeyId: string,
-      secretAccessKey: string,
-      sessionToken?: string
-    }
-  }
-  ```
-
-Configuration schema (plugins.aws)
-
-- `profile?: string` (explicit override)
-- `region?: string` (explicit override)
-- `defaultRegion?: string`
-- `profileKey?: string` (default `'AWS_LOCAL_PROFILE'`)
-- `profileFallbackKey?: string` (default `'AWS_PROFILE'`)
-- `regionKey?: string` (default `'AWS_REGION'`)
-- `strategy?: 'cli-export' | 'none'` (default `'cli-export'`)
-- `loginOnDemand?: boolean` (default `false`): only attempts `aws sso login` when export just failed and the profile appears to be SSO; never logs in when creds are already valid.
-- `setEnv?: boolean` (default `true`)
-- `addCtx?: boolean` (default `true`)
-
-Notes
-
-- No commands are registered by this base plugin; domain plugins (e.g., a wrapped Secrets Manager plugin) can be installed separately and will consume the env/ctx provided by this base.
-- The plugin keeps no AWS SDK runtime dependency; downstream libraries may bring SDKs as needed.
+- The get-dotenv host replaces the previous Commander-based CLI in one release (no staging/fallback). All smoz commands/flags remain, now with additional cmd and batch commands available.
