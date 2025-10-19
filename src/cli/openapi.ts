@@ -6,6 +6,8 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { buildSpawnEnvMaybe } from '@/src/cli/util/spawnEnv';
+
 const findTsxCli = (
   root: string,
 ): { cmd: string; args: string[]; shell: boolean } => {
@@ -41,10 +43,15 @@ export const runOpenapi = async (
   if (opts?.verbose) {
     console.log(`[openapi] ${[cmd, ...args].join(' ')}`);
   }
+
+  // Build a normalized child env (prefer get-dotenv; fallback preserves prior behavior).
+  const env = await buildSpawnEnvMaybe({});
+
   const res = spawnSync(cmd, args, {
     cwd: root,
     stdio: 'inherit',
     shell,
+    env,
   });
   if (typeof res.status !== 'number' || res.status !== 0) {
     const code =

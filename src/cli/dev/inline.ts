@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 import { packageDirectorySync } from 'package-directory';
 
+import { buildSpawnEnvMaybe } from '@/src/cli/util/spawnEnv';
 export const resolveTsxCommand = (
   root: string,
   tsEntry: string,
@@ -73,22 +74,25 @@ export const launchInline = async (
 
   const makeTsx = () => {
     const { cmd, args, shell } = resolveTsxCommand(root, entry);
-    return spawn(cmd, args, {
-      cwd: root,
-      stdio: 'inherit',
-      shell,
-      // Enable tsconfig paths for "@/..." during TS fallback.
-      env: {
+    return (async () => {
+      const env = await buildSpawnEnvMaybe({
         ...process.env,
+        // Enable tsconfig paths for "@/..." during TS fallback.
         TSX_TSCONFIG_PATHS: '1',
         SMOZ_STAGE: opts.stage,
         SMOZ_PORT: String(opts.port),
         SMOZ_VERBOSE: opts.verbose ? '1' : '',
-      },
-    });
+      });
+      return spawn(cmd, args, {
+        cwd: root,
+        stdio: 'inherit',
+        shell,
+        env,
+      });
+    })();
   };
 
-  let child = makeTsx();
+  let child = await makeTsx();
   const close = async () =>
     new Promise<void>((resolve) => {
       // If the process has already exited (exitCode set), resolve immediately.
@@ -106,7 +110,7 @@ export const launchInline = async (
     });
   const restart = async () => {
     await close();
-    child = makeTsx();
+    child = await makeTsx();
   };
   return { close, restart };
 };

@@ -108,3 +108,10 @@ When updated: 2025-10-19T00:00:00Z
     until the host+plugins are fully wired.
   - Next up: instantiate the real host with plugins (AWS base; smoz commands)
     and move command parsing/flags to the host. Adopt spawn-env and stage precedence.
+
+- Spawn-env normalization (first pass):
+  - Introduced a reusable helper (src/cli/util/spawnEnv.ts) that prefers get-dotenv’s
+    buildSpawnEnv when available and falls back to prior normalization.
+  - Wired into inline (tsx), serverless-offline runner, and the OpenAPI builder spawn
+    so child processes inherit normalized env. Behavior remains identical where get-dotenv
+    is absent or inert.
