@@ -22,6 +22,7 @@ import { runDev } from './dev/index';
 import { runInit } from './init';
 import { runOpenapi } from './openapi';
 import { runRegister } from './register';
+import { runGetDotenvHost } from './util/getdotenvHost';
 
 type Pkg = { name?: string; version?: string };
 const getRepoRoot = (): string => packageDirectorySync() ?? process.cwd();
@@ -89,6 +90,8 @@ const main = async (): Promise<void> => {
   await ensureGetDotenvLoaded();
 
   const root = getRepoRoot();
+  const pkg = readPkg(root);
+  const branding = `${pkg.name ?? 'smoz'} v${pkg.version ?? '0.0.0'}`;
   const argv = process.argv.slice(2);
   const cmd = argv[0];
 
@@ -99,6 +102,17 @@ const main = async (): Promise<void> => {
 
   try {
     switch (cmd) {
+      case 'cmd':
+      case 'batch': {
+        // Delegate to the get-dotenv plugin-first host for these commands.
+        try {
+          await runGetDotenvHost(argv, branding);
+        } catch (e) {
+          console.error((e as Error).message);
+          process.exitCode = 1;
+        }
+        return;
+      }
       case 'register': {
         const { wrote } = await runRegister(root);
         console.log(

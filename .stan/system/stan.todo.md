@@ -36,6 +36,8 @@ When updated: 2025-10-19T00:00:00Z
   - cmd: honor shell semantics from get-dotenv; ensure quoting guidance documented (single quotes to avoid outer-shell expansion).
   - batch: implement flags `--concurrency <n>` (default 1) and `--live`; verify buffered capture and end-of-run summary paths; keep logs consistent with get-dotenv.
 
+  (Initial step landed below: cmd/batch delegation via host; smoz command plugins to follow.)
+
 - Serverless STAGE simplification (follow-on)
   - Inject STAGE from provider.stage/provider.environment.
   - Remove STAGE from stage.params/schema in the app fixture and template.
@@ -114,4 +116,10 @@ When updated: 2025-10-19T00:00:00Z
     buildSpawnEnv when available and falls back to prior normalization.
   - Wired into inline (tsx), serverless-offline runner, and the OpenAPI builder spawn
     so child processes inherit normalized env. Behavior remains identical where get-dotenv
-    is absent or inert.
+    is absent or inert.
+
+- Delegate cmd/batch to get-dotenv host:
+  - Added an adapter that invokes the plugin-first host when the subcommand is
+    `cmd` or `batch`, passing a branding string (“<pkg> v<version>”).
+  - Leaves existing smoz commands intact; next step is to install smoz plugins on
+    the host and route all CLI through it.

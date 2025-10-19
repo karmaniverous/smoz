@@ -94,3 +94,5 @@ When updated: 2025-10-19T00:00:00Z
     helpers), and `src/cli/dev/inline.ts` (inline/tsx).
   - Updated the CLI entry to import from the new orchestrator and adjusted tests to
     the new module boundaries. Removed the old `src/cli/dev.ts`.
+
+- Docs: improved “Plugin-first host” page with a wiring guide for included plugins (cmd, batch, aws, init), config examples, usage, and pitfalls.
