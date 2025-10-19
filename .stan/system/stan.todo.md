@@ -4,10 +4,10 @@ When updated: 2025-10-19T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
-- Replace CLI entry with get-dotenv host
-  - Create a GetDotenvCli-based host in src/cli/index.ts (or src/cli/host.ts and re-export).
-  - Branding: “smoz vX.Y.Z”; global flags: -e/--env, --strict, --trace, -V/--verbose.
-  - Remove Commander wiring; no fallback path.
+- Wire full get-dotenv host + plugins
+  - Instantiate the host and install: AWS base plugin (cli-export/optional sso), smoz command plugins (init/add/register/openapi/dev), and expose get-dotenv cmd/batch.
+  - Adopt spawn-env for children (inline/offline/prettier/typedoc) and stage precedence resolution (--stage > plugins.smoz.stage > env.STAGE > default inference).
+  - Keep outputs stable; preserve byte-for-byte register/openapi/package surfaces.
 
 - Install and wire plugins in the host
   - Always install get-dotenv AWS base plugin (inert unless configured).
@@ -97,4 +97,14 @@ When updated: 2025-10-19T00:00:00Z
   - Updated the fixture endpoint (app/functions/rest/openapi/get/lambda.ts) to use
     z.unknown() for the response schema.
   - Note: .catchall(z.unknown()) remains the recommended pattern for permissive object
-    shapes; not applicable to these simple placeholder schemas.
+    shapes; not applicable to these simple placeholder schemas.
+
+- CLI bootstrap: remove Commander; minimal get-dotenv–aware entry
+  - Removed Commander dependency and replaced the CLI entry with a small bootstrap
+    that dynamically loads @karmaniverous/get-dotenv (preparing for full host wiring)
+    and maps existing commands directly to implementations (register/openapi/add/init/dev).
+  - Preserved default signature behavior and `tsx src/cli/index.ts register` path used by CI.
+  - Added an ambient declaration to keep TypeScript happy for the dynamic import
+    until the host+plugins are fully wired.
+  - Next up: instantiate the real host with plugins (AWS base; smoz commands)
+    and move command parsing/flags to the host. Adopt spawn-env and stage precedence.

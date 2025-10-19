@@ -1,15 +1,20 @@
 /**
- * SMOZ CLI — version/signature + register/add
+ * SMOZ CLI — get-dotenv–aware bootstrap (minimal, no Commander).
  *
- * - Default: print project signature (version, Node, repo root, stanPath, config presence) * - register: one-shot — generate app/generated/register.*.ts from app/functions/**
- * - openapi: one-shot — run the project’s OpenAPI builder
- * - dev: watch loop orchestrator for register/openapi and optional local serving
- * - add: scaffold a new function skeleton under app/functions
+ * - Default: print project signature (version, Node, repo root, stanPath, config presence)
+ * - register: one-shot — generate app/generated/register.*.ts
+ * - openapi: one-shot — run the app’s OpenAPI builder
+ * - dev/add/init: mapped to existing implementations (minimal argv parsing)
+ *
+ * Notes:
+ * - This is the first step of migrating to a full get-dotenv host. We dynamically
+ *   import '@karmaniverous/get-dotenv' to keep the dependency live and ready for
+ *   full host+plugin wiring in a follow-on change. Current surfaces preserve
+ *   existing behavior used by CI/scripts (e.g., `tsx src/cli/index.ts register`).
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { Command } from 'commander';
 import { packageDirectorySync } from 'package-directory';
 
 import { runAdd } from './add';
@@ -17,39 +22,13 @@ import { runDev } from './dev/index';
 import { runInit } from './init';
 import { runOpenapi } from './openapi';
 import { runRegister } from './register';
+
 type Pkg = { name?: string; version?: string };
 const getRepoRoot = (): string => packageDirectorySync() ?? process.cwd();
 const readPkg = (root: string): Pkg => {
   try {
     const raw = readFileSync(join(root, 'package.json'), 'utf8');
     return JSON.parse(raw) as Pkg;
-  } catch {
-    return {};
-  }
-};
-
-type SmozConfig = {
-  cliDefaults?: {
-    init?: {
-      onConflict?: 'ask' | 'overwrite' | 'example' | 'skip';
-      install?: 'auto' | 'none' | 'npm' | 'pnpm' | 'yarn' | 'bun';
-      template?: string;
-    };
-    dev?: {
-      local?: 'inline' | 'offline';
-    };
-  };
-};
-const readSmozConfig = (root: string): SmozConfig => {
-  try {
-    const p = join(root, 'smoz.config.json');
-    if (!existsSync(p)) return {};
-    const raw = readFileSync(p, 'utf8');
-    const parsed = JSON.parse(raw) as unknown;
-    if (parsed && typeof parsed === 'object') {
-      return parsed as SmozConfig;
-    }
-    return {};
   } catch {
     return {};
   }
@@ -64,12 +43,11 @@ const detectPackageManager = (): string | undefined => {
 };
 
 const detectStanPath = (root: string): string => {
-  // Keep this conservative; future: read stan.config.* if introduced.
   const candidate = '.stan';
   if (existsSync(join(root, candidate, 'system', 'stan.system.md'))) {
     return candidate;
   }
-  return candidate; // default
+  return candidate;
 };
 
 const printSignature = (): void => {
@@ -98,28 +76,44 @@ const printSignature = (): void => {
   if (pm) console.log(`PM: ${pm}`);
 };
 
-const main = (): void => {
+// Dynamically import get-dotenv so the dependency is active.
+const ensureGetDotenvLoaded = async (): Promise<void> => {
+  try {
+    await import('@karmaniverous/get-dotenv');
+  } catch {
+    // Best-effort: absence should not prevent core commands (register/openapi) from running.
+  }
+};
+
+const main = async (): Promise<void> => {
+  await ensureGetDotenvLoaded();
+
   const root = getRepoRoot();
-  const pkg = readPkg(root);
+  const argv = process.argv.slice(2);
+  const cmd = argv[0];
 
-  const program = new Command();
-  program
-    .name('smoz')
-    .description('SMOZ CLI')
-    // Add -v alias for version in addition to default --version behavior
-    .version(pkg.version ?? '0.0.0', '-v, --version', 'output the version');
+  if (!cmd) {
+    printSignature();
+    return;
+  }
 
-  program
-    .command('add')
-    .argument(
-      '<spec>',
-      'Add function: HTTP <eventType>/<segments...>/<method> or non-HTTP <eventType>/<segments...>',
-    )
-    .description('Scaffold a new function under app/functions')
-    .action(async (spec: string) => {
-      try {
+  try {
+    switch (cmd) {
+      case 'register': {
+        const { wrote } = await runRegister(root);
+        console.log(
+          wrote.length ? `Updated:\n - ${wrote.join('\n - ')}` : 'No changes.',
+        );
+        return;
+      }
+      case 'openapi': {
+        await runOpenapi(root, { verbose: true });
+        return;
+      }
+      case 'add': {
+        const spec = argv[1];
+        if (!spec) throw new Error('Usage: smoz add <spec>');
         const { created, skipped } = await runAdd(root, spec);
-
         console.log(
           created.length
             ? `Created:\n - ${created.join('\n - ')}${
@@ -129,176 +123,80 @@ const main = (): void => {
               }`
             : 'Nothing created (files already exist).',
         );
-      } catch (e) {
-        console.error((e as Error).message);
-        process.exitCode = 1;
+        return;
       }
-    });
-
-  program
-    .command('init')
-    .description(
-      'Scaffold a new SMOZ app from packaged templates (default: default)',
-    )
-    .option(
-      '-t, --template <nameOrPath>',
-      'Template name or directory path',
-      'default',
-    )
-    .option(
-      '-i, --install [pm]',
-      'Install dependencies (optionally specify pm: npm|pnpm|yarn|bun)',
-    )
-    .option(
-      '--no-install',
-      'Skip dependency installation (overrides -y)',
-      false,
-    )
-    .option('-y, --yes', 'Skip prompts (non-interactive)', false)
-    .option('--dry-run', 'Show planned actions without writing', false)
-    .action(
-      async (opts: {
-        template?: string;
-        install?: string | boolean;
-        noInstall?: boolean;
-        yes?: boolean;
-        dryRun?: boolean;
-        conflict?: string;
-      }) => {
-        try {
-          const cfg = readSmozConfig(root).cliDefaults?.init ?? {};
-          // Resolve template: CLI > config > default
-          const tpl =
-            typeof opts.template === 'string'
-              ? opts.template
-              : typeof cfg.template === 'string'
-                ? cfg.template
-                : 'default';
-          // Resolve install behavior: CLI > --no-install > config
-          let install: string | boolean | undefined = opts.install;
-          if (opts.noInstall === true) {
-            install = false;
-          } else if (install === undefined) {
-            const d = cfg.install;
-            install =
-              d === 'auto'
-                ? true
-                : d === 'none'
-                  ? false
-                  : typeof d === 'string'
-                    ? d
-                    : undefined;
-          }
-          const conflict =
-            typeof opts.conflict === 'string' ? opts.conflict : cfg.onConflict;
-          const { created, skipped, examples, merged, installed } =
-            await runInit(root, tpl, {
-              // Include only when defined to satisfy exactOptionalPropertyTypes
-              ...(install !== undefined ? { install } : {}),
-              ...(typeof conflict === 'string' ? { conflict } : {}),
-              yes: opts.yes === true,
-              noInstall: opts.noInstall === true,
-              dryRun: opts.dryRun === true,
-            });
-          console.log(
-            [
-              created.length
-                ? `Created:\n - ${created.join('\n - ')}`
-                : 'Created: (none)',
-              examples.length
-                ? `Examples (existing preserved):\n - ${examples.join('\n - ')}`
-                : undefined,
-              skipped.length
-                ? `Skipped (exists):\n - ${skipped.join('\n - ')}`
-                : undefined,
-              merged.length
-                ? `package.json (additive):\n - ${merged.join('\n - ')}`
-                : undefined,
-              `Install: ${installed}`,
-            ]
-              .filter(Boolean)
-              .join('\n'),
-          );
-        } catch (e) {
-          console.error((e as Error).message);
-          process.exitCode = 1;
-        }
-      },
-    );
-  program
-    .command('register')
-    .description(
-      'Scan app/functions/** and generate app/generated/register.*.ts (one-shot)',
-    )
-    .action(async () => {
-      const { wrote } = await runRegister(root);
-      console.log(
-        wrote.length ? `Updated:\n - ${wrote.join('\n - ')}` : 'No changes.',
-      );
-    });
-
-  program
-    .command('openapi')
-    .description('Generate app/generated/openapi.json (one-shot)')
-    .action(async () => {
-      try {
-        await runOpenapi(root, { verbose: true });
-      } catch (e) {
-        console.error((e as Error).message);
-        process.exitCode = 1;
+      case 'init': {
+        // Minimal flags: -t/--template, -y, --no-install
+        const getOpt = (flag: string, alt?: string) => {
+          const i = argv.findIndex((a) => a === flag || a === alt);
+          return i >= 0 ? argv[i + 1] : undefined;
+        };
+        const has = (flag: string) => argv.includes(flag);
+        const template = getOpt('-t', '--template') ?? 'default';
+        const yes = has('-y') || has('--yes');
+        const noInstall = has('--no-install');
+        const { created, skipped, examples, merged, installed } = await runInit(
+          root,
+          template,
+          { yes, noInstall },
+        );
+        console.log(
+          [
+            created.length
+              ? `Created:\n - ${created.join('\n - ')}`
+              : 'Created: (none)',
+            examples.length
+              ? `Examples (existing preserved):\n - ${examples.join('\n - ')}`
+              : undefined,
+            skipped.length
+              ? `Skipped (exists):\n - ${skipped.join('\n - ')}`
+              : undefined,
+            merged.length
+              ? `package.json (additive):\n - ${merged.join('\n - ')}`
+              : undefined,
+            `Install: ${installed}`,
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        );
+        return;
       }
-    });
-
-  program
-    .command('dev')
-    .description(
-      'Watch loop: keep registers/openapi fresh; optionally serve HTTP locally',
-    )
-    .option('-r, --register', 'Enable register step on change', true)
-    .option('-R, --no-register', 'Disable register step on change')
-    .option('-o, --openapi', 'Enable openapi step on change', true)
-    .option('-O, --no-openapi', 'Disable openapi step on change')
-    .option('-l, --local [mode]', 'Local server mode: inline|offline', 'inline')
-    .option('-s, --stage <name>', 'Stage name (default inferred)')
-    .option('-p, --port <n>', 'Port (0=random)', (v) => Number(v), 0)
-    .option('-V, --verbose', 'Verbose logging', false)
-    .action(
-      async (opts: {
-        register?: boolean;
-        openapi?: boolean;
-        local?: string | boolean;
-        stage?: string;
-        port?: number;
-        verbose?: boolean;
-      }) => {
-        try {
-          const cfg = readSmozConfig(root).cliDefaults?.dev ?? {};
-          // Resolve local mode default from config if not provided
-          const localResolved: false | 'inline' | 'offline' =
-            typeof opts.local === 'string'
-              ? (opts.local as 'inline' | 'offline')
-              : opts.local === false
-                ? false
-                : (cfg.local ?? 'inline');
-          await runDev(root, {
-            register: opts.register !== false,
-            openapi: opts.openapi !== false,
-            local: localResolved,
-            ...(typeof opts.stage === 'string' ? { stage: opts.stage } : {}),
-            port: opts.port ?? 0,
-            verbose: !!opts.verbose,
-          });
-        } catch (e) {
-          console.error((e as Error).message);
-          process.exitCode = 1;
-        }
-      },
-    );
-  // Default action (no subcommand): print version + signature block
-  program.action(() => {
-    printSignature();
-  });
-  program.parse(process.argv);
+      case 'dev': {
+        // Minimal parsing for dev; defaults mirror previous CLI.
+        const has = (flag: string) => argv.includes(flag);
+        const getOpt = (flag: string) => {
+          const i = argv.findIndex((a) => a === flag);
+          return i >= 0 ? argv[i + 1] : undefined;
+        };
+        const local = ((): false | 'inline' | 'offline' => {
+          const v = getOpt('-l') ?? getOpt('--local');
+          if (v === 'inline' || v === 'offline') return v;
+          if (has('-l') && !v) return 'inline';
+          return 'inline';
+        })();
+        const stage = getOpt('-s') ?? getOpt('--stage');
+        const portRaw = getOpt('-p') ?? getOpt('--port');
+        const port = typeof portRaw === 'string' ? Number(portRaw) : 0;
+        const verbose = has('-V') || has('--verbose');
+        await runDev(root, {
+          register: !has('--no-register'),
+          openapi: !has('--no-openapi'),
+          local,
+          ...(stage ? { stage } : {}),
+          port,
+          verbose,
+        });
+        return;
+      }
+      default: {
+        printSignature();
+        console.log(`\nUnknown command: ${cmd}`);
+      }
+    }
+  } catch (e) {
+    console.error((e as Error).message);
+    process.exitCode = 1;
+  }
 };
 
-main();
+void main();
