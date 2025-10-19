@@ -92,8 +92,8 @@ import { z } from 'zod';
 
 import { app, APP_ROOT_ABS } from '@/app/config/app.config';
 
-export const eventSchema = z.any();
-export const responseSchema = z.any();
+export const eventSchema = z.unknown();
+export const responseSchema = z.unknown();
 
 export const fn = app.defineFunction({
   eventType: '${token}',
@@ -176,8 +176,8 @@ import { z } from 'zod';
 
 import { app, APP_ROOT_ABS } from '@/app/config/app.config';
 
-export const eventSchema = z.any();
-export const responseSchema = z.any();
+export const eventSchema = z.unknown();
+export const responseSchema = z.unknown();
 
 export const fn = app.defineFunction({
   eventType: '${token}',

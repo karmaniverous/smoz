@@ -36,10 +36,6 @@ When updated: 2025-10-19T00:00:00Z
   - cmd: honor shell semantics from get-dotenv; ensure quoting guidance documented (single quotes to avoid outer-shell expansion).
   - batch: implement flags `--concurrency <n>` (default 1) and `--live`; verify buffered capture and end-of-run summary paths; keep logs consistent with get-dotenv.
 
-- Remove deprecated Zod usage
-  - Replace any lingering z.any() placeholders in templates/docs with z.unknown().
-  - Use .catchall(z.unknown()) instead of .passthrough() in examples/doc snippets.
-
 - Serverless STAGE simplification (follow-on)
   - Inject STAGE from provider.stage/provider.environment.
   - Remove STAGE from stage.params/schema in the app fixture and template.
@@ -94,3 +90,11 @@ When updated: 2025-10-19T00:00:00Z
     helpers), and `src/cli/dev/inline.ts` (inline/tsx).
   - Updated the CLI entry to import from the new orchestrator and adjusted tests to
     the new module boundaries. Removed the old `src/cli/dev.ts`.
+
+- Remove deprecated Zod usage (placeholders):
+  - Replaced z.any() with z.unknown() in CLI generator templates (src/cli/add.ts) so new
+    endpoints scaffold with Zod v4‑preferred schemas.
+  - Updated the fixture endpoint (app/functions/rest/openapi/get/lambda.ts) to use
+    z.unknown() for the response schema.
+  - Note: .catchall(z.unknown()) remains the recommended pattern for permissive object
+    shapes; not applicable to these simple placeholder schemas.

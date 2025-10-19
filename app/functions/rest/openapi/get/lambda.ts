@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { app } from '@/app/config/app.config';
 import { APP_ROOT_ABS } from '@/app/config/app.config';
 
-export const responseSchema = z.any();
+export const responseSchema = z.unknown();
 
 export const fn = app.defineFunction({
   functionName: 'openapi_get',
