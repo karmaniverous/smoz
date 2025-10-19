@@ -5,7 +5,7 @@ import chokidar from 'chokidar';
 import { launchOffline, type OfflineRunner } from '../local/offline';
 import { runOpenapi } from '../openapi';
 import { runRegister } from '../register';
-import { inferDefaultStage, seedEnvForStage } from './env';
+import { resolveStage, seedEnvForStage } from './env';
 import { launchInline } from './inline';
 export { resolveTsxCommand } from './inline';
 
@@ -23,10 +23,11 @@ export const runDev = async (
   },
 ): Promise<void> => {
   const verbose = !!opts.verbose;
-  const stage =
-    typeof opts.stage === 'string'
-      ? opts.stage
-      : inferDefaultStage(root, verbose);
+  const stage = await resolveStage(
+    root,
+    typeof opts.stage === 'string' ? opts.stage : undefined,
+    verbose,
+  );
   // Seed env with concrete values for the selected stage.
   try {
     await seedEnvForStage(root, stage, verbose);

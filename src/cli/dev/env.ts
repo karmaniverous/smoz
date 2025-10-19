@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -7,6 +8,57 @@ export const inferDefaultStage = (root: string, verbose: boolean): string => {
   if (verbose)
     console.log('[dev] inferring stage: dev (explicit --stage overrides)');
   return 'dev';
+};
+
+/**
+ * Resolve the effective stage for dev according to precedence:
+ * 1) CLI --stage
+ * 2) getdotenv.config.json -> plugins.smoz.stage (string)
+ * 3) process.env.STAGE
+ * 4) inferDefaultStage() fallback ("dev")
+ *
+ * Notes:
+ * - We intentionally read only the JSON variant to avoid adding YAML/TS loaders
+ *   to the CLI runtime. JS/TS config will be handled by the get-dotenv host
+ *   once the full plugin-first path is wired; this probe is a safe, minimal
+ *   bridge that preserves current behavior when the file is absent.
+ */
+export const resolveStage = async (
+  root: string,
+  cliStage: string | undefined,
+  verbose: boolean,
+): Promise<string> => {
+  if (typeof cliStage === 'string' && cliStage.trim().length > 0) {
+    if (verbose) console.log(`[dev] stage (cli): ${cliStage}`);
+    return cliStage;
+  }
+
+  // getdotenv.config.json → plugins.smoz.stage
+  try {
+    const cfgPath = path.resolve(root, 'getdotenv.config.json');
+    if (existsSync(cfgPath)) {
+      const raw = readFileSync(cfgPath, 'utf8');
+      const parsed = JSON.parse(raw) as {
+        plugins?: { smoz?: { stage?: unknown } };
+      };
+      const fromCfg = parsed.plugins?.smoz?.stage;
+      if (typeof fromCfg === 'string' && fromCfg.trim().length > 0) {
+        if (verbose) console.log(`[dev] stage (config): ${fromCfg}`);
+        return fromCfg.trim();
+      }
+    }
+  } catch {
+    // best-effort; fall through
+  }
+
+  const envStage =
+    typeof process.env.STAGE === 'string' ? process.env.STAGE : undefined;
+  if (envStage && envStage.trim().length > 0) {
+    if (verbose) console.log(`[dev] stage (env): ${envStage}`);
+    return envStage.trim();
+  }
+
+  return inferDefaultStage(root, verbose);
 };
 
 export const seedEnvForStage = async (

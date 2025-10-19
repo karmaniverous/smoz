@@ -8,8 +8,9 @@
  */
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
+
+import { buildSpawnEnvMaybe } from '@/src/cli/util/spawnEnv';
 
 export type OfflineRunner = {
   restart: () => Promise<void>;
@@ -64,7 +65,7 @@ export const launchOffline = async (
     return { cmd, args, shell };
   };
 
-  let child = spawnOffline(root, makeCmd(), opts.verbose);
+  let child = await spawnOffline(root, makeCmd(), opts.verbose);
 
   const close = async (): Promise<void> =>
     new Promise<void>((resolve) => {
@@ -84,46 +85,30 @@ export const launchOffline = async (
 
   const restart = async (): Promise<void> => {
     await close();
-    child = spawnOffline(root, makeCmd(), opts.verbose);
+    child = await spawnOffline(root, makeCmd(), opts.verbose);
   };
 
   return { restart, close };
 };
 
-const spawnOffline = (
+const spawnOffline = async (
   root: string,
   cmd: { cmd: string; args: string[]; shell: boolean },
   verbose: boolean,
-) => {
-  // Inherit the parent env, but ensure temp variables are present.
-  // Some toolchains (e.g., tsx/esbuild invoked under offline) interpolate TEMP/TMP,
-  // and if they are undefined, they may create literal "undefined\\temp\\..." paths
-  // relative to CWD. Use os.tmpdir() as a safe fallback.
+): Promise<ReturnType<typeof spawn>> => {
+  // Normalize child environment via get-dotenv when available; safe fallback otherwise.
   const baseEnv: NodeJS.ProcessEnv = { ...process.env };
-  const tmp = os.tmpdir();
-  // Cross-platform default
-  if (!baseEnv.TMPDIR) baseEnv.TMPDIR = tmp;
-  // Windows defaults
-  if (process.platform === 'win32') {
-    if (!baseEnv.TEMP) baseEnv.TEMP = tmp;
-    if (!baseEnv.TMP) baseEnv.TMP = tmp;
-    // Some nested toolchains derive cache roots from these when TMP/TEMP are absent
-    if (!baseEnv.LOCALAPPDATA) baseEnv.LOCALAPPDATA = tmp;
-    if (!baseEnv.USERPROFILE) baseEnv.USERPROFILE = tmp;
-  } else {
-    // POSIX: some tools fall back to HOME for caches when TMPDIR isn't used
-    if (!baseEnv.HOME) baseEnv.HOME = tmp;
-  }
+  const childEnv = await buildSpawnEnvMaybe(baseEnv);
 
   // Optional diagnostics to verify the child sees sane temp-related envs
   if (verbose) {
     const snap = {
-      TMPDIR: baseEnv.TMPDIR,
-      TEMP: baseEnv.TEMP,
-      TMP: baseEnv.TMP,
-      HOME: baseEnv.HOME,
-      USERPROFILE: baseEnv.USERPROFILE,
-      LOCALAPPDATA: baseEnv.LOCALAPPDATA,
+      TMPDIR: childEnv.TMPDIR,
+      TEMP: childEnv.TEMP,
+      TMP: childEnv.TMP,
+      HOME: childEnv.HOME,
+      USERPROFILE: childEnv.USERPROFILE,
+      LOCALAPPDATA: childEnv.LOCALAPPDATA,
     };
     process.stdout.write(`[offline] env snapshot: ${JSON.stringify(snap)}\n`);
   }
@@ -132,7 +117,7 @@ const spawnOffline = (
     cwd: root,
     shell: cmd.shell,
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: baseEnv,
+    env: childEnv,
   });
 
   const prefix = '[offline] ';
