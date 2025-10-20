@@ -114,7 +114,7 @@ When updated: 2025-10-19T00:00:00Z
 - Implement get-dotenv host command registration:
   - Implemented attachSmozCommands to register init/add/register/openapi/dev on a
     generic host (feature-detecting addCommand/registerCommand/command methods).
-  - Mapped flags to existing run* functions, preserving current CLI behaviors:
+  - Mapped flags to existing run\* functions, preserving current CLI behaviors:
     - init: -t/--template, -y/--yes, --no-install, --install <pm>, --conflict <policy>
     - add: positional <spec> (or --spec/-s)
     - register: no flags
@@ -137,7 +137,7 @@ When updated: 2025-10-19T00:00:00Z
     host.commands[...] in tests to satisfy TS “possibly undefined”.
   - Result: typecheck/build/docs no longer flag errors for the new test and plugin,
     while vitest continues to pass. This keeps the build pipeline green given
-    tsconfig.rollup.json includes src/**/*.ts and compiles test sources.
+    tsconfig.rollup.json includes src/\*_/_.ts and compiles test sources.
 
 - Fix host method binding in plugin:
   - Updated install() to invoke host.addCommand / host.registerCommand /
@@ -205,4 +205,11 @@ When updated: 2025-10-19T00:00:00Z
 - Project prompt update:
   - Added a get‑dotenv docs‑first policy instructing the assistant to consult
     https://docs.karmanivero.us/get-dotenv before implementing new CLI‑related
-    functionality, and to prefer host/plugins over custom code when possible.
+    functionality, and to prefer host/plugins over custom code when possible.
+
+- Make host the only path:
+  - Simplified src/cli/index.ts to always delegate to the get-dotenv host via runWithHost.
+  - Removed the SMOZ_HOST toggle and all legacy direct-command mappings
+    (register/openapi/add/init/dev). The host SMOZ plugin is authoritative.
+  - On host errors, the CLI exits non-zero instead of falling back. CI and
+    local flows now rely solely on the plugin-first host and attached commands.
