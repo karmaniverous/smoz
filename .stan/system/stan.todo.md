@@ -139,6 +139,12 @@ When updated: 2025-10-19T00:00:00Z
     while vitest continues to pass. This keeps the build pipeline green given
     tsconfig.rollup.json includes src/**/*.ts and compiles test sources.
 
+- Fix host method binding in plugin:
+  - Updated install() to invoke host.addCommand / host.registerCommand /
+    host.command via .call(host, …) to preserve `this` for class-based hosts.
+  - Prevents silent registration failure in tests where methods rely on `this`,
+    resolving the remaining vitest assertion on missing commands.
+
 - Spawn-env normalization (first pass):
   - Introduced a reusable helper (src/cli/util/spawnEnv.ts) that prefers get-dotenv’s
     buildSpawnEnv when available and falls back to prior normalization.

@@ -42,21 +42,17 @@ const getOpt = (argv: string[], ...flags: string[]): string | undefined => {
 const install = (host: HostLike, name: string, run: Runner): void => {
   try {
     if (typeof host.addCommand === 'function') {
-      const add = host.addCommand as (n: string, r: Runner) => void;
-      add(name, run);
+      (host.addCommand as (n: string, r: Runner) => void).call(host, name, run);
       return;
     }
     if (typeof host.registerCommand === 'function') {
-      const reg = host.registerCommand as (def: {
-        name: string;
-        run: Runner;
-      }) => void;
-      reg({ name, run });
+      (
+        host.registerCommand as (def: { name: string; run: Runner }) => void
+      ).call(host, { name, run });
       return;
     }
     if (typeof host.command === 'function') {
-      const cmd = host.command as (n: string, r: Runner) => void;
-      cmd(name, run);
+      (host.command as (n: string, r: Runner) => void).call(host, name, run);
       return;
     }
   } catch {
