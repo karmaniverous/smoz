@@ -59,12 +59,8 @@ export const runWithHost = async (
     await runGetDotenvHost(argv, branding);
     return true;
   } catch (e) {
-    // Best-effort: signal that we attempted the host path; callers may choose
-    // to fall back to legacy command mapping on failure.
+    // Make host failures fatal for the caller (CLI entry will set non-zero exit).
     const msg = (e as Error).message;
-    // Keep stderr concise; callers print their own diagnostics.
-
-    console.error(`[host] ${msg}`);
-    return true;
+    throw new Error(`[host] ${msg}`);
   }
 };
