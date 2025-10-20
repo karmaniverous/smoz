@@ -12,7 +12,9 @@
  * - Future iterations will construct the host (createCli) and install the
  *   smoz command plugin alongside the AWS base, cmd, and batch plugins.
  */
+import { attachSmozCommands } from '@/src/cli/plugins/smoz';
 import { runGetDotenvHost } from '@/src/cli/util/getdotenvHost';
+void attachSmozCommands; // keep plugin visible to tooling until registration is wired
 
 /**
  * Attempt to run all CLI argv via the get-dotenv host.

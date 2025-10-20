@@ -142,3 +142,8 @@ When updated: 2025-10-19T00:00:00Z
   - CLI entry can route all commands through the host when SMOZ_HOST=1 is set,
     preserving default behavior otherwise. Future iterations will install the AWS base
     plugin and register smoz commands on the host by default.
+
+- Host skeleton housekeeping:
+  - Referenced the skeleton plugin from the host to satisfy static analysis (knip)
+    until full registration is implemented. No behavior change; prepares for the
+    upcoming plugin-first host wiring.
