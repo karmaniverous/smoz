@@ -213,3 +213,9 @@ When updated: 2025-10-19T00:00:00Z
     (register/openapi/add/init/dev). The host SMOZ plugin is authoritative.
   - On host errors, the CLI exits non-zero instead of falling back. CI and
     local flows now rely solely on the plugin-first host and attached commands.
+
+- Host-only hard fail on errors:
+  - Updated src/cli/index.ts to call process.exit(1) on host errors instead of
+    setting process.exitCode only. This ensures shell `&&` chains stop when the
+    get-dotenv host is unavailable or does not expose a known entry point and
+    eliminates any lingering implicit fallback behavior.

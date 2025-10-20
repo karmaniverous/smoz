@@ -32,7 +32,9 @@ const main = async (): Promise<void> => {
     await runWithHost(argv, branding);
   } catch (e) {
     console.error((e as Error).message);
-    process.exitCode = 1;
+    // Hard-fail so shell `&&` chains stop when the host is unavailable
+    // or does not expose a known entry point.
+    process.exit(1);
   }
 };
 
