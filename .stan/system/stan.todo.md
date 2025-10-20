@@ -156,4 +156,9 @@ When updated: 2025-10-19T00:00:00Z
   - runWithHost now prefers a real host via get-dotenv createCli when available,
     attaches the placeholder SMOZ plugin, and runs argv; falls back to the safe
     adapter otherwise. Behavior remains opt-in (SMOZ_HOST=1) and unchanged by
-    default pending full plugin registration.
+    default pending full plugin registration.
+
+- Host opt-in tests:
+  - Added src/cli/host/host.optin.test.ts to exercise both createCli-preferred
+    and adapter-fallback paths, keeping the host iteration safe without changing
+    default CLI behavior.
