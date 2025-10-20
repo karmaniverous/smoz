@@ -44,6 +44,18 @@ How to work in this repo (assistant expectations)
   - Seed process.env from app config during dev exactly as described in the
     requirements; do not invent additional seeding rules.
 
+- get‑dotenv docs‑first policy
+  - When any ambiguity or open question arises regarding get‑dotenv behavior,
+    configuration, or capabilities, consult the official documentation FIRST:
+    https://docs.karmanivero.us/get-dotenv
+  - Before implementing any new CLI‑related functionality, search that
+    documentation to validate whether the capability already exists in
+    get‑dotenv (host, plugins, cmd/batch, AWS integration, config/validation/
+    diagnostics, spawn‑env, stage resolution, etc.). Prefer using or extending
+    the host and plugins over adding custom code in this repository.
+  - Only after validating a true gap should new CLI behavior be implemented;
+    record the rationale in the development plan.
+
 - OpenAPI and contracts
   - OpenAPI is hand‑crafted; never reverse‑generate from Zod. When an endpoint
     changes, ensure its `openapi.ts` remains the source of truth and the
@@ -60,6 +72,7 @@ Pointers to requirements (read before changing related areas)
 - App/registry model — see §2.
 - HTTP middleware order/behavior — see §3.
 - Serverless/OpenAPI aggregators — see §4.
+- get‑dotenv integration and CLI/host usage — see imported get‑dotenv requirements.
 - CLI, dev loop, local modes — see §5.
 - Serverless plugin (register freshness) — see §6.
 - Templates (TS configs, ESLint, placeholders) — see §7.

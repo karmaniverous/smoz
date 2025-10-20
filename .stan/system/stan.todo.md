@@ -166,4 +166,9 @@ When updated: 2025-10-19T00:00:00Z
 - Host opt-in test fixes:
   - Resolved ESLint error by removing the unused createCli mock parameter.
   - Adjusted the fallback-branch mock to export `createCli: undefined`, avoiding
-    “missing export” mock errors and ensuring the adapter path is exercised.
+    “missing export” mock errors and ensuring the adapter path is exercised.
+
+- Project prompt update:
+  - Added a get‑dotenv docs‑first policy instructing the assistant to consult
+    https://docs.karmanivero.us/get-dotenv before implementing new CLI‑related
+    functionality, and to prefer host/plugins over custom code when possible.
