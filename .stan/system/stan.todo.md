@@ -150,4 +150,10 @@ When updated: 2025-10-19T00:00:00Z
 
 - Plugin skeleton cleanup:
   - Removed the default export from src/cli/plugins/smoz.ts to resolve a knip
-    duplicate export warning. The named export remains; no behavior change.
+    duplicate export warning. The named export remains; no behavior change.
+
+- Host path advancement:
+  - runWithHost now prefers a real host via get-dotenv createCli when available,
+    attaches the placeholder SMOZ plugin, and runs argv; falls back to the safe
+    adapter otherwise. Behavior remains opt-in (SMOZ_HOST=1) and unchanged by
+    default pending full plugin registration.
