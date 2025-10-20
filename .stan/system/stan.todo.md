@@ -146,4 +146,8 @@ When updated: 2025-10-19T00:00:00Z
 - Host skeleton housekeeping:
   - Referenced the skeleton plugin from the host to satisfy static analysis (knip)
     until full registration is implemented. No behavior change; prepares for the
-    upcoming plugin-first host wiring.
+    upcoming plugin-first host wiring.
+
+- Plugin skeleton cleanup:
+  - Removed the default export from src/cli/plugins/smoz.ts to resolve a knip
+    duplicate export warning. The named export remains; no behavior change.

@@ -27,5 +27,3 @@ export const attachSmozCommands = (_host: HostLike): void => {
   // - delegate each command to the corresponding run* function
   // - respect stage precedence and spawn-env normalization
 };
-
-export default attachSmozCommands;
