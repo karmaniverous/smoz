@@ -111,6 +111,22 @@ When updated: 2025-10-19T00:00:00Z
   - Next up: instantiate the real host with plugins (AWS base; smoz commands)
     and move command parsing/flags to the host. Adopt spawn-env and stage precedence.
 
+- Implement get-dotenv host command registration:
+  - Implemented attachSmozCommands to register init/add/register/openapi/dev on a
+    generic host (feature-detecting addCommand/registerCommand/command methods).
+  - Mapped flags to existing run* functions, preserving current CLI behaviors:
+    - init: -t/--template, -y/--yes, --no-install, --install <pm>, --conflict <policy>
+    - add: positional <spec> (or --spec/-s)
+    - register: no flags
+    - openapi: -V/--verbose
+    - dev: -r/--register | -R/--no-register, -o/--openapi | -O/--no-openapi,
+      -l/--local [inline|offline|false], -s/--stage <name>, -p/--port <n>, -V/--verbose
+  - Delegation ensures stage precedence and spawn-env normalization remain honored
+    via existing helpers (resolveStage/buildSpawnEnvMaybe); no behavior changes to
+    current code paths.
+  - Added unit tests (src/cli/plugins/smoz.attach.test.ts) with a fake host to assert
+    registration and delegation without changing defaults.
+
 - Spawn-env normalization (first pass):
   - Introduced a reusable helper (src/cli/util/spawnEnv.ts) that prefers get-dotenv’s
     buildSpawnEnv when available and falls back to prior normalization.
