@@ -42,15 +42,21 @@ const getOpt = (argv: string[], ...flags: string[]): string | undefined => {
 const install = (host: HostLike, name: string, run: Runner): void => {
   try {
     if (typeof host.addCommand === 'function') {
-      host.addCommand(name, run);
+      const add = host.addCommand as (n: string, r: Runner) => void;
+      add(name, run);
       return;
     }
     if (typeof host.registerCommand === 'function') {
-      host.registerCommand({ name, run });
+      const reg = host.registerCommand as (def: {
+        name: string;
+        run: Runner;
+      }) => void;
+      reg({ name, run });
       return;
     }
     if (typeof host.command === 'function') {
-      host.command(name, run);
+      const cmd = host.command as (n: string, r: Runner) => void;
+      cmd(name, run);
       return;
     }
   } catch {
@@ -100,7 +106,7 @@ export const attachSmozCommands = (host: HostLike): void => {
   });
 
   // register
-  install(host, 'register', async (_argv: string[]) => {
+  install(host, 'register', async () => {
     const root = repoRoot();
     await runRegister(root);
   });

@@ -51,58 +51,52 @@ describe('attachSmozCommands', () => {
     }
 
     // init: -t default -y --no-install
-    await host.commands['init'](['-t', 'default', '-y', '--no-install']);
+    const init = host.commands['init'];
+    expect(init).toBeTypeOf('function');
+    await init!(['-t', 'default', '-y', '--no-install']);
     expect(runInit).toHaveBeenCalledTimes(1);
-    {
-      const [_root, template, opts] = (runInit as unknown as vi.Mock).mock
-        .calls[0]!;
-      expect(template).toBe('default');
-      expect(opts).toEqual(
-        expect.objectContaining({ yes: true, noInstall: true }),
-      );
-    }
+    expect(runInit).toHaveBeenCalledWith(
+      expect.any(String),
+      'default',
+      expect.objectContaining({ yes: true, noInstall: true }),
+    );
 
     // add: positional spec
-    await host.commands['add'](['rest/foo/get']);
+    const add = host.commands['add'];
+    expect(add).toBeTypeOf('function');
+    await add!(['rest/foo/get']);
     expect(runAdd).toHaveBeenCalledTimes(1);
-    {
-      const [_root, spec] = (runAdd as unknown as vi.Mock).mock.calls[0]!;
-      expect(spec).toBe('rest/foo/get');
-    }
+    expect(runAdd).toHaveBeenCalledWith(expect.any(String), 'rest/foo/get');
 
     // register: no args
-    await host.commands['register']([]);
+    const reg = host.commands['register'];
+    expect(reg).toBeTypeOf('function');
+    await reg!([]);
     expect(runRegister).toHaveBeenCalledTimes(1);
 
     // openapi: -V
-    await host.commands['openapi'](['-V']);
+    const openapi = host.commands['openapi'];
+    expect(openapi).toBeTypeOf('function');
+    await openapi!(['-V']);
     expect(runOpenapi).toHaveBeenCalledTimes(1);
-    {
-      const [_root, opts] = (runOpenapi as unknown as vi.Mock).mock.calls[0]!;
-      expect(opts).toEqual({ verbose: true });
-    }
+    expect(runOpenapi).toHaveBeenCalledWith(expect.any(String), {
+      verbose: true,
+    });
 
     // dev: -l inline -p 3000 --no-openapi -V
-    await host.commands['dev']([
-      '-l',
-      'inline',
-      '-p',
-      '3000',
-      '--no-openapi',
-      '-V',
-    ]);
+    const dev = host.commands['dev'];
+    expect(dev).toBeTypeOf('function');
+    await dev!(['-l', 'inline', '-p', '3000', '--no-openapi', '-V']);
     expect(runDev).toHaveBeenCalledTimes(1);
-    {
-      const [_root, opts] = (runDev as unknown as vi.Mock).mock.calls[0]!;
-      expect(opts).toEqual(
-        expect.objectContaining({
-          register: true,
-          openapi: false,
-          local: 'inline',
-          port: 3000,
-          verbose: true,
-        }),
-      );
-    }
+    expect(runDev).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        register: true,
+        openapi: false,
+        local: 'inline',
+        port: 3000,
+        verbose: true,
+      }),
+    );
   });
 });

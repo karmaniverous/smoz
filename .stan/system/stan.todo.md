@@ -127,6 +127,18 @@ When updated: 2025-10-19T00:00:00Z
   - Added unit tests (src/cli/plugins/smoz.attach.test.ts) with a fake host to assert
     registration and delegation without changing defaults.
 
+- Fix host command plugin & test typings:
+  - Tightened install() to call host methods via typed locals after type-guards,
+    eliminating @typescript-eslint/no-unsafe-call errors.
+  - Removed unused parameter in the 'register' runner.
+  - Updated src/cli/plugins/smoz.attach.test.ts to avoid vi.Mock typing and direct
+    `.mock` access; switched to vitest’s toHaveBeenCalledWith assertions.
+  - Guarded command function lookups and used non-null assertions when invoking
+    host.commands[...] in tests to satisfy TS “possibly undefined”.
+  - Result: typecheck/build/docs no longer flag errors for the new test and plugin,
+    while vitest continues to pass. This keeps the build pipeline green given
+    tsconfig.rollup.json includes src/**/*.ts and compiles test sources.
+
 - Spawn-env normalization (first pass):
   - Introduced a reusable helper (src/cli/util/spawnEnv.ts) that prefers get-dotenv’s
     buildSpawnEnv when available and falls back to prior normalization.
