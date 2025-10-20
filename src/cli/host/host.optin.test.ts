@@ -11,7 +11,7 @@ describe('host opt-in: createCli preferred, adapter fallback', () => {
     // Mock get-dotenv with createCli that exposes a run()
     const runHost = vi.fn().mockResolvedValue(undefined);
     vi.doMock('@karmaniverous/get-dotenv', () => ({
-      createCli: (_opts: { branding?: string }) => ({ run: runHost }),
+      createCli: () => ({ run: runHost }),
     }));
     const mod = (await import('@/src/cli/host/index')) as {
       runWithHost: (argv: string[], branding: string) => Promise<boolean>;
@@ -30,7 +30,10 @@ describe('host opt-in: createCli preferred, adapter fallback', () => {
       runGetDotenvHost: runAdapter,
     }));
     // No createCli in this branch
-    vi.doMock('@karmaniverous/get-dotenv', () => ({}));
+    // Provide a mock with an explicit, non-function createCli to avoid
+    // “missing export” complaints from the mock layer and exercise the
+    // adapter fallback path.
+    vi.doMock('@karmaniverous/get-dotenv', () => ({ createCli: undefined }));
     const mod = (await import('@/src/cli/host/index')) as {
       runWithHost: (argv: string[], branding: string) => Promise<boolean>;
     };

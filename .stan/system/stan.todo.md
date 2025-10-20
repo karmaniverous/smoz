@@ -161,4 +161,9 @@ When updated: 2025-10-19T00:00:00Z
 - Host opt-in tests:
   - Added src/cli/host/host.optin.test.ts to exercise both createCli-preferred
     and adapter-fallback paths, keeping the host iteration safe without changing
-    default CLI behavior.
+    default CLI behavior.
+
+- Host opt-in test fixes:
+  - Resolved ESLint error by removing the unused createCli mock parameter.
+  - Adjusted the fallback-branch mock to export `createCli: undefined`, avoiding
+    “missing export” mock errors and ensuring the adapter path is exercised.
