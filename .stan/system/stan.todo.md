@@ -219,3 +219,10 @@ When updated: 2025-10-19T00:00:00Z
     setting process.exitCode only. This ensures shell `&&` chains stop when the
     get-dotenv host is unavailable or does not expose a known entry point and
     eliminates any lingering implicit fallback behavior.
+
+- Broaden get-dotenv host adapter compatibility:
+  - Expanded src/cli/util/getdotenvHost.ts to probe additional export shapes:
+    createCli().run, runCli, run, default (function), default.run, cli.run.
+  - Improves resilience across get-dotenv versions/packagers so the host-only
+    CLI can execute even when the module exposes a default or nested shape.
+  - Error message now includes the probed shapes for easier diagnostics.
