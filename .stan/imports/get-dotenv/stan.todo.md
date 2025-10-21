@@ -96,3 +96,27 @@ When updated: 2025-10-19T00:00:00Z
     the new module boundaries. Removed the old `src/cli/dev.ts`.
 
 - Docs: improved “Plugin-first host” page with a wiring guide for included plugins (cmd, batch, aws, init), config examples, usage, and pitfalls.
+
+- Canonical host entry: named createCli (alias, branding); refactor CLI
+  - Exported createCli from src/index.ts with options { alias, branding } and a run(argv) method.
+  - Updated shipped CLI to call createCli({ alias: 'getdotenv' }).run(process.argv.slice(2)).
+  - No default export or runCli helper introduced; named export only per interop plan.
+
+- Interop tests: prevent process.exit on help under Vitest
+  - Added Commander exitOverride in createCli when VITEST_WORKER_ID/GETDOTENV_TEST is present.
+  - Swallows help/version exits; rethrows other errors to preserve failure paths.
+- Interop tests: short-circuit help under tests
+  - When under tests and "-h/--help" is present, render help via outputHelp()
+    and return before parseAsync to avoid Commander exits in all environments.
+
+- Fix CJS createCli help termination path:
+  - Short-circuit "-h/--help" in createCli.run across all environments (not only
+    under tests) to avoid Commander process.exit under CJS. Keeps behavior
+    consistent and resolves the failing interop test while preserving real CLI
+    behavior (prints help and returns with code 0).
+
+- ESM interop timing fix:
+  - Moved help short-circuit to run before branding/parsing so
+    `createCli().run(['-h'])` returns immediately under dynamic ESM without
+    awaiting package metadata IO. Avoids test timeout while preserving CLI
+    behavior (prints help and exits 0).

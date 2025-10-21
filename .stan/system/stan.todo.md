@@ -226,3 +226,7 @@ When updated: 2025-10-19T00:00:00Z
   - Improves resilience across get-dotenv versions/packagers so the host-only
     CLI can execute even when the module exposes a default or nested shape.
   - Error message now includes the probed shapes for easier diagnostics.
+
+- Added interop note: get-dotenv host export surface & probes
+  - Documented canonical contract (named createCli), legacy defaults,
+    exports map expectations, and a small interop test matrix.
