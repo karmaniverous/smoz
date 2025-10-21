@@ -56,6 +56,18 @@ How to work in this repo (assistant expectations)
   - Only after validating a true gap should new CLI behavior be implemented;
     record the rationale in the development plan.
 
+- get‑dotenv ownership alert (new directive)
+  - We own @karmaniverous/get-dotenv. When there appears to be an issue with
+    get‑dotenv (API/export shape, types, packaging, runtime behavior), DO NOT
+    engineer around it in this repo.
+  - Raise an alert and author an interop note under
+    .stan/interop/get-dotenv describing:
+    1. symptoms and repro,
+    2. root‑cause hypothesis,
+    3. the best upstream outcome for smoz (API/exports/types/docs),
+    4. acceptance criteria.
+  - Coordinate resolution upstream; only then adjust this repo if needed.
+
 - OpenAPI and contracts
   - OpenAPI is hand‑crafted; never reverse‑generate from Zod. When an endpoint
     changes, ensure its `openapi.ts` remains the source of truth and the

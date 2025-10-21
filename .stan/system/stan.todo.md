@@ -271,3 +271,14 @@ When updated: 2025-10-19T00:00:00Z
   - Deleted src/cli/plugins/smoz.attach.test.ts, which targeted the legacy shim.
   - Subsequent tests will exercise the plugin via GetDotenvCli integration
     instead of host-shape probing helpers.
+
+- Project prompt update — get-dotenv ownership alert
+  - Added a hard directive in .stan/system/stan.project.md: when a get-dotenv
+    issue is suspected, raise an alert and author an interop note instead of
+    engineering around it. We own the dependency; resolution happens upstream.
+
+- Interop note — GetDotenvCli type identity across subpaths
+  - Authored .stan/interop/get-dotenv/cliHost-type-identity-interop.md
+    documenting TypeScript type-identity mismatches between cliHost and
+    plugin subpaths (TS2379/#private under exactOptionalPropertyTypes) and the
+    desired upstream outcome (single type identity across subpaths).
