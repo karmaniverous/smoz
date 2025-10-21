@@ -119,4 +119,7 @@ When updated: 2025-10-19T00:00:00Z
   - Moved help short-circuit to run before branding/parsing so
     `createCli().run(['-h'])` returns immediately under dynamic ESM without
     awaiting package metadata IO. Avoids test timeout while preserving CLI
-    behavior (prints help and exits 0).
+    behavior (prints help and exits 0).
+
+- Distribute cmd and demo plugins
+  - Added rollup builds (ESM/CJS and types) and package.json exports for ./plugins/cmd and ./plugins/demo; updated verification scripts to assert presence.

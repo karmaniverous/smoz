@@ -11,12 +11,10 @@ export const runGetDotenvHost = async (
 ): Promise<void> => {
   try {
     // Dynamic import with lenient shape probing; keep no-unsafe isolated here.
-
     const mod = (await import('@karmaniverous/get-dotenv')) as Record<
       string,
       unknown
     >;
-    const seenKeys = Object.keys(mod ?? {});
     const makeOpts = () =>
       typeof branding === 'string' ? { argv, branding } : { argv };
 

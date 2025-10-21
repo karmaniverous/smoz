@@ -1,20 +1,10 @@
 /**
- * SMOZ command plugin
+ * SMOZ command plugin (get-dotenv plugin-first host).
  *
- * Register smoz commands (init/add/register/openapi/dev) on a get-dotenv host and
- * delegate to existing implementations. The host API is intentionally generic:
- * we detect a few common registration shapes to avoid tight coupling until the
- * host’s public API is finalized.
- *
- * Requirements addressed:
- * - Plugin-first host: expose init/add/register/openapi/dev on the get-dotenv host.
- * - Delegation: map flags to existing run* functions (no business logic here).
- * - Stage precedence & spawn-env normalization: honored by delegating to existing helpers.
- *
- * Notes:
- * - Do not import side-effect modules at load time beyond the run* functions.
- * - Keep registration resilient to differing host shapes (addCommand/registerCommand/etc.).
+ * Registers init/add/register/openapi/dev on a GetDotenvCli instance and
+ * delegates to existing implementations. No business logic here.
  */
+import { definePlugin } from '@karmaniverous/get-dotenv/cliHost';
 import { packageDirectorySync } from 'package-directory';
 
 import { runAdd } from '@/src/cli/add';
@@ -23,132 +13,140 @@ import { runInit } from '@/src/cli/init';
 import { runOpenapi } from '@/src/cli/openapi';
 import { runRegister } from '@/src/cli/register';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type HostLike = Record<string, any>;
-
-type Runner = (argv: string[]) => Promise<void>;
-
 const repoRoot = (): string => packageDirectorySync() ?? process.cwd();
 
-/** Minimal argv helpers (no Commander dependency, stable with current CLI semantics). */
-const has = (argv: string[], ...flags: string[]): boolean =>
-  argv.some((a) => flags.includes(a));
-const getOpt = (argv: string[], ...flags: string[]): string | undefined => {
-  const i = argv.findIndex((a) => flags.includes(a));
-  return i >= 0 ? argv[i + 1] : undefined;
-};
+export const smozPlugin = () =>
+  definePlugin({
+    id: 'smoz',
+    setup(cli) {
+      // init
+      cli
+        .command('init')
+        .description('Scaffold a new SMOZ app from a template')
+        .option('-t, --template <name>', 'template name', 'default')
+        .option('-y, --yes', 'assume “example” on conflicts')
+        .option('--no-install', 'do not install dependencies')
+        .option(
+          '--install <pm>',
+          'explicit package manager (npm|pnpm|yarn|bun)',
+        )
+        .option('--conflict <policy>', 'overwrite|example|skip|ask')
+        .action(async (opts: Record<string, unknown>) => {
+          const root = repoRoot();
+          const template = String(opts.template ?? 'default');
+          const yes = Boolean(opts.yes);
+          const noInstall =
+            (opts as { install?: unknown }).install === undefined &&
+            opts['noInstall'] !== undefined
+              ? Boolean(opts['noInstall'])
+              : Boolean(opts['noInstall']);
+          const pmRaw = (opts.install as string | undefined) ?? undefined;
+          const conflict = (opts.conflict as string | undefined) ?? undefined;
+          await runInit(root, template, {
+            ...(yes ? { yes } : {}),
+            ...(noInstall ? { noInstall } : {}),
+            ...(pmRaw ? { install: pmRaw } : {}),
+            ...(conflict ? { conflict } : {}),
+          });
+        });
 
-/** Install a command runner on a variety of host shapes safely. */
-const install = (host: HostLike, name: string, run: Runner): void => {
-  try {
-    if (typeof host.addCommand === 'function') {
-      (host.addCommand as (n: string, r: Runner) => void).call(host, name, run);
-      return;
-    }
-    if (typeof host.registerCommand === 'function') {
-      (
-        host.registerCommand as (def: { name: string; run: Runner }) => void
-      ).call(host, { name, run });
-      return;
-    }
-    if (typeof host.command === 'function') {
-      (host.command as (n: string, r: Runner) => void).call(host, name, run);
-      return;
-    }
-  } catch {
-    // fall through to last resort
-  }
-  // Last resort: attach on a stable property so tests (or simple hosts) can reach it.
-  // Consumers can detect presence of these properties to invoke runners directly.
-  (host as Record<string, unknown>)[`__cmd_${name}`] = run;
-};
+      // add
+      cli
+        .command('add')
+        .description('Scaffold a function under app/functions')
+        .argument('<spec>', 'spec: <eventType>/<segments...>/<method>')
+        .action(async (spec: string) => {
+          const root = repoRoot();
+          if (typeof spec !== 'string' || !spec.trim()) {
+            throw new Error('smoz add: missing <spec> (e.g., rest/foo/get)');
+          }
+          await runAdd(root, spec);
+        });
 
-/**
- * Attach SMOZ commands to a host (init/add/register/openapi/dev).
- *
- * @param host - get-dotenv host instance (when available)
- */
-export const attachSmozCommands = (host: HostLike): void => {
-  // init
-  install(host, 'init', async (argv: string[]) => {
-    const root = repoRoot();
-    const template = getOpt(argv, '-t', '--template') ?? 'default';
-    // Conflict policy: 'overwrite' | 'example' | 'skip' | 'ask'
-    const conflict = getOpt(argv, '--conflict');
-    const yes = has(argv, '-y', '--yes');
-    // Install policy: --no-install or --install <pm>
-    const noInstall = has(argv, '--no-install');
-    const installPm = getOpt(argv, '--install');
-    await runInit(root, template, {
-      ...(yes ? { yes } : {}),
-      ...(noInstall ? { noInstall } : {}),
-      ...(installPm ? { install: installPm } : {}),
-      ...(conflict ? { conflict } : {}),
-    });
+      // register
+      cli
+        .command('register')
+        .description('Generate side-effect register files')
+        .action(async () => {
+          const root = repoRoot();
+          await runRegister(root);
+        });
+
+      // openapi
+      cli
+        .command('openapi')
+        .description('Generate OpenAPI document (app/generated/openapi.json)')
+        .option('-V, --verbose', 'verbose output')
+        .action(async (opts: { verbose?: boolean }) => {
+          const root = repoRoot();
+          await runOpenapi(root, { verbose: !!opts?.verbose });
+        });
+
+      // dev
+      cli
+        .command('dev')
+        .description(
+          'Dev loop: register/openapi + local backend (inline|offline)',
+        )
+        .option('-r, --register', 'run register step (default on)')
+        .option('-R, --no-register', 'disable register step')
+        .option('-o, --openapi', 'run openapi step (default on)')
+        .option('-O, --no-openapi', 'disable openapi step')
+        .option(
+          '-l, --local [mode]',
+          'local mode: inline | offline | false (default inline)',
+        )
+        .option('-s, --stage <name>', 'stage name')
+        .option('-p, --port <number>', 'port (0 = random free port)')
+        .option('-V, --verbose', 'verbose output')
+        .action(
+          async (opts: {
+            register?: boolean;
+            openapi?: boolean;
+            local?: boolean | string;
+            stage?: string;
+            port?: string | number;
+            verbose?: boolean;
+          }) => {
+            const root = repoRoot();
+
+            // register/openapi defaults (on); explicit negations take precedence.
+            const register =
+              opts.register === true
+                ? true
+                : (opts as unknown as { noRegister?: boolean }).noRegister
+                  ? false
+                  : true;
+            const openapi =
+              opts.openapi === true
+                ? true
+                : (opts as unknown as { noOpenapi?: boolean }).noOpenapi
+                  ? false
+                  : true;
+
+            // local mode parsing
+            const raw = opts.local;
+            let local: false | 'inline' | 'offline' = 'inline';
+            if (raw === 'inline' || raw === 'offline') local = raw;
+            else if (raw === true) local = 'inline';
+            else if (raw === 'false') local = false;
+
+            const port =
+              typeof opts.port === 'string'
+                ? Number(opts.port)
+                : typeof opts.port === 'number'
+                  ? opts.port
+                  : undefined;
+
+            await runDev(root, {
+              register,
+              openapi,
+              local,
+              ...(typeof opts.stage === 'string' ? { stage: opts.stage } : {}),
+              ...(typeof port === 'number' ? { port } : {}),
+              verbose: !!opts.verbose,
+            });
+          },
+        );
+    },
   });
-
-  // add
-  install(host, 'add', async (argv: string[]) => {
-    const root = repoRoot();
-    // Expect a single positional spec (no flag parsing here).
-    const spec =
-      argv.find((a) => !a.startsWith('-')) ??
-      getOpt(argv, '--spec') ??
-      getOpt(argv, '-s');
-    if (!spec || typeof spec !== 'string' || !spec.trim()) {
-      throw new Error('smoz add: missing <spec> (e.g., rest/foo/get)');
-    }
-    await runAdd(root, spec);
-  });
-
-  // register
-  install(host, 'register', async () => {
-    const root = repoRoot();
-    await runRegister(root);
-  });
-
-  // openapi
-  install(host, 'openapi', async (argv: string[]) => {
-    const root = repoRoot();
-    const verbose = has(argv, '-V', '--verbose');
-    await runOpenapi(root, { verbose });
-  });
-
-  // dev
-  install(host, 'dev', async (argv: string[]) => {
-    const root = repoRoot();
-    const verbose = has(argv, '-V', '--verbose');
-    const stage = getOpt(argv, '-s', '--stage');
-    const portStr = getOpt(argv, '-p', '--port');
-    const port =
-      typeof portStr === 'string' && portStr.trim().length > 0
-        ? Number(portStr)
-        : undefined;
-    const localRaw = getOpt(argv, '-l', '--local');
-    const local: false | 'inline' | 'offline' =
-      localRaw === 'inline' || localRaw === 'offline'
-        ? localRaw
-        : has(argv, '-l') && !localRaw
-          ? 'inline'
-          : 'inline';
-    const register = has(argv, '-r', '--register')
-      ? true
-      : has(argv, '-R', '--no-register')
-        ? false
-        : true;
-    const openapi = has(argv, '-o', '--openapi')
-      ? true
-      : has(argv, '-O', '--no-openapi')
-        ? false
-        : true;
-
-    await runDev(root, {
-      register,
-      openapi,
-      local,
-      ...(typeof stage === 'string' ? { stage } : {}),
-      ...(typeof port === 'number' ? { port } : {}),
-      verbose,
-    });
-  });
-};

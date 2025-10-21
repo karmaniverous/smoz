@@ -230,3 +230,16 @@ When updated: 2025-10-19T00:00:00Z
 - Added interop note: get-dotenv host export surface & probes
   - Documented canonical contract (named createCli), legacy defaults,
     exports map expectations, and a small interop test matrix.
+- Migrate to GetDotenvCli host with smoz plugin
+  - Replaced adapter-based runWithHost flow with a proper plugin-first host:
+    src/cli/index.ts now builds a GetDotenvCli('smoz'), attaches root options,
+    installs included get-dotenv plugins (cmd/batch/aws), installs the smoz
+    command plugin, composes options once (passOptions), and parses argv.
+  - Rewrote src/cli/plugins/smoz.ts as a real plugin (definePlugin) that
+    registers init/add/register/openapi/dev and delegates to existing run*
+    functions. Flags preserved; stage precedence and spawn-env normalization
+    remain enforced by the existing helpers.
+
+- ESLint cleanup in legacy adapter
+  - Removed an unused variable and unnecessary nullish coalescing in
+    src/cli/util/getdotenvHost.ts to keep lint/test hooks green.
