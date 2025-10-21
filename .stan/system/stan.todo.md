@@ -229,17 +229,45 @@ When updated: 2025-10-19T00:00:00Z
 
 - Added interop note: get-dotenv host export surface & probes
   - Documented canonical contract (named createCli), legacy defaults,
-    exports map expectations, and a small interop test matrix.
+    exports map expectations, and a small interop test matrix.
+
 - Migrate to GetDotenvCli host with smoz plugin
   - Replaced adapter-based runWithHost flow with a proper plugin-first host:
     src/cli/index.ts now builds a GetDotenvCli('smoz'), attaches root options,
     installs included get-dotenv plugins (cmd/batch/aws), installs the smoz
     command plugin, composes options once (passOptions), and parses argv.
   - Rewrote src/cli/plugins/smoz.ts as a real plugin (definePlugin) that
-    registers init/add/register/openapi/dev and delegates to existing run*
+    registers init/add/register/openapi/dev and delegates to existing run\*
     functions. Flags preserved; stage precedence and spawn-env normalization
     remain enforced by the existing helpers.
 
 - ESLint cleanup in legacy adapter
   - Removed an unused variable and unnecessary nullish coalescing in
-    src/cli/util/getdotenvHost.ts to keep lint/test hooks green.
+    src/cli/util/getdotenvHost.ts to keep lint/test hooks green.
+
+- Remove legacy host adapter and dynamic import
+  - Deleted src/cli/util/getdotenvHost.ts and src/cli/host/index.ts.
+  - The CLI now relies solely on GetDotenvCli; no shape probing or optional
+    host logic remains.
+
+- Migrate CLI host to resolveAndLoad parseAsync
+  - Updated src/cli/index.ts to build a GetDotenvCli('smoz'), install cmd/batch,
+    keep aws present (required by downstream sub-plugins), install the smoz
+    plugin, then resolve dotenv context once and parse argv.
+  - Dropped attachRootOptions/passOptions usage to align with the current host
+    surface.
+
+- Remove hard-coded loadProcess options
+  - Eliminated loadProcess overrides in code. Composition/mutation of process.env
+    is controlled entirely by get-dotenv defaults and end-user config/flags.
+  - Our subprocesses (openapi/offline) remain deterministic by passing env
+    explicitly.
+
+- SMOZ plugin lint fixes
+  - Safe defaulting for template name (no base-to-string) and removal of
+    unnecessary optional chaining on boolean flag reads.
+
+- Retire obsolete attachSmozCommands test
+  - Deleted src/cli/plugins/smoz.attach.test.ts, which targeted the legacy shim.
+  - Subsequent tests will exercise the plugin via GetDotenvCli integration
+    instead of host-shape probing helpers.
