@@ -105,6 +105,20 @@ When updated: 2025-10-19T00:00:00Z
 - Interop tests: prevent process.exit on help under Vitest
   - Added Commander exitOverride in createCli when VITEST_WORKER_ID/GETDOTENV_TEST is present.
   - Swallows help/version exits; rethrows other errors to preserve failure paths.
+
+- Unify GetDotenvCli type identity across subpaths; add plugins barrel
+  - Updated all plugin sources to import GetDotenvCli type from the public
+    '@karmaniverous/get-dotenv/cliHost' subpath (type-only), eliminating TS2379
+    private-field identity errors under exactOptionalPropertyTypes.
+  - Added tsconfig path aliases so local dev resolves the public subpaths to
+    source (cliHost and plugins barrel).
+  - Introduced a plugins barrel at 'src/plugins/index.ts' and exported it under
+    the './plugins' subpath. Rollup builds ESM/CJS outputs and type bundles.
+  - Extended verification scripts to assert presence of './plugins' in exports
+    and 'dist/plugins.mjs' in artifacts and tarball checks.
+  - Rationale: keep per-plugin subpaths for flexibility, but recommend the
+    barrel as the canonical import path; identity is now unified across both.
+
 - Interop tests: short-circuit help under tests
   - When under tests and "-h/--help" is present, render help via outputHelp()
     and return before parseAsync to avoid Commander exits in all environments.
@@ -123,3 +137,22 @@ When updated: 2025-10-19T00:00:00Z
 
 - Distribute cmd and demo plugins
   - Added rollup builds (ESM/CJS and types) and package.json exports for ./plugins/cmd and ./plugins/demo; updated verification scripts to assert presence.
+
+- Rollup TS paths and knip entry for plugins barrel:
+  - Added TypeScript "paths" mappings to tsconfig.base.json for '@karmaniverous/get-dotenv/cliHost' and '@karmaniverous/get-dotenv/plugins' so @rollup/plugin-typescript resolves type-only imports during builds without TS2307 warnings.
+  - Included 'src/plugins/index.ts' in knip.json "entry" to silence the unused-file warning for the plugins barrel.
+  - Updated Guides to recommend importing plugins via the barrel.
+
+- Add verify-types guard for plugin .d.ts
+  - Introduced tools/verify-types.js and npm script "verify:types".
+  - Release hooks run verify:types after build to ensure no plugin .d.ts
+    imports cliHost via non-public or relative paths.
+
+- Docs alignment + SMOZ interop response
+  - Updated plugin guides (cmd/batch/demo/init) with “Import paths” sections,
+    recommending the plugins barrel and retaining per‑plugin subpath examples.
+  - Confirmed the AWS plugin page and the Plugin‑first host guide already
+    recommend the barrel and are consistent with the current implementation
+    (root options, included plugins, once‑per‑invoke context).
+  - Added .stan/interop/smoz/type-identity-response.md summarizing the change
+    set, downstream import guidance, and acceptance criteria.
