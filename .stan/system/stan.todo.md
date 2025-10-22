@@ -294,3 +294,8 @@ When updated: 2025-10-19T00:00:00Z
 
 - Lint fixes in SMOZ plugin: guarded template parsing and removed unnecessary
   optional chaining in the openapi command.
+
+- Remove dynamic import from spawn env helper
+  - Replaced the dynamic import in `src/cli/util/spawnEnv.ts` with a static
+    import from `@karmaniverous/get-dotenv` and removed the local fallback.
+  - Keeps policy of avoiding dynamic imports unless compelling.
