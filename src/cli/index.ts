@@ -6,9 +6,11 @@
  * - Resolve dotenv context once, then parse argv.
  */
 import { GetDotenvCli } from '@karmaniverous/get-dotenv/cliHost';
-import { awsPlugin } from '@karmaniverous/get-dotenv/plugins/aws';
-import { batchPlugin } from '@karmaniverous/get-dotenv/plugins/batch';
-import { cmdPlugin } from '@karmaniverous/get-dotenv/plugins/cmd';
+import {
+  awsPlugin,
+  batchPlugin,
+  cmdPlugin,
+} from '@karmaniverous/get-dotenv/plugins';
 
 import { smozPlugin } from '@/src/cli/plugins/smoz';
 

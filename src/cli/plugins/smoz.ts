@@ -33,7 +33,9 @@ export const smozPlugin = () =>
         .option('--conflict <policy>', 'overwrite|example|skip|ask')
         .action(async (opts: Record<string, unknown>) => {
           const root = repoRoot();
-          const template = String(opts.template ?? 'default');
+          const template =
+            typeof opts.template === 'string' ? opts.template : 'default';
+
           const yes = Boolean(opts.yes);
           const noInstall =
             (opts as { install?: unknown }).install === undefined &&
@@ -79,7 +81,7 @@ export const smozPlugin = () =>
         .option('-V, --verbose', 'verbose output')
         .action(async (opts: { verbose?: boolean }) => {
           const root = repoRoot();
-          await runOpenapi(root, { verbose: !!opts?.verbose });
+          await runOpenapi(root, { verbose: !!opts.verbose });
         });
 
       // dev
