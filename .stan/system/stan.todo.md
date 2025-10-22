@@ -298,4 +298,9 @@ When updated: 2025-10-19T00:00:00Z
 - Remove dynamic import from spawn env helper
   - Replaced the dynamic import in `src/cli/util/spawnEnv.ts` with a static
     import from `@karmaniverous/get-dotenv` and removed the local fallback.
-  - Keeps policy of avoiding dynamic imports unless compelling.
+  - Keeps policy of avoiding dynamic imports unless compelling.
+
+- Interop note for get-dotenv: TS2379 identity + missing root export
+  - Authored `.stan/interop/get-dotenv/ts2379-type-identity-and-missing-buildSpawnEnv-export.md`
+    documenting: (1) lingering type-identity mismatch for `GetDotenvCliPlugin`
+    under `exactOptionalPropertyTypes`, and (2) missing root export for `buildSpawnEnv`.
