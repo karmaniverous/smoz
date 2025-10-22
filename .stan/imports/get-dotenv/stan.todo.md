@@ -155,4 +155,34 @@ When updated: 2025-10-19T00:00:00Z
     recommend the barrel and are consistent with the current implementation
     (root options, included plugins, once‑per‑invoke context).
   - Added .stan/interop/smoz/type-identity-response.md summarizing the change
-    set, downstream import guidance, and acceptance criteria.
+    set, downstream import guidance, and acceptance criteria.
+
+- Public host interface root spawn env export
+  - Introduced a structural public interface for the host
+    (GetDotenvCliPublic = Command & { ns, getCtx, resolveAndLoad }) and
+    switched the plugin seam to use it. This removes nominal class identity
+    at the boundary and eliminates TS2379 in consumers.
+  - Re-exported buildSpawnEnv at the package root to support static imports
+    (import { buildSpawnEnv } from '@karmaniverous/get-dotenv').
+
+- Generic plugin seam and batch/cmd type fixes
+  - Made GetDotenvCliPlugin generic over options and threaded TOptions through
+    GetDotenvCli. Cast the host to GetDotenvCliPublic<TOptions> at hook sites.
+  - Replaced lingering GetDotenvCli intersections in batch actions with
+    GetDotenvCliPublic and fixed the cmd alias call site typing.
+
++- Fix plugin seam casts and batch typing
+
+- - Cast `this` to the structural public interface when invoking plugin hooks to
+- satisfy exactOptionalPropertyTypes invariance:
+- `p.setup(this as unknown as GetDotenvCliPublic<GetDotenvOptions>)` and
+- `p.afterResolve(this as unknown as GetDotenvCliPublic<GetDotenvOptions>, ctx as unknown as GetDotenvCliCtx<GetDotenvOptions>)`.
+- - Replace a lingering `GetDotenvCli` union constituent in
+- `src/plugins/batch/actions/defaultCmdAction.ts` with `GetDotenvCliPublic`
+- to remove the missing symbol error and redundant type constituent lints.
+
+- Interop response — TS2379 identity and buildSpawnEnv root export
+  - Authored `.stan/interop/smoz/ts2379-identity-and-buildSpawnEnv-response.md`
+    confirming single public type identity (structural seam public subpaths),
+    root export for `buildSpawnEnv`, and passing acceptance criteria (tsc/rollup/
+    typedoc). Guard (`verify-types`) in place to prevent regressions.

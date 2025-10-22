@@ -10,7 +10,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { buildSpawnEnvMaybe } from '@/src/cli/util/spawnEnv';
+import { buildSpawnEnv } from '@karmaniverous/get-dotenv';
 
 export type OfflineRunner = {
   restart: () => Promise<void>;
@@ -98,7 +98,9 @@ const spawnOffline = async (
 ): Promise<ReturnType<typeof spawn>> => {
   // Normalize child environment via get-dotenv when available; safe fallback otherwise.
   const baseEnv: NodeJS.ProcessEnv = { ...process.env };
-  const childEnv = await buildSpawnEnvMaybe(baseEnv);
+  const childEnv = await buildSpawnEnv(
+    baseEnv as unknown as Record<string, string | undefined>,
+  );
 
   // Optional diagnostics to verify the child sees sane temp-related envs
   if (verbose) {
