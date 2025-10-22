@@ -98,7 +98,7 @@ const spawnOffline = async (
 ): Promise<ReturnType<typeof spawn>> => {
   // Normalize child environment via get-dotenv when available; safe fallback otherwise.
   const baseEnv: NodeJS.ProcessEnv = { ...process.env };
-  const childEnv = await buildSpawnEnv(
+  const childEnv = buildSpawnEnv(
     baseEnv as unknown as Record<string, string | undefined>,
   );
 

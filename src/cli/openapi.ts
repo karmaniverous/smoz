@@ -45,7 +45,7 @@ export const runOpenapi = async (
   }
 
   // Build a normalized child env via get-dotenv (static import).
-  const env = await buildSpawnEnv({} as Record<string, string | undefined>);
+  const env = buildSpawnEnv({} as Record<string, string | undefined>);
 
   const res = spawnSync(cmd, args, {
     cwd: root,

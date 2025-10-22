@@ -58,6 +58,14 @@ When updated: 2025-10-19T00:00:00Z
 
 ## Completed (recent)
 
+- Promote root helpers to class methods (remove side‑effect enhancer)
+  - Export a subclass from src/cliHost/index.ts that adds attachRootOptions()
+    and passOptions() as real methods on GetDotenvCli, delegating to cliCore
+    helpers. Remove the unconditional side‑effect import previously used to
+    patch the prototype.
+  - Update src/index.ts to import the host from './cliHost' and drop the
+    enhancer import. No behavior changes; methods are now explicit and
+    discoverable without relying on augmentation.
 - Interop design note for getdotenv:
   - Added `.stan/interop/get-dotenv/smoz-cli-host-integration.md` capturing host+plugin
     integration, layered resolution with per‑layer interpolation, Zod validation,
@@ -186,3 +194,17 @@ When updated: 2025-10-19T00:00:00Z
     confirming single public type identity (structural seam public subpaths),
     root export for `buildSpawnEnv`, and passing acceptance criteria (tsc/rollup/
     typedoc). Guard (`verify-types`) in place to prevent regressions.
+
+- Safety-rail test fix for helpers exposure
+  - Updated the test to import `GetDotenvCli` from `src/cliHost/index.ts`
+    (the /cliHost entry) so the enhancer side-effect runs.
+  - Added explicit assertions to satisfy lint rules and verify presence.
+
+- Tidy-ups: remove enhancer module and scrub imports
+  - Deleted src/cliCore/enhanceGetDotenvCli.ts (no longer referenced after
+    promoting methods onto the class).
+  - Removed legacy enhancer imports from src/plugins/cmd/alias.ts and updated
+    tests to import the host from the cliHost entry (no side-effect required).
+  - Fixed src/cliHost/help.order.test.ts to import the host from './index'
+    (removes the old enhancer import) and added explicit types to satisfy
+    strict ESLint rules.

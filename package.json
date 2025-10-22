@@ -13,7 +13,7 @@
     "url": "https://github.com/karmaniverous/smoz/issues"
   },
   "dependencies": {
-    "@karmaniverous/get-dotenv": "^5.2.4",
+    "@karmaniverous/get-dotenv": "^5.2.6",
     "@middy/core": "^6.4.5",
     "@middy/http-content-negotiation": "^6.4.5",
     "@middy/http-cors": "^6.4.5",

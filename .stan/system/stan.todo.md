@@ -72,3 +72,10 @@ When updated: 2025-10-19T00:00:00Z
     - `src/cli/openapi.ts`
     - `src/cli/local/offline.ts`
     - `src/cli/dev/inline.ts`
+
+- Remove unnecessary await on buildSpawnEnv (lint hygiene)
+  - Updated callers to reflect the synchronous API and satisfy
+    @typescript-eslint/await-thenable:
+    - src/cli/openapi.ts
+    - src/cli/local/offline.ts
+    - src/cli/dev/inline.ts

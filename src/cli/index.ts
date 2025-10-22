@@ -16,32 +16,26 @@ import { smozPlugin } from '@/src/cli/plugins/smoz';
 
 const main = async (): Promise<void> => {
   const cli = new GetDotenvCli('smoz');
-  try {
-    await cli.brand({
-      importMetaUrl: import.meta.url,
-      description: 'SMOZ CLI',
-    });
-  } catch {
-    // Branding is best-effort.
-  }
 
-  // Install included plugins and the SMOZ command plugin.
-  cli.use(
-    cmdPlugin({
-      asDefault: true,
-      optionAlias: '-c, --cmd <command...>',
-    }),
-  );
-  cli.use(batchPlugin());
-  // Always present (downstream sub-plugins will rely on AWS presence).
-  cli.use(awsPlugin());
-  cli.use(smozPlugin());
+  await cli.brand({
+    importMetaUrl: import.meta.url,
+    description: 'SMOZ CLI',
+  });
 
-  // Resolve dotenv context once per invocation, then parse argv.
-  await (
-    cli as unknown as { resolveAndLoad: () => Promise<void> }
-  ).resolveAndLoad();
-  await (cli as unknown as { parseAsync: () => Promise<void> }).parseAsync();
+  cli
+    .attachRootOptions()
+    .use(smozPlugin())
+    .use(awsPlugin())
+    .use(
+      cmdPlugin({
+        asDefault: true,
+        optionAlias: '-c, --cmd <command...>',
+      }),
+    )
+    .use(batchPlugin())
+    .passOptions();
+
+  await cli.parseAsync();
 };
 
 void main();

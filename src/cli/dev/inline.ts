@@ -74,17 +74,14 @@ export const launchInline = async (
   const makeTsx = () => {
     const { cmd, args, shell } = resolveTsxCommand(root, entry);
     return (async () => {
-      const env = await buildSpawnEnv(
-        {
-          ...process.env,
-          // Enable tsconfig paths for "@/..." during TS fallback.
-          TSX_TSCONFIG_PATHS: '1',
-          SMOZ_STAGE: opts.stage,
-          SMOZ_PORT: String(opts.port),
-          SMOZ_VERBOSE: opts.verbose ? '1' : '',
-        } as Record<string, string | undefined>,
-        undefined,
-      );
+      const env = buildSpawnEnv({
+        ...process.env,
+        // Enable tsconfig paths for "@/..." during TS fallback.
+        TSX_TSCONFIG_PATHS: '1',
+        SMOZ_STAGE: opts.stage,
+        SMOZ_PORT: String(opts.port),
+        SMOZ_VERBOSE: opts.verbose ? '1' : '',
+      } as Record<string, string | undefined>);
       return spawn(cmd, args, {
         cwd: root,
         stdio: 'inherit',
