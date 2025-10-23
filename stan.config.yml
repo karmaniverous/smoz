@@ -17,6 +17,12 @@ stan-core:
     - docs
     - package-lock.json
 stan-cli:
+  cliDefaults:
+    run:
+      facets: true
+      plan: false
+      sequential: true
+  patchOpenCommand: code -g {file}
   scripts:
     typecheck: npm run typecheck
     lint: npm run lint:fix
@@ -30,9 +36,3 @@ stan-cli:
     package: npm run package
     templates-lint: npm run templates:lint
     templates-typecheck: npm run templates:typecheck
-  cliDefaults:
-    run:
-      facets: true
-      plan: false
-      sequential: true
-  patchOpenCommand: code -g {file}
