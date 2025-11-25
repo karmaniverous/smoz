@@ -1,0 +1,14 @@
+{
+  "entryPoints": ["./app"],
+  "entryPointStrategy": "expand",
+  "exclude": ["**/*.test.ts", "**/*.d.ts", "**/generated/**"],
+  "excludeInternal": false,
+  "out": "./docs/",
+  "searchInComments": true,
+  "searchInDocuments": true,
+  "highlightLanguages": ["bash", "console", "json", "typescript"],
+  "navigation": {
+    "excludeReferences": true
+  },
+  "projectDocuments": []
+}
