@@ -26,9 +26,6 @@ When updated: 2025-11-25T00:00:00Z
     - TABLE_NAME_DEPLOYED = ${param:STAGE_NAME}-${env:TABLE_VERSION_DEPLOYED}
     - DYNAMODB_LOCAL_ENDPOINT (optional; passed to handlers)
 
-- Default template: seed STAGE_NAME param
-  - Add STAGE_NAME = ${SERVICE_NAME}-${STAGE} (best practice; not consumed yet)
-
 - /app fixture: reflect combined feature set
   - Add tables/000 with versioned TableName YAML and resource import
   - Add users endpoints inline (CRUD/search) reusing domain Zod
@@ -59,7 +56,9 @@ When updated: 2025-11-25T00:00:00Z
   - Keep examples/diagrams facets inactive
   - Ensure anchors are present so overlays remain intelligible
 
-## Completed (recent)
+## Completed
+
+**CRITICAL: Append-only list. Add new completed items at the end. Prune old completed entries from the top. Do not edit existing entries.**
 
 - Interop note: DDB CLI plugin local orchestration
   - Defined config-first `start|stop|status` commands with native env interpolation
@@ -75,11 +74,14 @@ When updated: 2025-11-25T00:00:00Z
 
 - Exclude STAN workspace from tools
   - Vitest: added '**/.stan/**' to test.exclude
-  - Knip: added ".stan/**" to ignore
+  - Knip: added ".stan/\*\*" to ignore
 - Fix typecheck in dev inline tests
   - Typed vi.mock factories to Node module shapes (fs/child_process)
 - Resolve DeepOverride lint
   - Reworked mapped type to avoid redundant type constituents
 
 - Fix lint in dev inline tests
-  - Removed typeof import() type annotations; use local type aliases to satisfy consistent-type-imports
+  - Removed typeof import() type annotations; use local type aliases to satisfy consistent-type-imports
+
+- Default template: seed STAGE_NAME param
+  - Add STAGE_NAME = ${SERVICE_NAME}-${STAGE} (best practice; not consumed yet)

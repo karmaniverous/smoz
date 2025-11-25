@@ -22,6 +22,7 @@ export const app = App.create({
     DOMAIN_CERTIFICATE_ARN: z.string(),
     DOMAIN_NAME: z.string(),
     STAGE: z.string(),
+    STAGE_NAME: z.string(),
   }),
   serverless: {
     httpContextEventMap: {
@@ -49,6 +50,7 @@ export const app = App.create({
           'arn:aws:acm:us-east-1:000000000000:certificate/dev-placeholder',
         DOMAIN_NAME: 'api.dev.example.test',
         STAGE: 'dev',
+        STAGE_NAME: 'my-smoz-app-dev',
       },
     },
     envKeys: ['STAGE'],

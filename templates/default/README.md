@@ -73,6 +73,7 @@ This template references a few params from your app config:
   - `DOMAIN_NAME` — used by the custom domain plugin config
   - `DOMAIN_CERTIFICATE_ARN` — ACM certificate ARN for the domain
   - `STAGE`
+  - `STAGE_NAME` — seeded as `${SERVICE_NAME}-${STAGE}` (not consumed yet)
 
 Where these are used:
 
@@ -85,6 +86,7 @@ Where these are used:
 ## Path hygiene (cross‑platform)
 
 Windows uses backslashes in paths, which can leak into string comparisons and generated artifacts. Normalize separators consistently using the helper exported by the toolkit:
+
 ```ts
 import { toPosixPath } from '@karmaniverous/smoz';
 
