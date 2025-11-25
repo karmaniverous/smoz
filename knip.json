@@ -23,6 +23,7 @@
     "serverless-domain-manager",
     "serverless-plugin-common-excludes",
     "serverless-offline",
+    "@karmaniverous/entity-client-dynamodb",
     "@karmaniverous/entity-tools"
   ],
   "rules": { "exports": "off", "types": "off" }

@@ -114,4 +114,7 @@ When updated: 2025-11-25T00:00:00Z
 - DynamoDB template: add users CRUD/search endpoints
   - Added app/entity/entityClient.ts (env-driven; supports Local endpoint)
   - Added GET /users (search), POST /users (create), GET/PUT/DELETE /users/{id}
-  - Reused domain Zod and EntityClient/QueryBuilder; baseline compiles and is ready for extension
+  - Reused domain Zod and EntityClient/QueryBuilder; baseline compiles and is ready for extension
+
+- Knip: ignore template-only devDep entity-client-dynamodb
+  - Added @karmaniverous/entity-client-dynamodb to knip.json ignoreDependencies
