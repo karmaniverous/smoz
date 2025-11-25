@@ -33,6 +33,7 @@
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.51.1",
     "@eslint/js": "^9.39.1",
+    "@karmaniverous/entity-client-dynamodb": "^0.7.0",
     "@karmaniverous/entity-manager": "^7.2.0",
     "@karmaniverous/entity-tools": "^0.7.1",
     "@rollup/plugin-alias": "^6.0.0",
