@@ -1,82 +1,74 @@
 # Development Plan
 
-When updated: 2025-10-19T00:00:00Z
+When updated: 2025-11-25T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
-- Wire full get-dotenv host + plugins
-  - Instantiate the host and install: AWS base plugin (cli-export/optional sso), smoz command plugins (init/add/register/openapi/dev), and expose get-dotenv cmd/batch.
-  - Adopt spawn-env for children (inline/offline/prettier/typedoc) and stage precedence resolution (--stage > plugins.smoz.stage > env.STAGE > default inference).
-  - Keep outputs stable; preserve byte-for-byte register/openapi/package surfaces.
+- Template: add `dynamodb`
+  - Add tables/000 with:
+    - entityManager.ts (values-first + schema-first; imports app/domain/user.ts)
+    - table.yml with `TableName: ${param:STAGE_NAME}-000`
+    - (no transform.ts for 000)
+  - Add app/domain/user.ts (authoritative Zod) and reuse it in EM + HTTP
+  - Implement users endpoints inline under app/functions/rest/users/\*:
+    - GET /users (query-driven search; beneficiaryId, name, phone, createdFrom/To, updatedFrom/To, sortOrder, sortDesc, pageKeyMap)
+    - POST /users (create)
+    - GET /users/{id} (read)
+    - PUT /users/{id} (shallow update semantics)
+    - DELETE /users/{id} (delete)
+  - serverless.ts resources:
+    - Table000: ${file(./tables/000/table.yml)} (later versions added side-by-side)
+  - Provider params/env:
+    - Add STAGE_NAME = ${SERVICE_NAME}-${STAGE} (duplicated per stage)
+    - TABLE_VERSION (public/global)
+    - TABLE_VERSION_DEPLOYED (private per env; ${env:TABLE_VERSION_DEPLOYED})
+    - TABLE_NAME = ${param:STAGE_NAME}-${param:TABLE_VERSION}
+    - TABLE_NAME_DEPLOYED = ${param:STAGE_NAME}-${env:TABLE_VERSION_DEPLOYED}
+    - DYNAMODB_LOCAL_ENDPOINT (optional; passed to handlers)
 
-- Install and wire plugins in the host
-  - Always install get-dotenv AWS base plugin (inert unless configured).
-  - Install smoz plugins: init, add, register, openapi, dev (thin wrappers over runInit/runAdd/runRegister/runOpenapi/runDev).
-  - Expose get-dotenv cmd and batch commands alongside smoz commands.
+- Default template: seed STAGE_NAME param
+  - Add STAGE_NAME = ${SERVICE_NAME}-${STAGE} (best practice; not consumed yet)
 
-- Validation and diagnostics posture
-  - Host-level validation: Zod (JS/TS) or requiredKeys (JSON/YAML) once per invocation.
-  - Warn by default; fail with --strict.
-  - In verbose/trace, print layered trace with masking and entropy warnings (once per key).
+- /app fixture: reflect combined feature set
+  - Add tables/000 with versioned TableName YAML and resource import
+  - Add users endpoints inline (CRUD/search) reusing domain Zod
+  - Keep IAM permissive; CI remains package-only (no deploy)
+  - Ensure OpenAPI/register flows stay green
 
-- Adopt spawn-env normalization everywhere
-  - Use get-dotenv’s buildSpawnEnv(base, ctx.dotenv) for:
-    - tsx inline server
-    - serverless offline
-    - serverless package/deploy hooks
-    - prettier/typedoc/other child tools
-  - Log the normalized env snapshot in verbose mode (masked).
+- Plugin integration validation in SMOZ
+  - Verify SMOZ wires the DynamoDB plugin (already included) and local subcommands:
+    - `smoz dynamodb local start|stop|status`
+    - Config-first behavior with native get-dotenv env interpolation ($DYNAMODB_LOCAL_ENDPOINT / $DYNAMODB_LOCAL_PORT)
+    - Embedded fallback via @karmaniverous/dynamodb-local when present
+  - SMOZ docs: add a cross-link to plugin docs for Local orchestration
 
-- Stage resolution (dev) implementation
-  - Precedence: --stage > plugins.smoz.stage (interpolated) > process.env.STAGE > default inference (first non-”default” stage; else “dev”).
-  - Do not bind -e to stage implicitly; document plugins.smoz.stage: "${ENV:dev}" as the recommended opt-in.
-  - Pass final stage to children via spawn-env (ensure STAGE present for serverless/offline).
+- Tests
+  - Add baseline unit tests for at least one handler and the search route logic
+  - Ensure Local endpoint switching works when `DYNAMODB_LOCAL_ENDPOINT` is present (mock or integration)
+  - Keep template typecheck and lint scripts green
 
-- Expose cmd and batch
-  - cmd: honor shell semantics from get-dotenv; ensure quoting guidance documented (single quotes to avoid outer-shell expansion).
-  - batch: implement flags `--concurrency <n>` (default 1) and `--live`; verify buffered capture and end-of-run summary paths; keep logs consistent with get-dotenv.
+- Docs (SMOZ)
+  - Explain dynamic naming and canonical runtime table policy:
+    - STAGE_NAME, TABLE_VERSION, TABLE_VERSION_DEPLOYED, TABLE_NAME / TABLE_NAME_DEPLOYED
+  - Clarify that tables are created via Serverless deploy (imports) and not by default via CLI create in the template path
+  - Note that multiple versioned tables can coexist during migration
+  - Cross-link to DynamoDB plugin docs for Local orchestration (config-first vs embedded fallback)
 
-  (Initial step landed below: cmd/batch delegation via host; smoz command plugins to follow.)
-
-- Serverless STAGE simplification (follow-on)
-  - Inject STAGE from provider.stage/provider.environment.
-  - Remove STAGE from stage.params/schema in the app fixture and template.
-  - Update tests/templates/docs accordingly.
-
-- Tests and CI updates
-  - Register/openapi/package outputs remain byte-for-byte identical.
-  - Dev: stage precedence matrix; inline/offline spawn-env normalization; Windows CI smoke.
-  - Add cmd/batch smoke tests (quote handling and env propagation).
-  - Verify help header branding and flags (-e/--strict/--trace/-V).
-
-- Documentation updates
-  - CLI: clarify host-based design; new commands (cmd/batch); global flags; getdotenv.config.\* surfaces.
-  - Dev guide: stage precedence; recommend plugins.smoz.stage mapping; strict/diagnostics notes.
-  - Troubleshooting: add safe tracing and quoting recipes for cmd; clarify Windows path hygiene is handled by spawn-env.
+- Facets
+  - Phase 2 (templates + fixture + endpoints): activate templates, app, docs, tests, ci
+  - Keep examples/diagrams facets inactive
+  - Ensure anchors are present so overlays remain intelligible
 
 ## Completed (recent)
 
-- Remove dynamic import from spawn env helper
-  - Replaced the dynamic import in `src/cli/util/spawnEnv.ts` with a static
-    import from `@karmaniverous/get-dotenv` and removed the local fallback.
-  - Keeps policy of avoiding dynamic imports unless compelling.
-
-- Interop note for get-dotenv: TS2379 identity + missing root export
-  - Authored `.stan/interop/get-dotenv/ts2379-type-identity-and-missing-buildSpawnEnv-export.md`
-    documenting: (1) lingering type-identity mismatch for `GetDotenvCliPlugin`
-    under `exactOptionalPropertyTypes`, and (2) missing root export for `buildSpawnEnv`.
-
-- Remove spawn-env wrapper; use get-dotenv directly
-  - Deleted `src/cli/util/spawnEnv.ts` and updated all call sites to import
-    `buildSpawnEnv` from `@karmaniverous/get-dotenv` directly:
-    - `src/cli/openapi.ts`
-    - `src/cli/local/offline.ts`
-    - `src/cli/dev/inline.ts`
-
-- Remove unnecessary await on buildSpawnEnv (lint hygiene)
-  - Updated callers to reflect the synchronous API and satisfy
-    @typescript-eslint/await-thenable:
-    - src/cli/openapi.ts
-    - src/cli/local/offline.ts
-    - src/cli/dev/inline.ts
-- Interop note: DDB CLI plugin local orchestration — start/stop/status/ready; config‑driven commands with native env interpolation; fallback to @karmaniverous/dynamodb-local; standardize DYNAMODB_LOCAL_ENDPOINT/PORT; STAGE_NAME param for versioned TableName.
+- Interop note: DDB CLI plugin local orchestration
+  - Defined config-first `start|stop|status` commands with native env interpolation
+  - Embedded fallback via @karmaniverous/dynamodb-local; `start` blocks until healthy
+  - Standardized `DYNAMODB_LOCAL_ENDPOINT` / `DYNAMODB_LOCAL_PORT`
+  - Dynamic naming anchored on `STAGE_NAME = ${SERVICE_NAME}-${STAGE}` with versioned TableName `${param:STAGE_NAME}-NNN` in generated YAML
+- Plugin docs updated (entity-client-dynamodb)
+  - Added “Local DynamoDB” page and linked it in CLI index
+  - Updated recipes with local orchestration examples
+- Spawn-env usage consolidated
+  - SMOZ CLI uses get-dotenv’s `buildSpawnEnv` directly; removed local wrappers
+  - Ensured inline/offline/serverless hooks rely on composed envs

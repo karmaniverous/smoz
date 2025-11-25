@@ -45,3 +45,51 @@ mycli dynamodb migrate \
   --progress-interval-ms 2000 \
   --force
 ```
+
+## Local DynamoDB (quick recipes)
+
+Config‑first (Docker Compose) — add to getdotenv config:
+
+```json
+{
+  "plugins": {
+    "dynamodb": {
+      "local": {
+        "port": 8000,
+        "endpoint": "http://localhost:8000",
+        "start": "docker compose up -d dynamodb",
+        "stop": "docker compose stop dynamodb",
+        "status": "docker ps --format '{{.Names}}' | grep -q dynamodb"
+      }
+    }
+  }
+}
+```
+
+Usage:
+
+```bash
+# Start and wait until ready (prints endpoint + export hint)
+mycli dynamodb local start
+
+# Status (exit 0 when healthy)
+mycli dynamodb local status
+
+# Stop
+mycli dynamodb local stop
+```
+
+Embedded fallback (no config commands):
+
+```bash
+# Install the optional peer to enable the embedded path
+npm i -D @karmaniverous/dynamodb-local
+
+# Start and wait until ready using the library, then probe readiness
+mycli dynamodb local start
+```
+
+Notes
+
+- start blocks until Local is healthy; there is no separate “ready” command.
+- Endpoint is derived in this order: config endpoint > config port > $DYNAMODB_LOCAL_ENDPOINT > $DYNAMODB_LOCAL_PORT (default 8000).

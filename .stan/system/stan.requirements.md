@@ -1,6 +1,6 @@
 # Project Requirements — @karmaniverous/smoz
 
-When updated: 2025-10-16T00:00:00Z
+When updated: 2025-11-25T00:00:00Z
 
 Purpose
 
@@ -10,25 +10,26 @@ Purpose
 
 Contents
 
-- 1) Repository scope and publishing
-- 2) Architecture and application model
-- 3) HTTP middleware policy (order and behavior)
-- 4) Aggregation builders (Serverless + OpenAPI)
-- 5) CLI — commands, dev loop, and local modes
-- 6) Register freshness (Serverless plugin) and optional hooks
-- 7) Templates — baseline, TypeScript configs, ESLint, and placeholders
-- 8) Init UX — conflicts, installation, defaults, and manifest handling
-- 9) Routing, path normalization, and portability
-- 10) Event tokens and HTTP tokens
-- 11) App‑level function defaults (env keys)
-- 12) Types hygiene (reuse public platform types)
-- 13) Lint/format and template scalability
-- 14) Documentation structure and Typedoc ordering
-- 15) Integration fixture (/app)
-- 16) Install guard (operators may forget install)
-- 17) Logger shape
-- 18) OpenAPI specs (hand‑crafted)
-- 19) Testability of environment config
+- 1. Repository scope and publishing
+- 2. Architecture and application model
+- 3. HTTP middleware policy (order and behavior)
+- 4. Aggregation builders (Serverless + OpenAPI)
+- 5. CLI — commands, dev loop, local modes, and DynamoDB local orchestration
+- 6. Register freshness (Serverless plugin) and optional hooks
+- 7. Templates — baseline, TypeScript configs, ESLint, placeholders, and dynamodb template
+- 8. Init UX — conflicts, installation, defaults, and manifest handling
+- 9. Routing, path normalization, and portability
+- 10. Event tokens and HTTP tokens
+- 11. App‑level function defaults (env keys)
+- 12. Types hygiene (reuse public platform types)
+- 13. Lint/format and template scalability
+- 14. Documentation structure and Typedoc ordering
+- 15. Integration fixture (/app)
+- 16. Install guard (operators may forget install)
+- 17. Logger shape
+- 18. OpenAPI specs (hand‑crafted)
+- 19. Testability of environment config
+- 20. DynamoDB integration (versioned tables, dynamic naming, local orchestration, migrations)
 
 ---
 
@@ -65,10 +66,13 @@ Schema‑first App with a registry:
   - app/generated/register.functions.ts — imports all lambda.ts
   - app/generated/register.openapi.ts — imports all openapi.ts
   - app/generated/register.serverless.ts — imports non‑HTTP serverless.ts
+- Cross‑cutting for DynamoDB apps:
+  - Handlers may import an EntityClient + EntityManager directly to perform CRUD/search inline; request/response schemas must borrow from the authoritative domain Zod used by the EntityManager.
 
 ## 3) HTTP middleware policy (order and behavior)
 
 Canonical order (must remain stable):
+
 1. HEAD short‑circuit (returns 200 {} immediately)
 2. Header normalizer
 3. APIGateway v1 event normalizer
@@ -83,6 +87,7 @@ Canonical order (must remain stable):
 12. Response serializer (JSON + vendor +json)
 
 Acceptance:
+
 - HEAD is finalized to 200 {} and is not post‑validated.
 - Shaped/string bodies pass transparently; others are shaped.
 - Zod validation failures map to 400; other errors are exposed per handler.
@@ -98,23 +103,44 @@ Acceptance:
   - Merge path items for each configured context. operationId is composed as
     `${segments}_${method}` with a context prefix for non‑public routes.
 
-## 5) CLI — commands, dev loop, and local modes
+## 5) CLI — commands, dev loop, local modes, and DynamoDB local orchestration
 
 Conventions:
+
 - Author code under app/config/app.config.ts and app/functions/<eventType>/...
-- Generated artifacts live under app/generated/ (register.*.ts, openapi.json).
+- Generated artifacts live under app/generated/ (register.\*.ts, openapi.json).
 
 Commands:
+
 - smoz init — scaffold app files, seed empty registers, add serverless.ts and
   an OpenAPI build script; optionally install dependencies.
 - smoz register — one‑shot; generate app/generated/register.functions.ts,
   register.openapi.ts, and register.serverless.ts; idempotent and formatted.
 - smoz openapi — one‑shot; run the app’s OpenAPI builder.
 - smoz dev — orchestrated watch loop:
-  1) register (if enabled), 2) openapi (if enabled), 3) local serving
+  1. register (if enabled), 2) openapi (if enabled), 3) local serving
      (restart/refresh if applicable).
+- DynamoDB CLI plugin (always included by SMOZ):
+  - Table lifecycle: generate, validate, create, delete, purge, migrate (see §20 for deployment/migration policy).
+  - Local orchestration:
+    - smoz dynamodb local start [--port <n>]
+      - Config‑first: run `plugins.dynamodb.local.start` and block until healthy.
+      - Embedded fallback: if @karmaniverous/dynamodb-local is installed, run setupDynamoDbLocal(port) and wait for readiness; else print guidance.
+    - smoz dynamodb local status
+      - Config‑first: run `plugins.dynamodb.local.status` and pass through exit code (0 = healthy).
+      - Embedded fallback: probe with SDK/library; else print guidance.
+    - smoz dynamodb local stop
+      - Config‑first: run `plugins.dynamodb.local.stop`; else embedded path; else guidance.
+    - Endpoint derivation (printed on start):
+      1. `plugins.dynamodb.local.endpoint`
+      2. `plugins.dynamodb.local.port` → `http://localhost:{port}`
+      3. `$DYNAMODB_LOCAL_ENDPOINT`
+      4. Fallback `http://localhost:${DYNAMODB_LOCAL_PORT ?? '8000'}`
+    - No separate “ready” command; start waits until healthy.
+    - Environment variables are interpolated natively by get‑dotenv in config command strings (e.g., `$DYNAMODB_LOCAL_ENDPOINT`, `$DYNAMODB_LOCAL_PORT`).
 
 Dev loop flags (precedence: CLI > cliDefaults.dev > hard defaults):
+
 - -r/--register | -R/--no-register (default: on)
 - -o/--openapi | -O/--no-openapi (default: on)
 - -l/--local [inline|offline|false] (default: inline when available)
@@ -123,11 +149,13 @@ Dev loop flags (precedence: CLI > cliDefaults.dev > hard defaults):
 - -V/--verbose
 
 Source watch set:
-- app/functions/**/{lambda.ts,openapi.ts,serverless.ts}
+
+- app/functions/\*\*/{lambda.ts,openapi.ts,serverless.ts}
 - Single debounced queue (~250 ms). Never run steps concurrently.
 - Print “Updated” vs “No changes”.
 
 Local modes (HTTP):
+
 - offline (serverless‑offline): spawn serverless offline start; pre‑run
   register+openapi; restart child on route surface change; prefix child output.
 - inline (default once implemented): in‑process server mapping Node HTTP →
@@ -136,9 +164,11 @@ Local modes (HTTP):
   Print route table and resolved port.
 
 Stage & environment in dev:
+
 - Stage default: first stage key in app.stages not named "default"; fallback dev.
 - Seed process.env from app.global.params and app.stage.params[stage] so dev
   mirrors provider env semantics.
+- For DynamoDB Local: handlers switch to local when `DYNAMODB_LOCAL_ENDPOINT` is present in the environment.
 
 ## 6) Register freshness (Serverless plugin) and optional hooks
 
@@ -146,14 +176,15 @@ Stage & environment in dev:
   (@karmaniverous/smoz/serverless‑plugin) that runs `smoz register` before
   package/deploy steps. Keep it small and fail fast.
 - Optional pre‑commit recipe (documented, not enforced): run `smoz register`
-  when app/functions/** changes and stage updated register.*.ts files.
+  when app/functions/\*_ changes and stage updated register._.ts files.
 - Continue chaining `register` ahead of scripts that depend on fresh registers:
   - openapi: register && tsx app/config/openapi && prettier
   - package/deploy: register && serverless ...
 
-## 7) Templates — baseline, TypeScript configs, ESLint, and placeholders
+## 7) Templates — baseline, TypeScript configs, ESLint, placeholders, and dynamodb template
 
 Baseline:
+
 - Single "default" template including:
   - app/config/app.config.ts
   - app/functions/rest/hello/get/{lambda,handler,openapi}.ts
@@ -163,6 +194,7 @@ Baseline:
 - Non‑HTTP examples are added via `smoz add` or documented under /examples.
 
 TypeScript configs (two‑tsconfig approach):
+
 - Dev tsconfig (templates/default/tsconfig.json):
   - Maps @karmaniverous/smoz → ../../dist so editors and typed ESLint resolve
     the toolkit without publishing.
@@ -175,13 +207,16 @@ TypeScript configs (two‑tsconfig approach):
   - Houses lint‑only tweaks without perturbing the compiler.
 
 Template ESLint:
+
 - A unified ESLint flat config (templates/default/eslint.config.ts) drives typed
   lint for template sources using tseslint with project ['./tsconfig.eslint.json'].
 
 Template typecheck:
-- Script discovers templates/*/tsconfig.json and runs `tsc -p --noEmit`.
+
+- Script discovers templates/\*/tsconfig.json and runs `tsc -p --noEmit`.
 
 Register placeholders policy:
+
 - Templates must typecheck in a clean clone without running CLI steps. Ship a
   single ambient declarations file that declares:
   - '@/app/generated/register.functions'
@@ -190,27 +225,65 @@ Register placeholders policy:
 - Runtime placeholders are created by `smoz init` in real apps and maintained by
   `smoz register`; templates should not include app/generated placeholders.
 
+DynamoDB template (opt‑in; name: `dynamodb`):
+
+- tables/000/:
+  - entityManager.ts — values‑first + schema‑first; imports shared domain Zod (user)
+  - table.yml — TableName: `${param:STAGE_NAME}-000`
+  - (no transform.ts for 000; identity default; no prior version)
+- app/domain/user.ts — authoritative domain Zod schema (borrowed by EM and HTTP)
+- app/functions/rest/users/\* endpoints (inline CRUD/search):
+  - GET /users — query params per entity‑manager‑demo (beneficiaryId, name, phone, createdFrom/To, updatedFrom/To, sortOrder, sortDesc, pageKeyMap)
+  - POST /users — create
+  - GET /users/{id} — read
+  - PUT /users/{id} — shallow update
+  - DELETE /users/{id} — delete
+- serverless.ts:
+  - resources.Resources:
+    - Table000: ${file(./tables/000/table.yml)}
+    - Later versions (Table001, …) imported side‑by‑side until decommissioned after migration
+- Provider params/env:
+  - Params:
+    - STAGE_NAME = ${SERVICE_NAME}-${STAGE} (duplicated per stage intentionally; best practice)
+    - TABLE_VERSION (public/global)
+  - Environment:
+    - TABLE_VERSION_DEPLOYED = ${env:TABLE_VERSION_DEPLOYED} (private per env; assumed loaded by a separate secrets step)
+    - TABLE_NAME = ${param:STAGE_NAME}-${param:TABLE_VERSION}
+    - TABLE_NAME_DEPLOYED = ${param:STAGE_NAME}-${env:TABLE_VERSION_DEPLOYED}
+    - DYNAMODB_LOCAL_ENDPOINT (optional; if present, handlers target Local)
+- CLI guidance:
+  - Teams can configure `plugins.dynamodb.local.start|stop|status` in getdotenv config with native `$DYNAMODB_LOCAL_ENDPOINT`/`$DYNAMODB_LOCAL_PORT` interpolation, or install `@karmaniverous/dynamodb-local` and use the embedded fallback.
+
+Default template (best‑practice seed):
+
+- Add STAGE_NAME param (not consumed yet; used in future Secrets Manager integration).
+
 ## 8) Init UX — conflicts, installation, defaults, and manifest handling
 
 Template selection:
-- -t/--template accepts a packaged template name ("default")
+
+- -t/--template accepts a packaged template name ("default", "dynamodb")
   or a filesystem directory path.
 
 Conflict handling (non‑package.json files):
+
 - Interactive: Overwrite, Add example (<file>.example), Skip. Provide “apply to all”.
 - Non‑interactive (-y): governed by cliDefaults.init.onConflict (ask|overwrite|example|skip);
   default is "example"; --conflict overrides.
 
 Installation:
+
 - With -y: perform install by default using the detected PM (npm|pnpm|yarn|bun).
   Overrides: --no-install or --install <pm>.
 - Without -y: prompt for install; in CI, use -y with an explicit --install.
 
 Defaults file (optional): smoz.config.json may provide:
+
 - cliDefaults.init.onConflict, cliDefaults.init.install, cliDefaults.init.template,
   and cliDefaults.dev.local.
 
 Manifest handling:
+
 - Do not copy the template’s package.json during init.
 - Always handle the manifest via an additive merge:
   - Create when missing; otherwise merge dependencies/devDependencies/peerDependencies
@@ -225,6 +298,8 @@ Manifest handling:
   paths receive a context prefix in Serverless and OpenAPI surfaces.
 - Normalize all paths to POSIX separators in authored code and generated artifacts.
 - Provide small helpers (toPosixPath, dirFromHere) for cross‑platform hygiene.
+- Search endpoints should prefer GET with query parameters when appropriate
+  (e.g., `/users`), mirroring entity‑manager‑demo conventions.
 
 ## 10) Event tokens and HTTP tokens
 
@@ -256,14 +331,14 @@ Manifest handling:
 
 - Prettier is the single source of truth for formatting; ESLint defers to Prettier
   and enforces TypeScript/ordering rules.
-- Keep imports sorted (simple‑import‑sort).
+- Keep imports sorted (per repo tooling) and avoid dead code.
 - A unified templates ESLint config enables typed lint for all templates without
   per‑template edits.
-- Template typecheck script scales by discovering tsconfig.json under templates/*.
+- Template typecheck script scales by discovering tsconfig.json under templates/\*.
 
 ## 14) Documentation structure and Typedoc ordering
 
-- External docs (docs‑src/*.md) include front matter (title, sidebar_label, sidebar_position).
+- External docs (docs‑src/\*.md) include front matter (title, sidebar_label, sidebar_position).
 - Typedoc ordering in typedoc.json "projectDocuments":
   1. Overview
   2. Why smoz?
@@ -275,15 +350,18 @@ Manifest handling:
   8. CLI
   9. Contributing
   10. CHANGELOG.md
-- Exclude CLI source symbols (src/cli/**) from API reference; CLI usage is documented in docs‑src/cli.md.
+- Exclude CLI source symbols (src/cli/\*\*) from API reference; CLI usage is documented in docs‑src/cli.md.
+- Cross‑link to the DynamoDB plugin docs for Local orchestration specifics.
 
 ## 15) Integration fixture (/app)
 
 Purpose:
+
 - Keep a small in‑tree example app to validate end‑to‑end flows in CI
   (register → OpenAPI → package). Not intended for deployment and not published.
 
 Policy:
+
 - Keep /app on main to avoid bitrot; do not move it to a long‑lived branch.
 - Neutral identifiers:
   - service: smoz‑sample
@@ -291,6 +369,11 @@ Policy:
   - ARNs: placeholders
 - Provide /app/README.md explaining purpose and non‑publish status.
 - Ensure repository scripts operate against the fixture without deploy (package only).
+- The fixture should reflect the combined feature set once the dynamodb template lands:
+  - tables/000 with versioned TableName `${param:STAGE_NAME}-000`
+  - Users endpoints using inline CRUD/search with EntityClient and domain Zod
+  - Provider env/params for TABLE_VERSION, TABLE_VERSION_DEPLOYED, TABLE_NAME/DEPLOYED, STAGE_NAME
+  - IAM permissive for simplicity
 
 ## 16) Install guard (operators may forget install)
 
@@ -313,3 +396,49 @@ Policy:
 - Avoid top‑level ESM imports from config paths that complicate `vi.mock()`;
   prefer lazy imports inside functions to keep tests predictable.
 - Avoid dynamic type imports.
+
+## 20) DynamoDB integration (versioned tables, dynamic naming, local orchestration, migrations)
+
+Versioned tables & Serverless import:
+
+- Tables are declared per version under `tables/NNN/` (zero‑padded; start at `000`).
+- Each version emits a full AWS::DynamoDB::Table resource YAML:
+  - `TableName: ${param:STAGE_NAME}-NNN` (dynamic with respect to STAGE_NAME)
+- Serverless imports multiple versions side‑by‑side under distinct logical IDs:
+  - e.g., `resources.Resources.Table000: ${file(./tables/000/table.yml)}`
+- Teams remove older imports only after migrations are proven (coexistence during migration is required).
+
+Dynamic naming & canonical runtime table:
+
+- `STAGE_NAME = ${SERVICE_NAME}-${STAGE}` is a first‑class param duplicated per stage; it may form the basis of many resource names.
+- Global/public code version:
+  - `TABLE_VERSION` (tracked) — the version the code expects (e.g., "000", "001")
+- Private/per‑environment deployed version:
+  - `TABLE_VERSION_DEPLOYED` — loaded via a separate secrets process into `.local` before deploy
+- Canonical runtime table names:
+  - `TABLE_NAME = ${STAGE_NAME}-${TABLE_VERSION}`
+  - `TABLE_NAME_DEPLOYED = ${STAGE_NAME}-${TABLE_VERSION_DEPLOYED}`
+- Application code targets the single canonical runtime table (TABLE_NAME).
+- Post‑deploy migration processes (out of scope for SMOZ) run:
+  - `fromVersion = TABLE_VERSION_DEPLOYED`
+  - `toVersion = TABLE_VERSION`
+  - Source/target tables resolved from the naming convention; identity transform is the default when no transform file is authored.
+
+Local DynamoDB orchestration:
+
+- Primary env:
+  - `DYNAMODB_LOCAL_ENDPOINT` — when set, handlers configure EntityClient to target Local; otherwise the AWS SDK defaults to cloud
+  - `DYNAMODB_LOCAL_PORT` — optional helper used in configs/commands
+- smoz dynamodb local start|stop|status are provided by the plugin with config‑first execution and embedded fallback:
+  - Config commands live under `plugins.dynamodb.local.{start|stop|status}` with native env interpolation ($DYNAMODB_LOCAL_ENDPOINT/PORT).
+  - Embedded path is available when `@karmaniverous/dynamodb-local` is installed.
+  - start waits for readiness; status returns 0 when healthy.
+
+Identity transforms:
+
+- For the initial version (000), no transform file is needed; the identity chain is the default and there is no prior version to migrate.
+
+CRUD/search endpoints:
+
+- HTTP handlers perform CRUD/search inline with EntityClient and borrow response/request schemas from the domain Zod used by EntityManager.
+- Search endpoints should use GET and query params (`/users`) and match the entity‑manager‑demo semantics, including round‑trippable pageKeyMap.

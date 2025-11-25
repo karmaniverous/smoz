@@ -7,6 +7,7 @@ children:
   - ./authoring-transforms.md
   - ./migrate.md
   - ./config-overlays.md
+  - ./local-dynamodb.md
   - ./serverless.md
   - ./recipes.md
 ---
@@ -19,5 +20,6 @@ children:
 - [Authoring Transforms](./authoring-transforms.md) - defineTransformMap handlers; drop/one/array semantics and limitations.
 - [Data Migration](./migrate.md) - Step discovery, concurrency knobs, and progress ticks.
 - [Config Overlays & Dotenv Expansion](./config-overlays.md) - plugins.dynamodb config, precedence, and $VAR expansion.
+- [Local DynamoDB](./local-dynamodb.md) - Start/stop/status for Local; start waits until healthy.
 - [Serverless Integration](./serverless.md) - Import generated YAML sections into Serverless Framework.
 - [CLI Usage Recipes](./recipes.md) - Practical end-to-end command examples.
