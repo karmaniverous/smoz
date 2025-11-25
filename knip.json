@@ -22,7 +22,9 @@
     "serverless-deployment-bucket",
     "serverless-domain-manager",
     "serverless-plugin-common-excludes",
-    "serverless-offline"
+    "serverless-offline",
+    "@karmaniverous/entity-manager",
+    "@karmaniverous/entity-tools"
   ],
   "rules": { "exports": "off", "types": "off" }
 }

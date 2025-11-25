@@ -106,6 +106,13 @@ const config: AWS = {
     },
     versionFunctions: false,
   },
+  // Import versioned DynamoDB table resources (side-by-side across versions).
+  // v000 only for now; later versions added alongside (Table001, ...).
+  resources: {
+    Resources: {
+      Table000: '${file(./tables/000/table.yml)}',
+    },
+  },
   functions: app.buildAllServerlessFunctions() as NonNullable<AWS['functions']>,
   build: {
     esbuild: {

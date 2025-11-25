@@ -85,3 +85,17 @@ When updated: 2025-11-25T00:00:00Z
 
 - Default template: seed STAGE_NAME param
   - Add STAGE_NAME = ${SERVICE_NAME}-${STAGE} (best practice; not consumed yet)
+
+- DynamoDB template: seed dependencies and CLI
+  - Renamed package to smoz-template-dynamodb
+  - Added @karmaniverous/smoz as a devDependency (CLI available without ambient mapping)
+  - Added entity/client stack deps (@karmaniverous/entity-client-dynamodb, entity-manager, entity-tools, string-utilities) and nanoid
+
+- DynamoDB template: scaffold v000 + domain and wire resources
+  - Added app/domain/user.ts (authoritative Zod)
+  - Added tables/000/{entityManager.ts, table.yml}
+  - Added resources.Resources.Table000 import in template serverless.ts
+
+- Knip: ignore template-only devDeps used for template typecheck
+  - Added @karmaniverous/entity-manager and @karmaniverous/entity-tools to knip.json ignoreDependencies
+  - Rationale: templates/\*\* are excluded from knip’s project scan; these deps are required only for template typechecking

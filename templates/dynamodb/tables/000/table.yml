@@ -1,0 +1,19 @@
+Type: AWS::DynamoDB::Table
+Properties:
+  # Dynamic naming: STAGE_NAME = ${SERVICE_NAME}-${STAGE}
+  # v000 TableName follows ${param:STAGE_NAME}-000
+  TableName: ${param:STAGE_NAME}-000
+  BillingMode: PAY_PER_REQUEST
+  AttributeDefinitions:
+    - AttributeName: hashKey
+      AttributeType: S
+    - AttributeName: rangeKey
+      AttributeType: S
+  KeySchema:
+    - AttributeName: hashKey
+      KeyType: HASH
+    - AttributeName: rangeKey
+      KeyType: RANGE
+  # Generated index sections are composed by the CLI plugin when needed.
+  # Keep this file under source control; only documented sections are overwritten.
+  # Other Properties and comments are preserved.

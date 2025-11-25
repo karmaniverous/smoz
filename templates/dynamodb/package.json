@@ -3,12 +3,18 @@
     "node": ">=22.19.0 <23"
   },
   "dependencies": {
+    "@karmaniverous/entity-client-dynamodb": "*",
+    "@karmaniverous/entity-manager": "*",
+    "@karmaniverous/entity-tools": "*",
+    "@karmaniverous/string-utilities": "*",
     "@middy/core": "^6.4.5",
     "fs-extra": "^11.3.1",
+    "nanoid": "*",
     "package-directory": "^8.1.0",
     "zod": "^4.1.6"
   },
   "devDependencies": {
+    "@karmaniverous/smoz": "^0.2.10",
     "@serverless/typescript": "^4.18.2",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22",
@@ -31,7 +37,7 @@
     "vitest": "^3.2.4",
     "zod-openapi": "^5.4.1"
   },
-  "name": "smoz-template-default",
+  "name": "smoz-template-dynamodb",
   "scripts": {
     "dev": "smoz dev",
     "docs": "typedoc",

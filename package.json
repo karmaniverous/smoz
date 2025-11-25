@@ -33,6 +33,8 @@
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.51.1",
     "@eslint/js": "^9.39.1",
+    "@karmaniverous/entity-manager": "^7.2.0",
+    "@karmaniverous/entity-tools": "^0.7.1",
     "@rollup/plugin-alias": "^6.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
     "@serverless/typescript": "^4.23.0",
