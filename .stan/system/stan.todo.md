@@ -106,4 +106,7 @@ When updated: 2025-11-25T00:00:00Z
   - Ensured templates/dynamodb lints with its own flat config (not default's)
   - Cast serverless resources to NonNullable<AWS['resources']> so template
     typecheck surfaces real ESLint errors (e.g., no-unsafe-assignment) instead
-    of being blocked by TS2322; normalized LF in that block to satisfy Prettier
+    of being blocked by TS2322; normalized LF in that block to satisfy Prettier
+
+- Knip: remove used devDep from ignoreDependencies
+  - Dropped @karmaniverous/entity-manager from knip.json ignoreDependencies per configuration hint
