@@ -79,3 +79,4 @@ When updated: 2025-10-19T00:00:00Z
     - src/cli/openapi.ts
     - src/cli/local/offline.ts
     - src/cli/dev/inline.ts
+- Interop note: DDB CLI plugin local orchestration — start/stop/status/ready; config‑driven commands with native env interpolation; fallback to @karmaniverous/dynamodb-local; standardize DYNAMODB_LOCAL_ENDPOINT/PORT; STAGE_NAME param for versioned TableName.
