@@ -5,59 +5,33 @@
       "templates/**/test/**",
       "examples/**/test/**"
     ],
-    "include": [
-      "src/test/http.ts"
-    ]
+    "include": ["src/test/http.ts"]
   },
   "docs": {
-    "exclude": [
-      "docs/**",
-      "docs-src/**"
-    ],
-    "include": [
-      "README.md",
-      "docs-src/overview.md"
-    ]
+    "exclude": ["docs-src/**"],
+    "include": ["README.md", "docs-src/overview.md"]
   },
   "templates": {
-    "exclude": [
-      "templates/**"
-    ],
+    "exclude": ["templates/**"],
     "include": [
       "templates/default/README.md",
       "templates/default/types/registers.d.ts"
     ]
   },
   "examples": {
-    "exclude": [
-      "examples/**"
-    ],
-    "include": [
-      "examples/README.md"
-    ]
+    "exclude": ["examples/**"],
+    "include": ["examples/README.md"]
   },
   "diagrams": {
-    "exclude": [
-      "diagrams/**"
-    ],
-    "include": [
-      "diagrams/aws.pu"
-    ]
+    "exclude": ["diagrams/**"],
+    "include": ["diagrams/aws.pu"]
   },
   "vscode": {
-    "exclude": [
-      ".vscode/**"
-    ],
-    "include": [
-      ".vscode/extensions.json"
-    ]
+    "exclude": [".vscode/**"],
+    "include": [".vscode/extensions.json"]
   },
   "ci": {
-    "exclude": [
-      ".github/**"
-    ],
-    "include": [
-      ".github/workflows/sync.yml"
-    ]
+    "exclude": [".github/**"],
+    "include": [".github/workflows/sync.yml"]
   }
 }
