@@ -10,6 +10,7 @@ export default defineConfig({
       ...configDefaults.exclude,
       '**/.tsbuild/**',
       '**/.rollup.cache/**',
+      '**/.stan/**',
     ],
   },
 });

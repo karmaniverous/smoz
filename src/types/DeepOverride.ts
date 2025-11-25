@@ -28,10 +28,10 @@ export type DeepOverride<T, U> = [T] extends [never]
         : T extends object
           ? U extends object
             ? {
-                [K in keyof (T & U)]: K extends keyof U
+                [K in keyof T | keyof U]: K extends keyof U
                   ? DeepOverride<
                       K extends keyof T ? T[K] : never,
-                      U[K & keyof U]
+                      K extends keyof U ? U[K] : never
                     >
                   : K extends keyof T
                     ? T[K]

@@ -72,3 +72,14 @@ When updated: 2025-11-25T00:00:00Z
 - Spawn-env usage consolidated
   - SMOZ CLI uses get-dotenv’s `buildSpawnEnv` directly; removed local wrappers
   - Ensured inline/offline/serverless hooks rely on composed envs
+
+- Exclude STAN workspace from tools
+  - Vitest: added '**/.stan/**' to test.exclude
+  - Knip: added ".stan/**" to ignore
+- Fix typecheck in dev inline tests
+  - Typed vi.mock factories to Node module shapes (fs/child_process)
+- Resolve DeepOverride lint
+  - Reworked mapped type to avoid redundant type constituents
+
+- Fix lint in dev inline tests
+  - Removed typeof import() type annotations; use local type aliases to satisfy consistent-type-imports

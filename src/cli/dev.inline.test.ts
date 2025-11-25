@@ -4,17 +4,24 @@ import { describe, expect, it, vi } from 'vitest';
 
 // Mock built-ins before importing the module under test.
 vi.mock('node:fs', () => {
-  return {
+  const existsMock = vi.fn();
+  const mod = {
     default: {
-      existsSync: vi.fn(),
+      existsSync: existsMock,
     },
+    // Also expose the named export to satisfy consumers that import named APIs
+    existsSync: existsMock,
   };
+  return mod;
 });
 vi.mock('node:child_process', () => {
-  return {
-    spawn: vi.fn(),
-    spawnSync: vi.fn(),
+  const spawnMock = vi.fn();
+  const spawnSyncMock = vi.fn();
+  const mod = {
+    spawn: spawnMock,
+    spawnSync: spawnSyncMock,
   };
+  return mod;
 });
 
 describe('dev.inline: resolveTsxCommand', async () => {
@@ -26,11 +33,12 @@ describe('dev.inline: resolveTsxCommand', async () => {
     ) => { cmd: string; args: string[]; shell: boolean };
   };
 
+  type FnMock = ReturnType<typeof vi.fn>;
   const fsMod = (await import('node:fs')) as unknown as {
-    default: { existsSync: ReturnType<typeof vi.fn> };
+    default: { existsSync: FnMock };
   };
   const cpMod = (await import('node:child_process')) as unknown as {
-    spawnSync: ReturnType<typeof vi.fn>;
+    spawnSync: FnMock;
   };
 
   const reset = () => {
@@ -58,9 +66,7 @@ describe('dev.inline: resolveTsxCommand', async () => {
       return norm === localCli;
     });
     // PATH probe should not matter when local exists
-    cpMod.spawnSync.mockReturnValue({ status: 1 } as unknown as ReturnType<
-      typeof cpMod.spawnSync
-    >);
+    cpMod.spawnSync.mockReturnValue({ status: 1 });
 
     const res = resolveTsxCommand(root, tsEntry);
     expect(res.cmd).toBe(process.execPath);
@@ -84,9 +90,7 @@ describe('dev.inline: resolveTsxCommand', async () => {
     // No local tsx
     fsMod.default.existsSync.mockReturnValue(false);
     // PATH probe fails
-    cpMod.spawnSync.mockReturnValue({ status: 127 } as unknown as ReturnType<
-      typeof cpMod.spawnSync
-    >);
+    cpMod.spawnSync.mockReturnValue({ status: 127 });
 
     expect(() => resolveTsxCommand(root, tsEntry)).toThrow(
       /Inline requires tsx/i,

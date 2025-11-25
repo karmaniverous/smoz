@@ -8,7 +8,8 @@
     "app/functions/**/openapi.ts",
     "src/serverless/intrinsic.ts",
     "src/serverless/plugin.ts",
-    "src/cli/local/inline.server/**"
+    "src/cli/local/inline.server/**",
+    ".stan/**"
   ],
   "ignoreBinaries": ["plantuml"],
   "ignoreDependencies": [
