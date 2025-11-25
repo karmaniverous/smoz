@@ -45,5 +45,3 @@ stan-cli:
       warnPattern: \\[warning\\]
     knip: npm run knip
     package: npm run package
-    templates-lint: npm run templates:lint
-    templates-typecheck: npm run templates:typecheck

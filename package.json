@@ -173,8 +173,10 @@
     "domain:create": "serverless create_domain",
     "domain:delete": "serverless delete_domain",
     "knip": "knip",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint": "eslint . && npm run lint:templates:default && npm run lint:templates:dynamodb",
+    "lint:fix": "npm run lint -- --fix . && npm run lint:templates:default -- --fix && npm run lint:templates:dynamodb -- --fix",
+    "lint:templates:default": "eslint -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\"",
+    "lint:templates:dynamodb": "eslint -c templates/dynamodb/eslint.config.ts \"templates/dynamodb/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\"",
     "openapi": "tsx src/cli/index.ts register && tsx app/config/openapi && prettier -w app/generated/openapi.json",
     "package": "tsx src/cli/index.ts register && serverless package",
     "release": "dotenvx run -f .env.local -- release-it",
@@ -182,9 +184,7 @@
     "remove": "serverless remove",
     "smoz": "tsx src/cli/index.ts",
     "test": "vitest run",
-    "typecheck": "tsx src/cli/index.ts register && tsc -p tsconfig.json --noEmit",
-    "templates:typecheck": "tsx scripts/templates-typecheck.ts",
-    "templates:lint": "eslint --fix -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\""
+    "typecheck": "tsx src/cli/index.ts register && tsx scripts/typecheck-templates.ts && tsc -p tsconfig.json --noEmit"
   },
   "type": "module",
   "version": "0.2.10",
