@@ -112,7 +112,7 @@ const config: AWS = {
     Resources: {
       Table000: '${file(./tables/000/table.yml)}',
     },
-  },
+  } as unknown as NonNullable<AWS['resources']>,
   functions: app.buildAllServerlessFunctions() as NonNullable<AWS['functions']>,
   build: {
     esbuild: {

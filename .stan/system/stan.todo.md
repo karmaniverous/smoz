@@ -99,3 +99,11 @@ When updated: 2025-11-25T00:00:00Z
 - Knip: ignore template-only devDeps used for template typecheck
   - Added @karmaniverous/entity-manager and @karmaniverous/entity-tools to knip.json ignoreDependencies
   - Rationale: templates/\*\* are excluded from knip’s project scan; these deps are required only for template typechecking
+
+- Templates lint wiring & TS cast
+  - Fixed lint arg forwarding that appended "." to template runs; added explicit
+    lint:templates:*:fix scripts to avoid repo-wide lint with template configs
+  - Ensured templates/dynamodb lints with its own flat config (not default's)
+  - Cast serverless resources to NonNullable<AWS['resources']> so template
+    typecheck surfaces real ESLint errors (e.g., no-unsafe-assignment) instead
+    of being blocked by TS2322; normalized LF in that block to satisfy Prettier
