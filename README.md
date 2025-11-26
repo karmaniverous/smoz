@@ -52,7 +52,7 @@ npx smoz add rest/foo/get
 - [HTTP Middleware](https://docs.karmanivero.us/smoz/documents/HTTP_middleware.html)
 - [Recipes](https://docs.karmanivero.us/smoz/documents/Recipes.html)
   - [SQS function](https://docs.karmanivero.us/smoz/documents/Recipes.SQS_function.html)
-  - [Step Functions function](https://docs.karmanivero.us/smoz/documents/Recipes.Step_function.html)
+  - [Step Functions function](https://docs.karmanivero.us/smoz/documents/Recipes.Step_Functions_function.html)
   - [Contexts + Cognito authorizer](https://docs.karmanivero.us/smoz/documents/Recipes.Contexts_+_Cognito_authorizer.html) - [Custom middleware insertion](https://docs.karmanivero.us/smoz/documents/Recipes.Custom_middleware_insertion.html)
   - [Per‑function env](<https://docs.karmanivero.us/smoz/documents/Recipes.Per%E2%80%91function_env_(fnEnvKeys).html>)
   - [Observability](<https://docs.karmanivero.us/smoz/documents/Recipes.Observability_(requestId_header).html>)
