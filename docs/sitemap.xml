@@ -2,786 +2,786 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/index.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/hierarchy.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Overview.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Why_smoz_.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Getting_started.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/10%E2%80%91minute_tour.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/HTTP_middleware.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Recipes.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Recipes.SQS_function.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Recipes.Step_Functions_function.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Recipes.Contexts_+_Cognito_authorizer.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Recipes.Custom_middleware_insertion.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Recipes.Per%E2%80%91function_env_(fnEnvKeys).html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Recipes.Observability_(requestId_header).html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Recipes.Troubleshooting.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Templates.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/CLI.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/Contributing.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/documents/CHANGELOG.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/core_App.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/classes/core_App.App.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/interfaces/core_App.AppInit.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/core_baseEventTypeMapSchema.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/core_baseEventTypeMapSchema.BaseEventTypeMap.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/core_baseEventTypeMapSchema.StepFunctionInvokeEvent.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/variables/core_baseEventTypeMapSchema.baseEventTypeMapSchema.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/core_buildStageArtifacts.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/core_buildStageArtifacts.buildStageArtifacts.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/core_defineAppConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/interfaces/core_defineAppConfig.DefineAppConfigInput.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/interfaces/core_defineAppConfig.DefineAppConfigOutput.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/interfaces/core_defineAppConfig.EnvKeysNode.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/interfaces/core_defineAppConfig.EnvSchemaNode.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/interfaces/core_defineAppConfig.GlobalEnvConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/interfaces/core_defineAppConfig.GlobalParamsNode.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/interfaces/core_defineAppConfig.StageParamsNode.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/core_defineAppConfig.defineAppConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/core_defineFunctionConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/interfaces/core_defineFunctionConfig.EnvAttached.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/variables/core_defineFunctionConfig.ENV_CONFIG.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/core_defineFunctionConfig.defineFunctionConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/core_defineFunctionConfig.getEnvFromFunctionConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/core_handlerFactory.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/core_handlerFactory.handlerFactory.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/core_httpTokens.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/variables/core_httpTokens.defaultHttpEventTypeTokens.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/core_httpTokens.validateEventTypeMapSchemaIncludesBase.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/core_registry.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/core_registry.RegistryEntry.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/core_registry.createRegistry.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/core_serverlessConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/core_serverlessConfig.AppServerlessConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/variables/core_serverlessConfig.serverlessConfigSchema.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/core_types.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/core_types.ZodObj.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_buildPath.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_buildPath.buildPathElements.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_buildPath.sanitizeBasePath.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_buildPath.splitPath.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_asApiMiddleware.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_asApiMiddleware.asApiMiddleware.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_buildHttpMiddlewareStack.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_buildHttpMiddlewareStack.BuildHttpMiddlewareStackOptions.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack.buildHttpMiddlewareStack.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_buildHttpMiddlewareStack_steps.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeContentNegotiation.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeCors.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeErrorExposure.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeErrorHandler.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeEventNormalizer.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeHead.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeHeaderNormalizer.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeHeadFinalize.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeJsonBodyParser.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makePreferredMedia.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeResponseSerializer.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeShapeAndContentType.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_buildHttpMiddlewareStack_steps.makeZodValidator.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_combine.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_combine.combine.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_customization_compute.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_compute.computeHttpMiddleware.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_customization_defaultSteps.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_customization_defaultSteps.BuildSafeDefaultsArgs.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.buildDefaultPhases.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.buildSafeDefaults.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeContentNegotiation.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeCors.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeErrorExpose.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeErrorHandler.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeEventNormalizer.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeHead.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeHeaderNormalizer.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeHeadFinalize.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeJsonBodyParser.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makePreferredMedia.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeSerializer.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeShapeAndContentType.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeZodAfter.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_customization_defaultSteps.makeZodBefore.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_customization_types.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_customization_types.ApiMiddleware.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_customization_types.AppHttpConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_customization_types.Extend.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_customization_types.FunctionHttpConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_customization_types.HttpProfile.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_customization_types.HttpStackOptions.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_customization_types.Zodish.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_httpStackCustomization.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_httpZodValidator.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_httpZodValidator.HttpZodValidatorOptions.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_httpZodValidator.httpZodValidator.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_shortCircuitHead.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/variables/http_middleware_shortCircuitHead.shortCircuitHead.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_transformUtils.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_transformUtils.ApiMiddleware.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_transformUtils.HttpTransform.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_transformUtils.PhasedArrays.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/http_middleware_transformUtils.StepId.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_transformUtils.assertInvariants.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_transformUtils.findIndex.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_transformUtils.getId.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_transformUtils.insertAfter.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_transformUtils.insertBefore.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_transformUtils.removeStep.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_transformUtils.replaceStep.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_transformUtils.tagStep.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_middleware_wrapSerializer.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_middleware_wrapSerializer.wrapSerializer.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/http_resolveHttpFromFunctionConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/variables/http_resolveHttpFromFunctionConfig.HTTP_METHODS.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/http_resolveHttpFromFunctionConfig.resolveHttpFromFunctionConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/index.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/openapi_buildOpenApi.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/openapi_buildOpenApi.RegEntry.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/openapi_buildOpenApi.buildAllOpenApiPaths.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/openapi_types.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/openapi_types.BaseOperation.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/runtime_detectSecurityContext.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/runtime_detectSecurityContext.detectSecurityContext.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/runtime_detectSecurityContext.isV1.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/runtime_detectSecurityContext.isV2.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/runtime_envBuilder.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/runtime_envBuilder.buildEnvSchema.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/runtime_envBuilder.deriveAllKeys.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/runtime_envBuilder.isHead.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/runtime_envBuilder.parseTypedEnv.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/runtime_envBuilder.splitKeysBySchema.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/runtime_wrapHandler.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/runtime_wrapHandler.wrapHandler.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/serverless_buildServerless.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/serverless_buildServerless.RegEntry.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/serverless_buildServerless.ServerlessConfigLike.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/serverless_buildServerless.buildAllServerlessFunctions.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/serverless_intrinsic.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/serverless_intrinsic.Arn.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/serverless_intrinsic.IndexArn.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/serverless_intrinsic.Ref.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/serverless_intrinsic.ResourceName.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/serverless_intrinsic.StateMachineArn.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/serverless_plugin.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/classes/serverless_plugin.default.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/serverless_stagesFactory.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/serverless_stagesFactory.Dict.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/serverless_stagesFactory.StagesFactoryInput.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/serverless_stagesFactory.StagesFactoryOutput.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/serverless_stagesFactory.stagesFactory.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/types_DeepOverride.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_DeepOverride.DeepOverride.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/types_FunctionConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_FunctionConfig.FunctionConfig.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_FunctionConfig.FunctionHttpCustomization.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_FunctionConfig.MethodKey.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/types_Handler.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_Handler.Handler.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_Handler.HandlerOptions.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_Handler.ShapedEvent.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/types_HttpContext.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_HttpContext.HttpContext.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/types_LambdaEvent.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_LambdaEvent.LambdaEvent.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/types_Loggable.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/interfaces/types_Loggable.Loggable.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_Loggable.ConsoleLogger.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/types_MakeRequired.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_MakeRequired.MakeRequired.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/types_PropFromUnion.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_PropFromUnion.PropFromUnion.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/types_SecurityContextHttpEventMap.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/types/types_SecurityContextHttpEventMap.SecurityContextHttpEventMap.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/util_path.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/util_path.dirFromHere.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/util_path.toPosixPath.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/modules/util_pojofy.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 	<url>
 		<loc>https://docs.karmanivero.us/smoz/functions/util_pojofy.pojofy.html</loc>
-		<lastmod>2025-11-26T01:39:04.567Z</lastmod>
+		<lastmod>2025-11-26T01:48:13.181Z</lastmod>
 	</url>
 </urlset>

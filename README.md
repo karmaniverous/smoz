@@ -45,21 +45,21 @@ npx smoz add rest/foo/get
 
 ## Quick links
 
-- [Overview](https://docs.karmanivero.us/smoz/documents/Overview.html)
-- [Why smoz?](https://docs.karmanivero.us/smoz/documents/Why_smoz_.html)
-- [Getting started](https://docs.karmanivero.us/smoz/documents/Getting_started.html)
-- [10-minute tour](https://docs.karmanivero.us/smoz/documents/10%E2%80%91minute_tour.html)
+- [Overview](./docs-src/overview.md)
+- [Why smoz?](./docs-src/why-smoz.md)
+- [Getting started](./docs-src/getting-started.md)
+- [10-minute tour](./docs-src/tour-10-minutes.md)
 - [HTTP Middleware](https://docs.karmanivero.us/smoz/documents/HTTP_middleware.html)
-- [Recipes](https://docs.karmanivero.us/smoz/documents/Recipes.html)
-  - [SQS function](https://docs.karmanivero.us/smoz/documents/Recipes.SQS_function.html)
-  - [Step Functions function](https://docs.karmanivero.us/smoz/documents/Recipes.Step_Functions_function.html)
-  - [Contexts + Cognito authorizer](https://docs.karmanivero.us/smoz/documents/Recipes.Contexts_+_Cognito_authorizer.html) - [Custom middleware insertion](https://docs.karmanivero.us/smoz/documents/Recipes.Custom_middleware_insertion.html)
-  - [Per‑function env](<https://docs.karmanivero.us/smoz/documents/Recipes.Per%E2%80%91function_env_(fnEnvKeys).html>)
-  - [Observability](<https://docs.karmanivero.us/smoz/documents/Recipes.Observability_(requestId_header).html>)
-  - [Troubleshooting](https://docs.karmanivero.us/smoz/documents/Recipes.Troubleshooting.html)
-- [Templates](https://docs.karmanivero.us/smoz/documents/Templates.html)
-- [CLI](https://docs.karmanivero.us/smoz/documents/CLI.html)
-- [Contributing](https://docs.karmanivero.us/smoz/documents/Contributing.html)
+- [Recipes](./docs-src/recipes/index.md)
+  - [SQS function](./docs-src/recipes/sqs.md)
+  - [Step Functions function](./docs-src/recipes/step.md)
+  - [Contexts + Cognito authorizer](./docs-src/recipes/contexts-auth.md) - [Custom middleware insertion](./docs-src/recipes/custom-middleware.md)
+  - [Per‑function env](./docs-src/recipes/per-function-env.md)
+  - [Observability](./docs-src/recipes/observability.md)
+  - [Troubleshooting](./docs-src/recipes/troubleshooting.md)
+- [Templates](./docs-src/templates.md)
+- [CLI](./docs-src/cli.md)
+- [Contributing](./CONTRIBUTING.md)
 
 ## Install
 
