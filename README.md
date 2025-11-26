@@ -76,7 +76,7 @@ npm i -D typescript typescript-eslint eslint prettier typedoc
 ## Docs and reference
 
 - [Docs site](https://docs.karmanivero.us/smoz)
-- [Changelog](https://github.com/karmaniverous/smoz/tree/main/CHANGELOG.md)
-- [License](https://github.com/karmaniverous/smoz/tree/main/LICENSE.md)
+- [Changelog](./CHANGELOG.md)
+- [License](LICENSE)
 - [Middy](https://middy.js.org/)
 - [Zod](https://zod.dev/)
