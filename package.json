@@ -36,6 +36,7 @@
     "@karmaniverous/entity-client-dynamodb": "^0.7.0",
     "@karmaniverous/entity-manager": "^7.2.0",
     "@karmaniverous/entity-tools": "^0.7.1",
+    "@karmaniverous/string-utilities": "^0.2.1",
     "@rollup/plugin-alias": "^6.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
     "@serverless/typescript": "^4.23.0",

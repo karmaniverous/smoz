@@ -57,7 +57,7 @@ const config: AWS = {
       noPrependStageInUrl: true,
     },
   },
-  stages: app.stages as NonNullable<AWS['stages']>,
+  stages: app.stages,
   provider: {
     apiGateway: {
       apiKeys: ['${param:SERVICE_NAME}-${param:STAGE}'],
@@ -70,7 +70,7 @@ const config: AWS = {
     },
     deploymentMethod: 'direct',
     endpointType: 'edge',
-    environment: app.environment as NonNullable<AWS['provider']['environment']>,
+    environment: app.environment,
     iam: {
       role: {
         managedPolicies: [
@@ -91,7 +91,8 @@ const config: AWS = {
     },
     memorySize: 256,
     name: 'aws',
-    region: '${param:REGION}' as NonNullable<AWS['provider']['region']>,
+    // @ts-expect-error param resolves as region
+    region: '${param:REGION}',
     runtime: 'nodejs22.x',
     profile: '${param:PROFILE}',
     stackName: '${param:SERVICE_NAME}-${param:STAGE}',
@@ -106,13 +107,14 @@ const config: AWS = {
     },
     versionFunctions: false,
   },
-  functions: app.buildAllServerlessFunctions() as NonNullable<AWS['functions']>,
+  functions: app.buildAllServerlessFunctions(),
   build: {
     esbuild: {
       bundle: true,
-      // Param placeholders resolve at deploy/package time; assert to boolean for TS.
-      minify: '${param:ESB_MINIFY}' as unknown as boolean,
-      sourcemap: '${param:ESB_SOURCEMAP}' as unknown as boolean,
+      // @ts-expect-error param resolves as bool
+      minify: '${param:ESB_MINIFY}',
+      // @ts-expect-error param resolves as bool
+      sourcemap: '${param:ESB_SOURCEMAP}',
       // This keeps the AWS SDK external and trims bundles.
       exclude: ['@aws-sdk/*'],
       target: 'node22',

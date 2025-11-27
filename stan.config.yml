@@ -17,6 +17,9 @@ stan-core:
       - ../get-dotenv/.stan/interop/smoz/**
       - ../get-dotenv/guides/config.md
       - ../get-dotenv/guides/plugins/index.md
+    string-utilities:
+      - ../string-utilities/.stan/interop/smoz/**
+      - ../string-utilities/dist/index.d.ts
   includes:
     - templates/**
   excludes:
@@ -30,7 +33,7 @@ stan-core:
 stan-cli:
   cliDefaults:
     run:
-      facets: false
+      facets: true
       plan: false
       sequential: true
   patchOpenCommand: code -g {file}

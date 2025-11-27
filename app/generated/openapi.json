@@ -35,6 +35,476 @@
           }
         }
       }
+    },
+    "/users/{id}": {
+      "delete": {
+        "summary": "Delete user (public)",
+        "description": "Delete all records for the specified user id.",
+        "tags": [
+          "users",
+          "public"
+        ],
+        "operationId": "users_{id}_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get user by id (public)",
+        "description": "Returns the user with the specified id. Empty list when not found.",
+        "tags": [
+          "users",
+          "public"
+        ],
+        "operationId": "users_{id}_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User items (possibly empty)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "beneficiaryId": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "type": "number"
+                          },
+                          "firstName": {
+                            "type": "string"
+                          },
+                          "firstNameCanonical": {
+                            "type": "string"
+                          },
+                          "lastName": {
+                            "type": "string"
+                          },
+                          "lastNameCanonical": {
+                            "type": "string"
+                          },
+                          "phone": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "type": "number"
+                          },
+                          "userId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "beneficiaryId",
+                          "created",
+                          "firstName",
+                          "firstNameCanonical",
+                          "lastName",
+                          "lastNameCanonical",
+                          "updated",
+                          "userId"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update user (shallow) (public)",
+        "description": "Shallow update — undefined ignored; null deletes optional properties. Returns updated items.",
+        "tags": [
+          "users",
+          "public"
+        ],
+        "operationId": "users_{id}_put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Update payload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "beneficiaryId": {
+                        "type": "string"
+                      },
+                      "created": {
+                        "type": "number"
+                      },
+                      "firstName": {
+                        "type": "string"
+                      },
+                      "firstNameCanonical": {
+                        "type": "string"
+                      },
+                      "lastName": {
+                        "type": "string"
+                      },
+                      "lastNameCanonical": {
+                        "type": "string"
+                      },
+                      "phone": {
+                        "type": "string"
+                      },
+                      "updated": {
+                        "type": "number"
+                      },
+                      "userId": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "beneficiaryId",
+                      "created",
+                      "firstName",
+                      "firstNameCanonical",
+                      "lastName",
+                      "lastNameCanonical",
+                      "updated",
+                      "userId"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Search users (public)",
+        "description": "Search users by beneficiary, name, phone, and created/updated ranges. Returns items and an optional pageKeyMap for paging.",
+        "tags": [
+          "users",
+          "public"
+        ],
+        "operationId": "users_get",
+        "parameters": [
+          {
+            "name": "beneficiaryId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Prefix; case/diacritic-insensitive"
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdFrom",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "createdTo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "updatedFrom",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "updatedTo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created",
+                "name",
+                "updated"
+              ]
+            }
+          },
+          {
+            "name": "sortDesc",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "pageKeyMap",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "beneficiaryId": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "type": "number"
+                          },
+                          "firstName": {
+                            "type": "string"
+                          },
+                          "firstNameCanonical": {
+                            "type": "string"
+                          },
+                          "lastName": {
+                            "type": "string"
+                          },
+                          "lastNameCanonical": {
+                            "type": "string"
+                          },
+                          "phone": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "type": "number"
+                          },
+                          "userId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "beneficiaryId",
+                          "created",
+                          "firstName",
+                          "firstNameCanonical",
+                          "lastName",
+                          "lastNameCanonical",
+                          "updated",
+                          "userId"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pageKeyMap": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create user (public)",
+        "description": "Create a new user record.",
+        "tags": [
+          "users",
+          "public"
+        ],
+        "operationId": "users_post",
+        "requestBody": {
+          "description": "User payload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "beneficiaryId": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "userId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "beneficiaryId",
+                  "firstName",
+                  "lastName"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "beneficiaryId": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "type": "number"
+                    },
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "firstNameCanonical": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "lastNameCanonical": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "type": "number"
+                    },
+                    "userId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "beneficiaryId",
+                    "created",
+                    "firstName",
+                    "firstNameCanonical",
+                    "lastName",
+                    "lastNameCanonical",
+                    "updated",
+                    "userId"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

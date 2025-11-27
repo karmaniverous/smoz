@@ -80,7 +80,8 @@ const config: AWS = {
     },
     memorySize: 256,
     name: 'aws',
-    region: '${param:REGION}' as NonNullable<AWS['provider']['region']>,
+    // @ts-expect-error param resolves as bool
+    region: '${param:REGION}',
     runtime: 'nodejs22.x',
     profile: '${param:PROFILE}',
     stackName: '${param:SERVICE_NAME}-${param:STAGE}',
@@ -95,12 +96,21 @@ const config: AWS = {
     },
     versionFunctions: false,
   },
-  functions: app.buildAllServerlessFunctions() as NonNullable<AWS['functions']>,
+  functions: app.buildAllServerlessFunctions(),
+  // Minimal fixture resource import for versioned table v000.
+  resources: {
+    Resources: {
+      // @ts-expect-error fie import resolves as table definition
+      Table000: '${file(./app/tables/000/table.yml)}',
+    },
+  },
   build: {
     esbuild: {
       bundle: true,
-      minify: '${param:ESB_MINIFY}' as unknown as boolean,
-      sourcemap: '${param:ESB_SOURCEMAP}' as unknown as boolean,
+      // @ts-expect-error param resolves as bool
+      minify: '${param:ESB_MINIFY}',
+      // @ts-expect-error param resolves as bool
+      sourcemap: '${param:ESB_SOURCEMAP}',
       exclude: ['@aws-sdk/*'],
       target: 'node22',
       platform: 'node',

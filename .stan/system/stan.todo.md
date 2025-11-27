@@ -125,3 +125,10 @@ When updated: 2025-11-25T00:00:00Z
   - Added @karmaniverous/entity-client-dynamodb to knip.json ignoreDependencies
 
 - /app fixture: seed STAGE_NAME stage param (best practice; not consumed yet)
+
+- /app fixture: scaffold domain schema, EntityManager, EntityClient, and add a
+  Serverless resource import skeleton for table v000
+
+- /app: implement REST users endpoints (CRUD + search)
+  - Typed params via zod overrides in lambda.ts (no in-handler casts)
+  - Kept configs minimal (no explicit defaults); explicit basePath only for {id}
