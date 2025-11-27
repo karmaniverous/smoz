@@ -30,7 +30,7 @@ stan-core:
 stan-cli:
   cliDefaults:
     run:
-      facets: true
+      facets: false
       plan: false
       sequential: true
   patchOpenCommand: code -g {file}

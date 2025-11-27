@@ -36,6 +36,16 @@ How to work in this repo (assistant expectations)
     `types/registers.d.ts` declarations and do not add app/generated artifacts
     into template sources. Keep the unified templates ESLint config and the
     template typecheck script working across all templates.
+  - EntityManager type inference (directive): When SMOZ code interacts with
+    @karmaniverous/entity-manager and @karmaniverous/entity-client-dynamodb,
+    types must be inferred without local casts, ad‑hoc type aliases, or
+    “type gymnastics”. If inference breaks, treat it as a code smell. Investigate
+    and either fix locally by preserving literal config tokens (as const) or
+    raise an interop note under .stan/interop/* with a minimal repro and clear
+    acceptance criteria. Do not ship local workarounds for broken inference.
+  - Template extraction policy: Prove functionality and inference in the /app
+    fixture first; extract a minimal, stable template only after the fixture is
+    green. Avoid publishing unproven templates.
 
 - Dev loop and local serving
   - Inline server: prefer tsx; if tsx is missing, instruct users to install it

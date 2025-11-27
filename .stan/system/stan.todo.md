@@ -4,27 +4,32 @@ When updated: 2025-11-25T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
-- Template: add `dynamodb`
-  - Add tables/000 with:
-    - entityManager.ts (values-first + schema-first; imports app/domain/user.ts)
-    - table.yml with `TableName: ${param:STAGE_NAME}-000`
-    - (no transform.ts for 000)
-  - Add app/domain/user.ts (authoritative Zod) and reuse it in EM + HTTP
-  - Implement users endpoints inline under app/functions/rest/users/\*:
-    - GET /users (query-driven search; beneficiaryId, name, phone, createdFrom/To, updatedFrom/To, sortOrder, sortDesc, pageKeyMap)
+- Fixture-first: implement DynamoDB + EntityManager in /app
+  - Domain schema: add app/domain/user.ts (authoritative Zod).
+  - EntityManager: add app/tables/000/entityManager.ts (values‑first literal,
+    as const; reuse domain schema).
+  - EntityClient: add app/entity/entityClient.ts; honor DYNAMODB_LOCAL_ENDPOINT
+    to target Local automatically when present.
+  - Endpoints in app/functions/rest/users/\* (match demo semantics; minimal
+    annotation – inference should flow end‑to‑end):
+    - GET /users (SearchUsersParams: beneficiaryId, name, phone, createdFrom/To,
+      updatedFrom/To, sortOrder, sortDesc, pageKeyMap)
     - POST /users (create)
     - GET /users/{id} (read)
-    - PUT /users/{id} (shallow update semantics)
+    - PUT /users/{id} (shallow update; null deletes optional props)
     - DELETE /users/{id} (delete)
-  - serverless.ts resources:
-    - Table000: ${file(./tables/000/table.yml)} (later versions added side-by-side)
-  - Provider params/env:
-    - Add STAGE_NAME = ${SERVICE_NAME}-${STAGE} (duplicated per stage)
-    - TABLE_VERSION (public/global)
-    - TABLE_VERSION_DEPLOYED (private per env; ${env:TABLE_VERSION_DEPLOYED})
-    - TABLE_NAME = ${param:STAGE_NAME}-${param:TABLE_VERSION}
-    - TABLE_NAME_DEPLOYED = ${param:STAGE_NAME}-${env:TABLE_VERSION_DEPLOYED}
-    - DYNAMODB_LOCAL_ENDPOINT (optional; passed to handlers)
+  - Serverless resources: import app/tables/000/table.yml; TableName =
+    ${param:STAGE_NAME}-000. Ensure stage params include STAGE_NAME where
+    appropriate.
+  - Tests: prove inference (no local casts) and behavior (QueryBuilder routes,
+    pageKeyMap round‑trip, shallow update semantics). Add a guarded Local
+    smoke test or mocks for endpoint switching via DYNAMODB_LOCAL_ENDPOINT.
+
+- Template extraction (after fixture is green)
+  - Extract the proven /app pattern into templates/dynamodb with minimal
+    deltas and keep annotations minimal (inference first).
+  - Ensure template typechecks without generated registers (ambient declarations).
+  - Do not publish until the extracted template mirrors the fixture’s behavior.
 
 - /app fixture: reflect combined feature set
   - Add tables/000 with versioned TableName YAML and resource import
