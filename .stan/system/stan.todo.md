@@ -89,7 +89,7 @@ When updated: 2025-11-25T00:00:00Z
   - Removed typeof import() type annotations; use local type aliases to satisfy consistent-type-imports
 
 - Default template: seed STAGE_NAME param
-  - Add STAGE_NAME = ${SERVICE_NAME}-${STAGE} (best practice; not consumed yet)
+  - Add STAGE_NAME = ${SERVICE_NAME}-${STAGE} (not consumed yet)
 
 - DynamoDB template: seed dependencies and CLI
   - Renamed package to smoz-template-dynamodb
@@ -107,7 +107,7 @@ When updated: 2025-11-25T00:00:00Z
 
 - Templates lint wiring & TS cast
   - Fixed lint arg forwarding that appended "." to template runs; added explicit
-    lint:templates:*:fix scripts to avoid repo-wide lint with template configs
+    lint:templates:\*:fix scripts to avoid repo-wide lint with template configs
   - Ensured templates/dynamodb lints with its own flat config (not default's)
   - Cast serverless resources to NonNullable<AWS['resources']> so template
     typecheck surfaces real ESLint errors (e.g., no-unsafe-assignment) instead
@@ -122,4 +122,6 @@ When updated: 2025-11-25T00:00:00Z
   - Reused domain Zod and EntityClient/QueryBuilder; baseline compiles and is ready for extension
 
 - Knip: ignore template-only devDep entity-client-dynamodb
-  - Added @karmaniverous/entity-client-dynamodb to knip.json ignoreDependencies
+  - Added @karmaniverous/entity-client-dynamodb to knip.json ignoreDependencies
+
+- /app fixture: seed STAGE_NAME stage param (best practice; not consumed yet)

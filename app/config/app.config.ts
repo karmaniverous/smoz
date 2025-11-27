@@ -1,3 +1,13 @@
+/**
+ * REQUIREMENTS ADDRESSED
+ * - Add STAGE_NAME to the /app fixture’s stage params as a best practice for
+ *   dynamic resource naming. This mirrors the template policy and supports
+ *   future resources (e.g., versioned DynamoDB tables) that use
+ *   ${param:STAGE_NAME} for names.
+ * - Note: STAGE_NAME is seeded here and not yet consumed by the fixture’s
+ *   resources; future changes may reference it in resource imports.
+ */
+
 import { fileURLToPath } from 'node:url';
 
 import { z } from 'zod';
@@ -21,6 +31,7 @@ export const app = App.create({
   stageParamsSchema: z.object({
     DOMAIN_CERTIFICATE_ARN: z.string(),
     DOMAIN_NAME: z.string(),
+    STAGE_NAME: z.string(),
     STAGE: z.string(),
   }),
   serverless: {
@@ -54,12 +65,14 @@ export const app = App.create({
         DOMAIN_CERTIFICATE_ARN:
           'arn:aws:acm:us-east-1:000000000000:certificate/dev-placeholder',
         DOMAIN_NAME: 'api.dev.example.test',
+        STAGE_NAME: 'smoz-sample-dev',
         STAGE: 'dev',
       },
       prod: {
         DOMAIN_CERTIFICATE_ARN:
           'arn:aws:acm:us-east-1:000000000000:certificate/prod-placeholder',
         DOMAIN_NAME: 'api.example.test',
+        STAGE_NAME: 'smoz-sample-prod',
         STAGE: 'prod',
         ESB_MINIFY: true,
         ESB_SOURCEMAP: false,
