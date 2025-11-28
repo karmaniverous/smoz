@@ -4,7 +4,7 @@ import { normstr } from '@karmaniverous/string-utilities';
 
 import { entityClient } from '@/app/entity/entityClient';
 
-import { fn, responseSchema } from './lambda';
+import { fn } from './lambda';
 
 export const handler = fn.handler(async (event) => {
   const entityToken = 'user';
@@ -70,7 +70,7 @@ export const handler = fn.handler(async (event) => {
       queryBuilder = queryBuilder.addRangeKeyCondition(indexToken, {
         property: 'phone',
         operator: 'begins_with',
-        value: phone,
+        value: phone!,
       });
     } else if (rangeKeyToken === 'firstNameRangeKey') {
       queryBuilder = queryBuilder.addRangeKeyCondition(indexToken, {
@@ -83,7 +83,7 @@ export const handler = fn.handler(async (event) => {
           },
         ),
       });
-    } else if (rangeKeyToken === 'lastNameRangeKey') {
+    } else {
       queryBuilder = queryBuilder.addRangeKeyCondition(indexToken, {
         property: 'lastNameRangeKey',
         operator: 'begins_with',
@@ -141,8 +141,11 @@ export const handler = fn.handler(async (event) => {
 
   if (!result.items.length) return { items: [], pageKeyMap: result.pageKeyMap };
 
-  const keys = entityClient.entityManager.getPrimaryKey('user', result.items);
-  const { items } = await entityClient.getItems('user', keys);
+  const keys = entityClient.entityManager.getPrimaryKey(
+    entityToken,
+    result.items,
+  );
+  const { items } = await entityClient.getItems(entityToken, keys);
 
   const sorted = sort(items, [
     {
@@ -151,6 +154,6 @@ export const handler = fn.handler(async (event) => {
     },
   ]);
 
-  const domain = entityClient.entityManager.removeKeys('user', sorted);
+  const domain = entityClient.entityManager.removeKeys(entityToken, sorted);
   return { items: domain, pageKeyMap: result.pageKeyMap };
 });
