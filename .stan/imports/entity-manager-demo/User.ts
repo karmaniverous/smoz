@@ -12,13 +12,13 @@ import { entityClient } from '../entity-manager/entityClient';
  * with the database.
  */
 export const userSchema = z.object({
-  beneficiaryId: z.string(),
+  beneficiaryId: z.string().nullable().optional(),
   created: z.number(),
-  firstName: z.string(),
-  firstNameCanonical: z.string(),
-  lastName: z.string(),
-  lastNameCanonical: z.string(),
-  phone: z.string().optional(),
+  firstName: z.string().nullable().optional(),
+  firstNameCanonical: z.string().nullable().optional(),
+  lastName: z.string().nullable().optional(),
+  lastNameCanonical: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
   updated: z.number(),
   userId: z.string(),
 });

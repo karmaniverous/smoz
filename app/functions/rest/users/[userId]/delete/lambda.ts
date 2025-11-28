@@ -5,20 +5,12 @@ import { userSchema } from '@/app/domain/user';
 import { endpointsRootAbs } from '@/app/functions/rest/endpointsRootAbs';
 
 export const eventSchema = z.object({
-  body: userSchema.pick({
-    beneficiaryId: true,
-    firstName: true,
-    lastName: true,
-    phone: true,
-  }),
+  pathParameters: userSchema.pick({ userId: true }),
 });
-
-export const responseSchema = userSchema;
 
 export const fn = app.defineFunction({
   eventType: 'rest',
   eventSchema,
-  responseSchema,
   callerModuleUrl: import.meta.url,
   endpointsRootAbs,
 });

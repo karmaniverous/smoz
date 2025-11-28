@@ -8,16 +8,12 @@
  *   resources; future changes may reference it in resource imports.
  */
 
-import { fileURLToPath } from 'node:url';
-
 import { z } from 'zod';
 
-import { App, toPosixPath } from '@/src';
+import { App, dirFromHere } from '@/src';
 
 // Derive the app root as the parent directory of app/config/
-export const APP_ROOT_ABS = toPosixPath(
-  fileURLToPath(new URL('..', import.meta.url)),
-);
+export const APP_ROOT_ABS = dirFromHere(import.meta.url, 1);
 
 export const app = App.create({
   appRootAbs: APP_ROOT_ABS,

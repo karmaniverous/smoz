@@ -11,9 +11,10 @@ export const eventSchema = z.object({
     lastName: true,
     phone: true,
   }),
+  pathParameters: userSchema.pick({ userId: true }),
 });
 
-export const responseSchema = userSchema;
+export const responseSchema = z.array(userSchema);
 
 export const fn = app.defineFunction({
   eventType: 'rest',

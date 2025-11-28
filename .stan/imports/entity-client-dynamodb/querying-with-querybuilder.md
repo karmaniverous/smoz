@@ -18,13 +18,9 @@ const qb = createQueryBuilder({
   hashKeyToken: 'hashKey2',
 });
 
-// Optional cf: derive ITS from cf.indexes and narrow per-index page keys
-const qb2 = createQueryBuilder({
-  entityClient: client,
-  entityToken: 'user',
-  hashKeyToken: 'hashKey2',
-  cf: myConfigLiteral, // preserve keys with `as const`
-});
+// Automatic index inference:
+// If your EntityClient was built from createEntityManager(config as const),
+// index tokens (ITS) and per-index page keys are inferred automatically (no cf needed).
 
 // Add a range key condition
 qb.addRangeKeyCondition('created', {
@@ -73,7 +69,7 @@ qb.setScanIndexForward('created', false); // reverse chronological
 Notes
 
 - When any projection is present, the adapter auto-includes the entity uniqueProperty and any explicit sort keys at runtime to preserve dedupe/sort invariants.
-- With a `cf` (config literal) provided to the factory, index tokens (ITS) and page keys are narrowed per-index.
+- When your EntityClient is constructed from `createEntityManager(config as const)`, index tokens (ITS) and per-index page keys are inferred automatically.
 
 Related
 

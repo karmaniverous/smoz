@@ -1,4 +1,4 @@
-import { fn, putBodySchema, responseSchema } from './lambda';
+import { eventSchema, fn, responseSchema } from './lambda';
 
 fn.openapi({
   summary: 'Update user (shallow)',
@@ -9,7 +9,7 @@ fn.openapi({
   ],
   requestBody: {
     description: 'Update payload',
-    content: { 'application/json': { schema: putBodySchema } },
+    content: { 'application/json': { schema: eventSchema.shape.body } },
   },
   responses: {
     200: {

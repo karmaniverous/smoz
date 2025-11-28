@@ -12,7 +12,7 @@ import { defaultTranscodes } from '@karmaniverous/entity-tools';
 import { userSchema } from '@/app/domain/user';
 
 // Minimal config literal. Keep tokens literal (as const) to preserve inference.
-const config = {
+export const entityManagerConfig = {
   hashKey: 'hashKey' as const,
   rangeKey: 'rangeKey' as const,
   entitiesSchema: {
@@ -22,14 +22,11 @@ const config = {
     user: {
       uniqueProperty: 'userId',
       timestampProperty: 'created',
-      // No sharding bumps for the fixture (keeps examples simple).
-      shardBumps: [],
     },
   },
   generatedProperties: {
     sharded: {
-      // Beneficiary/user hash keys for scoped/global queries.
-      userHashKey: ['userId'] as const,
+      beneficiaryHashKey: ['beneficiaryId'] as const,
     } as const,
     unsharded: {
       firstNameRangeKey: [
@@ -46,23 +43,34 @@ const config = {
   } as const,
   // Small but useful index set for basic searches.
   indexes: {
-    created: { hashKey: 'hashKey', rangeKey: 'created', projections: [] },
-    updated: { hashKey: 'hashKey', rangeKey: 'updated', projections: [] },
-    firstName: {
+    userCreated: { hashKey: 'hashKey', rangeKey: 'created' },
+    userFirstName: {
       hashKey: 'hashKey',
       rangeKey: 'firstNameRangeKey',
-      projections: [],
     },
-    lastName: {
+    userLastName: {
       hashKey: 'hashKey',
       rangeKey: 'lastNameRangeKey',
-      projections: [],
     },
-    userCreated: {
-      hashKey: 'userHashKey',
-      rangeKey: 'created',
-      projections: [],
+    userPhone: {
+      hashKey: 'hashKey',
+      rangeKey: 'phone',
     },
+    userUpdated: { hashKey: 'hashKey', rangeKey: 'updated' },
+    beneficiaryCreated: { hashKey: 'beneficiaryHashKey', rangeKey: 'created' },
+    beneficiaryFirstName: {
+      hashKey: 'beneficiaryHashKey',
+      rangeKey: 'firstNameRangeKey',
+    },
+    beneficiaryLastName: {
+      hashKey: 'beneficiaryHashKey',
+      rangeKey: 'lastNameRangeKey',
+    },
+    beneficiaryPhone: {
+      hashKey: 'beneficiaryHashKey',
+      rangeKey: 'phone',
+    },
+    beneficiaryUpdated: { hashKey: 'beneficiaryHashKey', rangeKey: 'updated' },
   } as const,
   // Map domain properties to transcodes used by the EM/Client.
   propertyTranscodes: {
@@ -79,5 +87,4 @@ const config = {
   transcodes: defaultTranscodes,
 } satisfies ConfigInput;
 
-export const entityManager = createEntityManager(config, console);
-export type ConfigMap = typeof config;
+export const entityManager = createEntityManager(entityManagerConfig, console);

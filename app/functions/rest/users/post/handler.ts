@@ -7,41 +7,27 @@ import { nanoid } from 'nanoid';
 import type { UserItem } from '@/app/domain/user';
 import { entityClient } from '@/app/entity/entityClient';
 
-import { fn, responseSchema } from './lambda';
+import { fn } from './lambda';
 
-type Response = UserItem;
+export const handler = fn.handler(async (event) => {
+  const { firstName, lastName, phone, ...body } = event.body;
 
-export const handler = fn.handler(
-  async (event): Promise<Response> => {
-    const body = event.body;
+  const now = Date.now();
+  const item: UserItem = {
+    ...body,
+    created: now,
+    firstName,
+    firstNameCanonical: normstr(firstName),
+    lastName,
+    lastNameCanonical: normstr(lastName),
+    phone: normstr(phone),
+    updated: now,
+    userId: nanoid(),
+  };
 
-    const now = Date.now();
-    const userId = body.userId ?? nanoid();
-    // Uniqueness check by userId
-    {
-      const keys = entityClient.entityManager.getPrimaryKey('user', { userId });
-      const existing = await entityClient.getItems('user', keys);
-      if (existing.items.length) {
-        throw new Error('User record already exists.');
-      }
-    }
+  const record = entityClient.entityManager.addKeys('user' as const, item);
 
-    const item: UserItem = {
-      beneficiaryId: body.beneficiaryId,
-      firstName: body.firstName,
-      firstNameCanonical: normstr(body.firstName) ?? '',
-      lastName: body.lastName,
-      lastNameCanonical: normstr(body.lastName) ?? '',
-      phone: body.phone,
-      userId,
-      created: now,
-      updated: now,
-    };
+  await entityClient.putItem(record);
 
-    const record = entityClient.entityManager.addKeys('user', item);
-    await entityClient.putItem(record);
-
-    return item;
-  },
-  { responseSchema },
-);
+  return item;
+});

@@ -1,11 +1,11 @@
-import { fn, postBodySchema, responseSchema } from './lambda';
+import { eventSchema, fn, responseSchema } from './lambda';
 
 fn.openapi({
   summary: 'Create user',
   description: 'Create a new user record.',
   requestBody: {
     description: 'User payload',
-    content: { 'application/json': { schema: postBodySchema } },
+    content: { 'application/json': { schema: eventSchema.shape.body } },
   },
   responses: {
     200: {

@@ -1,11 +1,7 @@
-/**
- + REQUIREMENTS ADDRESSED
- + - Provide an authoritative domain Zod schema for the /app fixture (User).
- + - Keep generated/global keys out of the domain shape; EntityManager derives
- +   storage keys from this schema.
- + - Reuse this schema across EntityManager and HTTP endpoints.
- */
+import type { EntityClientRecordByToken } from '@karmaniverous/entity-manager';
 import { z } from 'zod';
+
+import type { entityClient } from '@/app/entity/entityClient';
 
 /**
  * User domain schema (base fields only).
@@ -15,15 +11,17 @@ import { z } from 'zod';
  * - Optional phone number is included for simple queries.
  */
 export const userSchema = z.object({
-  beneficiaryId: z.string(),
-  created: z.number(),
-  firstName: z.string(),
-  firstNameCanonical: z.string(),
-  lastName: z.string(),
-  lastNameCanonical: z.string(),
-  phone: z.string().optional(),
-  updated: z.number(),
+  beneficiaryId: z.string().nullable().optional(),
+  created: z.coerce.number(),
+  firstName: z.string().nullable().optional(),
+  firstNameCanonical: z.string().nullable().optional(),
+  lastName: z.string().nullable().optional(),
+  lastNameCanonical: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  updated: z.coerce.number(),
   userId: z.string(),
 });
 
 export type UserItem = z.infer<typeof userSchema>;
+
+export type UserRecord = EntityClientRecordByToken<typeof entityClient, 'user'>;

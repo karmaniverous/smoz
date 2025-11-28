@@ -1,7 +1,7 @@
 import type { Context } from 'aws-lambda';
 import type { z } from 'zod';
 
-import type { DeepOverride } from '@/src/types/DeepOverride';
+import type { DeepOverrideHttp } from '@/src/types/DeepOverride';
 import type { ConsoleLogger } from '@/src/types/Loggable';
 /** Event type after applying deep schema overrides. */
 /**
@@ -11,7 +11,7 @@ export type ShapedEvent<
   EventSchema extends z.ZodType | undefined,
   EventType,
 > = EventSchema extends z.ZodType
-  ? DeepOverride<EventType, z.infer<EventSchema>>
+  ? DeepOverrideHttp<EventType, z.infer<EventSchema>>
   : EventType;
 
 /** Handler options shared across invocation modes. */

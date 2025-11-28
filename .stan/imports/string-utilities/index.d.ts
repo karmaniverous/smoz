@@ -114,7 +114,7 @@ declare const sn2n: (strings: TemplateStringsArray, ...exp: unknown[]) => unknow
 declare const sn2u: (strings: TemplateStringsArray, ...exp: unknown[]) => unknown;
 
 /**
- * Normalize a string by converting diacriticals to base characters, removing non-word characters, and converting to lower case. Non-strings return undefined.
+ * Normalize a string by converting diacriticals to base characters, removing non-word characters, and converting to lower case. Null returns null; all other non-strings return undefined.
  *
  * @param value - The string to normalize.
  * @returns The normalized string or undefined if not a string.
@@ -127,6 +127,7 @@ declare const sn2u: (strings: TemplateStringsArray, ...exp: unknown[]) => unknow
  *
  * @category Transformations
  */
-declare const normstr: (value?: string) => string | undefined;
+declare const normstr: (value?: string | null) => string | null | undefined;
 
-export { type Stringifiable, isStringifiable, n2d, n2e, normstr, sn2d, sn2e, sn2n, sn2u };
+export { isStringifiable, n2d, n2e, normstr, sn2d, sn2e, sn2n, sn2u };
+export type { Stringifiable };

@@ -1,4 +1,4 @@
-import { fn, responseSchema, searchQuerySchema } from './lambda';
+import { fn, responseSchema } from './lambda';
 
 // OpenAPI for GET /users (search)
 fn.openapi({
@@ -13,14 +13,6 @@ fn.openapi({
       schema: { type: 'string' },
     },
     {
-      name: 'name',
-      in: 'query',
-      required: false,
-      schema: { type: 'string' },
-      description: 'Prefix; case/diacritic-insensitive',
-    },
-    { name: 'phone', in: 'query', required: false, schema: { type: 'string' } },
-    {
       name: 'createdFrom',
       in: 'query',
       required: false,
@@ -33,6 +25,32 @@ fn.openapi({
       schema: { type: 'number' },
     },
     {
+      name: 'name',
+      in: 'query',
+      required: false,
+      schema: { type: 'string' },
+      description: 'Prefix; case/diacritic-insensitive',
+    },
+    {
+      name: 'pageKeyMap',
+      in: 'query',
+      required: false,
+      schema: { type: 'string' },
+    },
+    { name: 'phone', in: 'query', required: false, schema: { type: 'string' } },
+    {
+      name: 'sortDesc',
+      in: 'query',
+      required: false,
+      schema: { type: 'boolean' },
+    },
+    {
+      name: 'sortOrder',
+      in: 'query',
+      required: false,
+      schema: { type: 'string', enum: ['created', 'name', 'updated'] },
+    },
+    {
       name: 'updatedFrom',
       in: 'query',
       required: false,
@@ -43,24 +61,6 @@ fn.openapi({
       in: 'query',
       required: false,
       schema: { type: 'number' },
-    },
-    {
-      name: 'sortOrder',
-      in: 'query',
-      required: false,
-      schema: { type: 'string', enum: ['created', 'name', 'updated'] },
-    },
-    {
-      name: 'sortDesc',
-      in: 'query',
-      required: false,
-      schema: { type: 'boolean' },
-    },
-    {
-      name: 'pageKeyMap',
-      in: 'query',
-      required: false,
-      schema: { type: 'string' },
     },
   ],
   responses: {

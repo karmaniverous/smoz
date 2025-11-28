@@ -30,7 +30,7 @@ import { userSchema } from './User';
 const now = Date.now();
 
 // Config object for EntityManager.
-const config = {
+export const entityManagerConfig = {
   hashKey: 'hashKey' as const,
   rangeKey: 'rangeKey' as const,
   entitiesSchema: {
@@ -127,4 +127,7 @@ const config = {
 } satisfies ConfigInput;
 
 // Configure & export EntityManager instance.
-export const entityManager = createEntityManager(config, errorLogger);
+export const entityManager = createEntityManager(
+  entityManagerConfig,
+  errorLogger,
+);

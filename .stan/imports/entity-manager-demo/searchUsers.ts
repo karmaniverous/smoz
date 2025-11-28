@@ -82,78 +82,29 @@ export const searchUsers = async (params: SearchUsersParams) => {
 
   // Determine range key tokens.
   const rangeKeyTokens = phone
-    ? ['phone']
+    ? (['phone'] as const)
     : sortOrder === 'created'
-      ? ['created']
+      ? (['created'] as const)
       : sortOrder === 'name'
         ? name
-          ? ['firstNameRangeKey', 'lastNameRangeKey']
-          : ['lastNameRangeKey']
-        : ['updated'];
+          ? (['firstNameRangeKey', 'lastNameRangeKey'] as const)
+          : (['lastNameRangeKey'] as const)
+        : (['updated'] as const);
 
-  // CF literal for index-token narrowing (optional DX sugar).
-  const cf = {
-    indexes: {
-      created: { hashKey: 'hashKey', rangeKey: 'created' },
-      firstName: { hashKey: 'hashKey', rangeKey: 'firstNameRangeKey' },
-      lastName: { hashKey: 'hashKey', rangeKey: 'lastNameRangeKey' },
-      phone: { hashKey: 'hashKey', rangeKey: 'phone' },
-      updated: { hashKey: 'hashKey', rangeKey: 'updated' },
-      userBeneficiaryCreated: {
-        hashKey: 'beneficiaryHashKey',
-        rangeKey: 'created',
-      },
-      userBeneficiaryFirstName: {
-        hashKey: 'beneficiaryHashKey',
-        rangeKey: 'firstNameRangeKey',
-      },
-      userBeneficiaryLastName: {
-        hashKey: 'beneficiaryHashKey',
-        rangeKey: 'lastNameRangeKey',
-      },
-      userBeneficiaryPhone: {
-        hashKey: 'beneficiaryHashKey',
-        rangeKey: 'phone',
-      },
-      userBeneficiaryUpdated: {
-        hashKey: 'beneficiaryHashKey',
-        rangeKey: 'updated',
-      },
-      userCreated: { hashKey: 'userHashKey', rangeKey: 'created' },
-    },
-  } as const;
-
-  // Route map: (hashKeyToken, rangeKeyToken) -> index token.
-  const route = {
-    hashKey: {
-      created: 'created',
-      firstNameRangeKey: 'firstName',
-      lastNameRangeKey: 'lastName',
-      phone: 'phone',
-      updated: 'updated',
-    },
-    beneficiaryHashKey: {
-      created: 'userBeneficiaryCreated',
-      firstNameRangeKey: 'userBeneficiaryFirstName',
-      lastNameRangeKey: 'userBeneficiaryLastName',
-      phone: 'userBeneficiaryPhone',
-      updated: 'userBeneficiaryUpdated',
-    },
-  } as const;
-
-  // Create a query builder (ET inferred; ITS from cf).
+  // Create a query builder.
   let queryBuilder = createQueryBuilder({
     entityClient,
     entityToken,
     hashKeyToken,
     pageKeyMap,
-    cf,
   });
 
   // Iterate over range key tokens and add conditions per-index.
   for (const rangeKeyToken of rangeKeyTokens) {
-    const indexToken =
-      route[hashKeyToken][rangeKeyToken as keyof (typeof route)['hashKey']];
+    const indexToken = entityClient.entityManager.findIndexToken(
+      hashKeyToken,
+      rangeKeyToken,
+    );
 
     // Add a range key condition.
     if (rangeKeyToken === 'created')
@@ -184,15 +135,14 @@ export const searchUsers = async (params: SearchUsersParams) => {
       queryBuilder = queryBuilder.addRangeKeyCondition(indexToken, {
         property: 'phone',
         operator: 'begins_with',
-        value: phone,
+        value: phone!,
       });
-    else if (rangeKeyToken === 'updated')
+    else
       queryBuilder = queryBuilder.addRangeKeyCondition(indexToken, {
         property: 'updated',
         operator: 'between',
         value: { from: updatedFrom, to: updatedTo },
       });
-    else throw new Error(`Unsupported range key token '${rangeKeyToken}'.`);
 
     // Add created filter condition if not covered by range key condition.
     if ((createdFrom || createdTo) && rangeKeyToken !== 'created')
