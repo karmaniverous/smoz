@@ -1,7 +1,3 @@
-/**
- * Handler: DELETE /users/{id}
- * - 204 No Content on success (no payload).
- */
 import { entityClient } from '@/app/entity/entityClient';
 
 import { fn } from './lambda';

@@ -159,3 +159,6 @@ When updated: 2025-11-25T00:00:00Z
 - /app: GET /users returns strict domain items (non‑projection)
   - Enriched query results via getItems, removed keys, and shaped response
   - Matches responseSchema { items: z.array(userSchema), pageKeyMap?: string }
+
+- Docs: export HttpPropKeys for Typedoc
+  - Exported type from src/types/DeepOverride.ts to remove warning and surface in API docs

@@ -13,18 +13,17 @@
   ],
   "ignoreBinaries": ["plantuml"],
   "ignoreDependencies": [
-    "http-errors",
+    "@karmaniverous/string-utilities",
     "@types/http-errors",
     "@types/serverless",
     "@vitest/coverage-v8",
     "cross-env",
+    "http-errors",
     "serverless-apigateway-log-retention",
     "serverless-deployment-bucket",
     "serverless-domain-manager",
-    "serverless-plugin-common-excludes",
     "serverless-offline",
-    "@karmaniverous/entity-client-dynamodb",
-    "@karmaniverous/entity-tools"
+    "serverless-plugin-common-excludes"
   ],
   "rules": { "exports": "off", "types": "off" }
 }

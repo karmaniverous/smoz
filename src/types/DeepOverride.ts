@@ -85,4 +85,4 @@ export type DeepOverrideHttp<T, U> = [T] extends [never]
           : U;
 
 /** HTTP props that receive strict replacement when present in the event schema. */
-type HttpPropKeys = 'pathParameters' | 'queryStringParameters' | 'body';
+export type HttpPropKeys = 'pathParameters' | 'queryStringParameters' | 'body';

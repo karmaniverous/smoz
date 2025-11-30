@@ -1,24 +1,27 @@
-/**
- * Handler: PUT /users/{id}
- * - Shallow update semantics (undefined ignored; null deletes).
- */
-import { updateRecord } from '@karmaniverous/entity-tools';
+import { updateItem } from '@karmaniverous/entity-tools';
 import { normstr } from '@karmaniverous/string-utilities';
 
 import { entityClient } from '@/app/entity/entityClient';
 
-import { getUser } from '../get/getUser';
 import { fn } from './lambda';
 
 export const handler = fn.handler(async (event) => {
+  const entityToken = 'user' as const;
+
   const { userId } = event.pathParameters;
 
   const { firstName, lastName, phone, ...body } = event.body;
 
-  const items = await getUser(userId);
+  const keys = entityClient.entityManager.getPrimaryKey(entityToken, {
+    userId,
+  });
+
+  const { items: records } = await entityClient.getItems(entityToken, keys);
+
+  const items = entityClient.entityManager.removeKeys(entityToken, records);
 
   const updatedItems = items.map((item) =>
-    updateRecord(item, {
+    updateItem(item, {
       ...body,
       firstNameCanonical: normstr(firstName),
       lastNameCanonical: normstr(lastName),
@@ -28,7 +31,7 @@ export const handler = fn.handler(async (event) => {
   );
 
   const updatedRecords = entityClient.entityManager.addKeys(
-    'user' as const,
+    entityToken,
     updatedItems,
   );
 
