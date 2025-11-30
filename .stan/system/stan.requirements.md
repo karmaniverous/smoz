@@ -442,3 +442,84 @@ CRUD/search endpoints:
 
 - HTTP handlers perform CRUD/search inline with EntityClient and borrow response/request schemas from the domain Zod used by EntityManager.
 - Search endpoints should use GET and query params (`/users`) and match the entity‑manager‑demo semantics, including round‑trippable pageKeyMap.
+
+## 21) Entity‑manager by‑token typing integration (upstream‑dependent)
+
+Purpose
+
+- Align this repository’s code, templates, fixtures, and docs to the upstream
+  entity‑manager vNext and entity‑client‑dynamodb typing model so non‑projection
+  flows narrow back to strict domain types by default, while true projection
+  scenarios remain partial.
+- Keep these requirements focused on this repo; upstream behavior is assumed to
+  exist per the versions referenced below.
+
+Expected upstream behavior (assumed)
+
+- By‑token type family (names are authoritative):
+  - Domain: `EntityItem<CC, ET>` (strict), `EntityItemPartial<CC, ET, K>` (projected/seed)
+  - DB: `EntityRecord<CC, ET>` (strict), `EntityRecordPartial<CC, ET, K>` (projected)
+- EntityClient getItems overloads:
+  - `getItems(token, keys)` → `{ items: EntityRecord[] }` (strict, full records)
+  - `getItems(token, keys, attributes as const)` → `{ items: EntityRecordPartial<K>[] }` (projected)
+- removeKeys overloads:
+  - From strict records → strict domain; from projected records (K) → projected domain (K).
+- QueryBuilder threads a type‑only projection channel `K`; using projections narrows
+  types only when explicitly set. Resetting projections widens `K` back to unknown.
+
+Requirements in this repository
+
+- Code and templates must adopt the by‑token type names in examples, docs, and
+  any typed surfaces we show or ship. Legacy aliases (e.g., EntityItemByToken)
+  must not be used in this repo.
+- Non‑projection enrich → domain paths must type‑check strictly without casts:
+  - Query (partial) → compute keys → `getItems(token, keys)` (strict record) →
+    `removeKeys(token, records)` (strict domain) → assign to Zod‑derived response.
+  - This is the default path in our /app fixture (GET /users) and in template
+    patterns. It must compile cleanly with required fields (e.g., created/updated).
+- Projection scenarios (when shown):
+  - If a template or doc demonstrates projections, pass attributes as const so
+    the partial type is explicit; make clear that strict responses require either
+    re‑enrichment or a projection that includes required keys.
+  - Where relevant, note the adapter/runtime policy that auto‑includes unique
+    property and explicit sort keys to preserve dedupe/sort invariants when projections
+    are present (upstream behavior; not re‑implemented here).
+- Templates and /app fixture:
+  - The search endpoint example (GET /users) must remain a non‑projection path
+    so strict types flow end‑to‑end without casts or schema.parse at return.
+  - Any template or example that demonstrates a projection must show a projected
+    type on the output and explicitly document the trade‑off (partial vs strict).
+- Tests (compile‑time checks):
+  - Add a compile‑time test that encodes the non‑projection flow (query → keys →
+    getItems → removeKeys) assigns to `z.array(userSchema)` without casts.
+  - Add a compile‑time test that encodes the projection flow (getItems with attributes
+    as const) remains partial and is not assignable to strict domain unless re‑enriched.
+- Docs
+  - Update docs to mention the by‑token family (EntityItem/EntityItemPartial,
+    EntityRecord/EntityRecordPartial) and explain that non‑projection flows
+    narrow back to strict by default in this repo’s examples.
+  - In the CLI/recipes and templates pages, ensure examples using the entity stack
+    refer to the new names and explain projection ergonomics briefly.
+
+Versioning requirements (this repo)
+
+- Development dependencies in this repository must target the upstream versions
+  that provide the behavior above:
+  - `@karmaniverous/entity-manager`: v8.x (stable) or later with the by‑token model
+  - `@karmaniverous/entity-client-dynamodb`: v1.x (stable) or later with getItems overloads
+  - Until the stable tags are published, prereleases may be used; switch to stable
+    ranges promptly upon release (tracked in the dev plan).
+
+Acceptance criteria (this repo)
+
+- /app fixture:
+  - GET /users route compiles without casts and returns `z.object({ items: z.array(userSchema), pageKeyMap?: z.string() })`.
+  - CRUD endpoints continue to compile with strict types where appropriate.
+- Templates:
+  - Typecheck passes without generated register files (ambient stubs) and without
+    local casts in examples.
+  - Examples that show projections remain partial by design and are documented as such.
+- Tests:
+  - Compile‑time tests pin the non‑projection strict path and projection partial path.
+- Docs:
+  - Public pages and code snippets use the by‑token names and clarify projection semantics.

@@ -7,7 +7,7 @@ import { entityClient } from '@/app/entity/entityClient';
 import { fn } from './lambda';
 
 export const handler = fn.handler(async (event) => {
-  const entityToken = 'user';
+  const entityToken = 'user' as const;
 
   const {
     beneficiaryId,
@@ -133,27 +133,30 @@ export const handler = fn.handler(async (event) => {
     }
   }
 
-  const result = await queryBuilder.query({
+  const response = await queryBuilder.query({
     item: beneficiaryId ? { beneficiaryId } : {},
     timestampFrom: createdFrom,
     timestampTo: createdTo,
   });
 
-  if (!result.items.length) return { items: [], pageKeyMap: result.pageKeyMap };
+  if (!response.items.length) return response;
 
   const keys = entityClient.entityManager.getPrimaryKey(
     entityToken,
-    result.items,
+    response.items,
   );
-  const { items } = await entityClient.getItems(entityToken, keys);
 
-  const sorted = sort(items, [
+  const { items: enrichedItems } = await entityClient.getItems(
+    entityToken,
+    keys,
+  );
+
+  response.items = sort(enrichedItems, [
     {
       property: sortOrder === 'name' ? 'lastNameCanonical' : sortOrder,
       desc: sortDesc,
     },
   ]);
 
-  const domain = entityClient.entityManager.removeKeys(entityToken, sorted);
-  return { items: domain, pageKeyMap: result.pageKeyMap };
+  return response;
 });

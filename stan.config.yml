@@ -3,16 +3,21 @@ stan-core:
   imports:
     entity-client-dynamodb:
       - ../entity-client-dynamodb/.stan/interop/smoz/**
-      - ../entity-client-dynamodb/guides/cli/**
-      - ../entity-client-dynamodb/guides/entityclient-and-crud.md
-      - ../entity-client-dynamodb/guides/querying-with-querybuilder.md
-      - ../entity-client-dynamodb/guides/tables-and-definition.md
-      - ../entity-client-dynamodb/src/EntityClient/EntityClient.test.ts
-    entity-manager-demo:
-      - ../entity-manager-demo/src/entity-manager/entityClient.ts
-      - ../entity-manager-demo/src/entity-manager/entityManager.ts
-      - ../entity-manager-demo/src/entity-manager/User.ts
-      - ../entity-manager-demo/src/handlers/user/**
+      # - ../entity-client-dynamodb/.stan/system/stan.requirements.md
+      - ../entity-client-dynamodb/dist/index.d.ts
+      # - ../entity-client-dynamodb/guides/entityclient-and-crud.md
+      # - ../entity-client-dynamodb/guides/querying-with-querybuilder.md
+      # - ../entity-client-dynamodb/guides/tables-and-definition.md
+      # - ../entity-client-dynamodb/src/EntityClient/EntityClient.test.ts
+    entity-manager:
+      - ../entity-manager/.stan/interop/smoz/**
+      # - ../entity-manager/.stan/system/stan.requirements.md
+      - ../entity-manager/dist/index.d.ts
+    # entity-manager-demo:
+    #   - ../entity-manager-demo/src/entity-manager/entityClient.ts
+    #   - ../entity-manager-demo/src/entity-manager/entityManager.ts
+    #   - ../entity-manager-demo/src/entity-manager/User.ts
+    #   - ../entity-manager-demo/src/handlers/user/**
     get-dotenv:
       - ../get-dotenv/.stan/interop/smoz/**
       - ../get-dotenv/guides/config.md
@@ -38,11 +43,11 @@ stan-cli:
       sequential: true
   patchOpenCommand: code -g {file}
   scripts:
-    typecheck: npm run typecheck
+    build: cross-env NO_COLOR=1 npm run build
+    typecheck: npm run typecheck -- --noErrorTruncation
     lint: npm run lint:fix
     openapi: npm run openapi
     test: npm run test -- --no-color
-    build: cross-env NO_COLOR=1 npm run build
     docs:
       script: npm run docs -- --emit none
       warnPattern: \\[warning\\]

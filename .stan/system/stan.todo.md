@@ -4,6 +4,28 @@ When updated: 2025-11-25T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
+- Align to upstream by‑token typing end state (entity‑manager v8 / client v1)
+  - Dependencies:
+    - Switch devDependencies to stable ranges once released:
+      - @karmaniverous/entity-manager ^8.0.0
+      - @karmaniverous/entity-client-dynamodb ^1.0.0
+    - Track in CHANGELOG; remove prerelease ranges.
+  - Code & templates:
+    - Replace any lingering legacy type names with by‑token family:
+      - EntityItem / EntityItemPartial, EntityRecord / EntityRecordPartial.
+    - Ensure /app GET /users remains a non‑projection enrich → domain path
+      (no attributes passed to getItems) so strict types flow without casts.
+    - If any template demonstrates projection, keep it explicitly partial and
+      document re‑enrichment for strict responses.
+  - Tests (compile‑time):
+    - Add a ts‑only test that encodes:
+      1) Non‑projection: query → keys → getItems → removeKeys assignable to
+         z.array(userSchema) (no casts).
+      2) Projection: getItems with attributes as const remains partial and is
+         not assignable to strict domain.
+  - Docs:
+    - Update docs and snippets to use by‑token names and clarify projection ergonomics.
+
 - Fixture-first: implement DynamoDB + EntityManager in /app
   - Domain schema: add app/domain/user.ts (authoritative Zod).
   - EntityManager: add app/tables/000/entityManager.ts (values‑first literal,
@@ -38,6 +60,7 @@ When updated: 2025-11-25T00:00:00Z
   - Ensure OpenAPI/register flows stay green
 
 - Plugin integration validation in SMOZ
+  - (continues; no change)
   - Verify SMOZ wires the DynamoDB plugin (already included) and local subcommands:
     - `smoz dynamodb local start|stop|status`
     - Config-first behavior with native get-dotenv env interpolation ($DYNAMODB_LOCAL_ENDPOINT / $DYNAMODB_LOCAL_PORT)

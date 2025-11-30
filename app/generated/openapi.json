@@ -36,7 +36,7 @@
         }
       }
     },
-    "/users/{id}": {
+    "/users/[userId]": {
       "delete": {
         "summary": "Delete user (public)",
         "description": "Delete all records for the specified user id.",
@@ -44,10 +44,10 @@
           "users",
           "public"
         ],
-        "operationId": "users_{id}_delete",
+        "operationId": "users_[userId]_delete",
         "parameters": [
           {
-            "name": "id",
+            "name": "userId",
             "in": "path",
             "required": true,
             "schema": {
@@ -68,7 +68,7 @@
           "users",
           "public"
         ],
-        "operationId": "users_{id}_get",
+        "operationId": "users_[userId]_get",
         "parameters": [
           {
             "name": "id",
@@ -85,59 +85,87 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "beneficiaryId": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "beneficiaryId": {
+                        "anyOf": [
+                          {
                             "type": "string"
                           },
-                          "created": {
-                            "type": "number"
-                          },
-                          "firstName": {
-                            "type": "string"
-                          },
-                          "firstNameCanonical": {
-                            "type": "string"
-                          },
-                          "lastName": {
-                            "type": "string"
-                          },
-                          "lastNameCanonical": {
-                            "type": "string"
-                          },
-                          "phone": {
-                            "type": "string"
-                          },
-                          "updated": {
-                            "type": "number"
-                          },
-                          "userId": {
-                            "type": "string"
+                          {
+                            "type": "null"
                           }
-                        },
-                        "required": [
-                          "beneficiaryId",
-                          "created",
-                          "firstName",
-                          "firstNameCanonical",
-                          "lastName",
-                          "lastNameCanonical",
-                          "updated",
-                          "userId"
-                        ],
-                        "additionalProperties": false
+                        ]
+                      },
+                      "created": {
+                        "type": "number"
+                      },
+                      "firstName": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "firstNameCanonical": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "lastName": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "lastNameCanonical": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "phone": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "updated": {
+                        "type": "number"
+                      },
+                      "userId": {
+                        "type": "string"
                       }
-                    }
-                  },
-                  "required": [
-                    "items"
-                  ],
-                  "additionalProperties": false
+                    },
+                    "required": [
+                      "created",
+                      "updated",
+                      "userId"
+                    ],
+                    "additionalProperties": false
+                  }
                 }
               }
             }
@@ -151,7 +179,7 @@
           "users",
           "public"
         ],
-        "operationId": "users_{id}_put",
+        "operationId": "users_[userId]_put",
         "parameters": [
           {
             "name": "id",
@@ -169,11 +197,35 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "beneficiaryId": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "firstName": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "lastName": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "phone": {
                     "anyOf": [
@@ -201,25 +253,67 @@
                     "type": "object",
                     "properties": {
                       "beneficiaryId": {
-                        "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "created": {
                         "type": "number"
                       },
                       "firstName": {
-                        "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "firstNameCanonical": {
-                        "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "lastName": {
-                        "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "lastNameCanonical": {
-                        "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "phone": {
-                        "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "updated": {
                         "type": "number"
@@ -229,12 +323,7 @@
                       }
                     },
                     "required": [
-                      "beneficiaryId",
                       "created",
-                      "firstName",
-                      "firstNameCanonical",
-                      "lastName",
-                      "lastNameCanonical",
                       "updated",
                       "userId"
                     ],
@@ -266,23 +355,6 @@
             }
           },
           {
-            "name": "name",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Prefix; case/diacritic-insensitive"
-          },
-          {
-            "name": "phone",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "createdFrom",
             "in": "query",
             "required": false,
@@ -296,6 +368,52 @@
             "required": false,
             "schema": {
               "type": "number"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Prefix; case/diacritic-insensitive"
+          },
+          {
+            "name": "pageKeyMap",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDesc",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created",
+                "name",
+                "updated"
+              ]
             }
           },
           {
@@ -313,35 +431,6 @@
             "schema": {
               "type": "number"
             }
-          },
-          {
-            "name": "sortOrder",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "created",
-                "name",
-                "updated"
-              ]
-            }
-          },
-          {
-            "name": "sortDesc",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "pageKeyMap",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -358,25 +447,67 @@
                         "type": "object",
                         "properties": {
                           "beneficiaryId": {
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "created": {
                             "type": "number"
                           },
                           "firstName": {
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "firstNameCanonical": {
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "lastName": {
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "lastNameCanonical": {
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "phone": {
-                            "type": "string"
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "updated": {
                             "type": "number"
@@ -386,12 +517,7 @@
                           }
                         },
                         "required": [
-                          "beneficiaryId",
                           "created",
-                          "firstName",
-                          "firstNameCanonical",
-                          "lastName",
-                          "lastNameCanonical",
                           "updated",
                           "userId"
                         ],
@@ -428,26 +554,46 @@
                 "type": "object",
                 "properties": {
                   "beneficiaryId": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "firstName": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "lastName": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "phone": {
-                    "type": "string"
-                  },
-                  "userId": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
-                },
-                "required": [
-                  "beneficiaryId",
-                  "firstName",
-                  "lastName"
-                ]
+                }
               }
             }
           }
@@ -461,25 +607,67 @@
                   "type": "object",
                   "properties": {
                     "beneficiaryId": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     },
                     "created": {
                       "type": "number"
                     },
                     "firstName": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     },
                     "firstNameCanonical": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     },
                     "lastName": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     },
                     "lastNameCanonical": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     },
                     "phone": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     },
                     "updated": {
                       "type": "number"
@@ -489,12 +677,7 @@
                     }
                   },
                   "required": [
-                    "beneficiaryId",
                     "created",
-                    "firstName",
-                    "firstNameCanonical",
-                    "lastName",
-                    "lastNameCanonical",
                     "updated",
                     "userId"
                   ],
