@@ -139,24 +139,34 @@ export const handler = fn.handler(async (event) => {
     timestampTo: createdTo,
   });
 
-  if (!response.items.length) return response;
+  // Nothing matched: return an empty items array with the original pageKeyMap.
+  if (!response.items.length)
+    return { items: [], pageKeyMap: response.pageKeyMap };
 
   const keys = entityClient.entityManager.getPrimaryKey(
     entityToken,
     response.items,
   );
 
-  const { items: enrichedItems } = await entityClient.getItems(
+  // Enrich with full records for the matched keys (non‑projection).
+  const { items: enrichedRecords } = await entityClient.getItems(
     entityToken,
     keys,
   );
 
-  response.items = sort(enrichedItems, [
+  // Strip storage keys to return strict domain items.
+  const enrichedItems = entityClient.entityManager.removeKeys(
+    entityToken,
+    enrichedRecords,
+  );
+
+  const items = sort(enrichedItems, [
     {
       property: sortOrder === 'name' ? 'lastNameCanonical' : sortOrder,
       desc: sortDesc,
     },
   ]);
 
-  return response;
+  // Shape response to match responseSchema exactly.
+  return { items, pageKeyMap: response.pageKeyMap };
 });

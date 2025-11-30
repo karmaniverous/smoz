@@ -19,9 +19,9 @@ When updated: 2025-11-25T00:00:00Z
       document re‑enrichment for strict responses.
   - Tests (compile‑time):
     - Add a ts‑only test that encodes:
-      1) Non‑projection: query → keys → getItems → removeKeys assignable to
+      1. Non‑projection: query → keys → getItems → removeKeys assignable to
          z.array(userSchema) (no casts).
-      2) Projection: getItems with attributes as const remains partial and is
+      2. Projection: getItems with attributes as const remains partial and is
          not assignable to strict domain.
   - Docs:
     - Update docs and snippets to use by‑token names and clarify projection ergonomics.
@@ -154,4 +154,8 @@ When updated: 2025-11-25T00:00:00Z
 
 - /app: implement REST users endpoints (CRUD + search)
   - Typed params via zod overrides in lambda.ts (no in-handler casts)
-  - Kept configs minimal (no explicit defaults); explicit basePath only for {id}
+  - Kept configs minimal (no explicit defaults); explicit basePath only for {id}
+
+- /app: GET /users returns strict domain items (non‑projection)
+  - Enriched query results via getItems, removed keys, and shaped response
+  - Matches responseSchema { items: z.array(userSchema), pageKeyMap?: string }
