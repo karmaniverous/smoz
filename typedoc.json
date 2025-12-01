@@ -46,7 +46,7 @@
     "./docs-src/recipes/index.md",
     "./docs-src/templates.md",
     "./docs-src/cli.md",
-    "./docs-src/contributing.md",
+    "./CONTRIBUTING.md",
     "./CHANGELOG.md"
   ],
   "replaceText": {

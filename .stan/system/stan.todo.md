@@ -166,3 +166,6 @@ When updated: 2025-11-25T00:00:00Z
 - Docs pass (general alignment):
   - `docs-src/templates.md`: Removed reference to obsolete `templates/project` directory and clarified that the `default` template is self-contained.
   - `docs-src/middleware.md`: Restructured the default middleware list to accurately reflect the `before`, `after`, and `onError` execution phases, improving clarity and correctness.
+- Docs: Consolidated contributing guides
+  - Merged `docs-src/contributing.md` into the root `CONTRIBUTING.md` to create a single source of truth.
+  - Updated `typedoc.json` to reference the root `CONTRIBUTING.md` in `projectDocuments`.
