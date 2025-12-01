@@ -1,7 +1,5 @@
 ---
 title: Recipes
-sidebar_label: Recipes
-sidebar_position: 6
 children:
   - ./sqs.md
   - ./step.md

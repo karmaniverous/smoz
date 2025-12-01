@@ -1,17 +1,15 @@
 ---
 title: Templates
-sidebar_label: Templates
-sidebar_position: 4
 ---
 
 # Templates
 
-The package ships a default app template and a shared “project” baseline.
+The package ships a self-contained `default` app template that includes all necessary project boilerplate.
 
 ## Layout
 
-- templates/project — shared boilerplate (tsconfig/eslint/prettier/vitest/typedoc)
-- templates/default — a small app:
+- templates/default — a small but complete app:
+  - Boilerplate configs (tsconfig/eslint/prettier/vitest/typedoc)
   - app/config/app.config.ts
   - app/functions/rest/hello/get/{lambda,handler,openapi}.ts
   - app/functions/rest/openapi/get/{lambda,handler,openapi}.ts
@@ -76,11 +74,11 @@ export const APP_ROOT_ABS = toPosixPath(
 
 ## Lint & typecheck (unified for all templates)
 
-- Lint (ESLint drives Prettier):
-  ```bash
+- Lint (ESLint drives Prettier):```bash
   npm run templates:lint
   ```
   A single ESLint flat config discovers all templates (no per‑template wiring).
+  ```
 - Typecheck:
   ```bash
   npm run templates:typecheck

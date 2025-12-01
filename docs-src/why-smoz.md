@@ -1,7 +1,5 @@
 ---
-title: Why smoz?
-sidebar_label: Why smoz?
-sidebar_position: 2
+title: Why SMOZ?
 ---
 
 # Why smoz?
@@ -93,7 +91,9 @@ import type { z } from 'zod';
 import type { responseSchema } from './lambda';
 import { fn } from './lambda';
 type Response = z.infer<typeof responseSchema>;
-export const handler = fn.handler(async (): Promise<Response> => ({ ok: true }));
+export const handler = fn.handler(
+  async (): Promise<Response> => ({ ok: true }),
+);
 ```
 
 ## Easy to try & adopt
@@ -132,10 +132,17 @@ Tiny customization example:
 import { insertAfter } from '@karmaniverous/smoz';
 const xHeader = { after: (r: any) => (r.response.headers['X-Trace'] = '1') };
 export const fn = app.defineFunction({
-  eventType: 'rest', method: 'get', basePath: 'hello', httpContexts: ['public'],
-  http: { transform: ({ before, after, onError }) => ({
-    before, after: insertAfter(after, 'shape', xHeader as never), onError,
-  })},
+  eventType: 'rest',
+  method: 'get',
+  basePath: 'hello',
+  httpContexts: ['public'],
+  http: {
+    transform: ({ before, after, onError }) => ({
+      before,
+      after: insertAfter(after, 'shape', xHeader as never),
+      onError,
+    }),
+  },
   // ...
 });
 ```

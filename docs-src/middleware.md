@@ -1,27 +1,41 @@
 ---
-title: HTTP middleware
-sidebar_label: Middleware
-sidebar_position: 3
+title: Middleware
 ---
 
 # HTTP middleware
 
-SMOZ builds a robust Middy stack around HTTP handlers. Non‑HTTP flows bypassMiddy entirely.
+SMOZ builds a robust Middy stack around HTTP handlers. Non‑HTTP flows bypass Middy entirely.
 
-## Defaults (in order)
+## Middleware Phases
 
-1. HEAD short‑circuit (200 {} immediately)
-2. Header normalization (canonical case)
-3. APIGW v1 event normalization
-4. Content negotiation (JSON, vendor +json)
-5. Safe JSON body parsing (no 415 surprises)
-6. Zod validation (event before handler, response after handler)
-7. Error exposure + validation→400 mapping
-8. http‑error‑handler with your logger
-9. CORS (credentials on; preserves computed origin)
-10. Preferred media types defaults across phases
-11. Response shaper (statusCode/headers/body) + content‑type enforcement
-12. Response serializer (JSON and vendor +json)
+The stack is organized into three phases: `before` (request processing), `after` (successful response processing), and `onError` (error handling).
+
+### `before` phase (request)
+
+Runs before your handler.
+
+1.  **HEAD short‑circuit**: Responds with `200 {}` immediately for `HEAD` requests, bypassing the handler.
+2.  **Header normalization**: Converts header keys to canonical case (e.g., `content-type` → `Content-Type`).
+3.  **Event normalization**: Normalizes API Gateway v1 events to prevent common access errors on `null` properties.
+4.  **Content negotiation**: Determines the best response `Content-Type` from `Accept` headers.
+5.  **JSON body parsing**: Safely parses JSON bodies for non-GET/HEAD requests without throwing 415 errors on missing content types.
+6.  **Zod validation**: Validates the incoming event against your `eventSchema`.
+
+### `after` phase (response)
+
+Runs after your handler returns successfully.
+
+1.  **Zod validation**: Validates the handler’s return value against your `responseSchema`.
+2.  **CORS**: Injects CORS headers (e.g., `Access-Control-Allow-Origin`).
+3.  **Response shaping**: Wraps raw handler output into the required `{ statusCode, headers, body }` structure and enforces the negotiated `Content-Type`.
+4.  **Response serialization**: Serializes the response body (e.g., using `JSON.stringify`).
+
+### `onError` phase (errors)
+
+Runs if any `before` middleware or your handler throws an error.
+
+1.  **Error exposure**: Maps Zod validation errors to 400-level HTTP errors and ensures other errors are HTTP-friendly.
+2.  **Error handling**: Formats the final error response, logging the error with your logger.
 
 ## Customization surfaces
 

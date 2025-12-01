@@ -1,6 +1,5 @@
 ---
-title: Per‑function env (fnEnvKeys)
-sidebar_label: Per‑function env
+title: Per‑Function env
 ---
 
 # Per‑function env (fnEnvKeys)

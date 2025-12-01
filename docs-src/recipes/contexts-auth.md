@@ -1,6 +1,5 @@
 ---
-title: Contexts + Cognito authorizer
-sidebar_label: Contexts + Cognito
+title: Contexts + Cognito
 ---
 
 # Contexts + Cognito authorizer

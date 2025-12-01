@@ -1,6 +1,5 @@
 ---
-title: Custom middleware insertion
-sidebar_label: Custom middleware
+title: Custom Middleware
 ---
 
 # Custom middleware (insertAfter 'shape')

@@ -1,6 +1,5 @@
 ---
-title: Observability (requestId header)
-sidebar_label: Observability
+title: Observability
 ---
 
 # Observability (requestId header)

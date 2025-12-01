@@ -1,6 +1,5 @@
 ---
-title: Step Functions function
-sidebar_label: Step function
+title: Step Functions
 ---
 
 # Step Functions function
@@ -18,6 +17,7 @@ z.object({ Payload: z.unknown().optional() }).catchall(z.unknown());
 ```
 
 Notes:
+
 - Zod v4 deprecates `.passthrough()`. Use `.catchall(z.unknown())` to allow
   additional properties (e.g., `StatusCode`, `ExecutedVersion`) while keeping a
   typed `Payload` key.

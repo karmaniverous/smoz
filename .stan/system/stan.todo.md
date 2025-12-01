@@ -161,4 +161,8 @@ When updated: 2025-11-25T00:00:00Z
   - Matches responseSchema { items: z.array(userSchema), pageKeyMap?: string }
 
 - Docs: export HttpPropKeys for Typedoc
-  - Exported type from src/types/DeepOverride.ts to remove warning and surface in API docs
+  - Exported type from src/types/DeepOverride.ts to remove warning and surface in API docs
+
+- Docs pass (general alignment):
+  - `docs-src/templates.md`: Removed reference to obsolete `templates/project` directory and clarified that the `default` template is self-contained.
+  - `docs-src/middleware.md`: Restructured the default middleware list to accurately reflect the `before`, `after`, and `onError` execution phases, improving clarity and correctness.

@@ -1,7 +1,5 @@
 ---
-title: Getting started
-sidebar_label: Getting started
-sidebar_position: 2
+title: Getting Started
 ---
 
 # Getting started
@@ -30,6 +28,7 @@ npx smoz add rest/foo/get
 ```
 
 ## Install
+
 ```bash
 npm i @karmaniverous/smoz zod zod-openapi
 ```

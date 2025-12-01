@@ -1,6 +1,5 @@
 ---
 title: SQS function
-sidebar_label: SQS function
 ---
 
 # SQS function
