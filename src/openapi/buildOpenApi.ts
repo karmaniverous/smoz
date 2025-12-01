@@ -52,9 +52,10 @@ export const buildAllOpenApiPaths = (
     for (const context of ctxs) {
       const elems = buildPathElements(basePath, context);
       const pathKey = `/${elems.join('/')}`;
+      const operationIdSegs = elems.map((e) => e.replace(/^{|}$/g, ''));
       const op = {
         ...r.openapiBaseOperation,
-        operationId: [...elems, method].join('_'),
+        operationId: [...operationIdSegs, method].join('_'),
         summary: `${r.openapiBaseOperation.summary} (${context})`,
         tags: Array.from(
           new Set([...(r.openapiBaseOperation.tags ?? []), context]),

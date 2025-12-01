@@ -19,5 +19,10 @@ export const buildPathElements = (
   return context === 'public' ? parts : [context, ...parts];
 };
 
-export const sanitizeBasePath = (p: string): string =>
-  p.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+export const sanitizeBasePath = (p: string): string => {
+  // POSIX separators, trim slashes, and convert [param] -> {param}
+  return p
+    .replace(/\\/g, '/')
+    .replace(/\[([^/]+?)\]/g, '{$1}')
+    .replace(/^\/+|\/+$/g, '');
+};

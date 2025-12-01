@@ -174,3 +174,6 @@ When updated: 2025-11-25T00:00:00Z
   - Merged the narrative walkthroughs from the `examples` directory into their corresponding `docs-src/recipes` documents.
   - Transformed the SQS and Step Functions recipes into complete, self-contained guides.
   - Removed the now-redundant `examples` directory and updated `docs-src/recipes/index.md` to remove links to it.
+- OpenAPI: Sanitize operationId for path parameters
+  - Updated `buildOpenApi.ts` to strip `{}` from path segments when constructing `operationId`.
+  - Updated `buildPath.ts` to sanitize `[param]` to `{param}` to handle file-system-native path parameter syntax.

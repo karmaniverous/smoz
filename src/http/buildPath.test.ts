@@ -8,7 +8,8 @@ import {
 
 describe('buildPath helpers', () => {
   it('sanitizes base path and splits elements', () => {
-    expect(sanitizeBasePath('\\users\\{id}\\')).toBe('users/{id}');
+    expect(sanitizeBasePath('\\users\\{id}\\')).toBe('users/{id}'); // slashes and curly
+    expect(sanitizeBasePath('users/[id]')).toBe('users/{id}'); // brackets
     expect(splitPath('/a/b//c/')).toEqual(['a', 'b', 'c']);
   });
 

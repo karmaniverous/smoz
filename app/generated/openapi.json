@@ -11,8 +11,8 @@
     }
   ],
   "info": {
-    "title": "",
-    "version": ""
+    "title": "@karmaniverous/smoz",
+    "version": "0.2.10"
   },
   "paths": {
     "/openapi": {
@@ -36,7 +36,7 @@
         }
       }
     },
-    "/users/[userId]": {
+    "/users/{userId}": {
       "delete": {
         "summary": "Delete user (public)",
         "description": "Delete all records for the specified user id.",
@@ -44,7 +44,7 @@
           "users",
           "public"
         ],
-        "operationId": "users_[userId]_delete",
+        "operationId": "users_userId_delete",
         "parameters": [
           {
             "name": "userId",
@@ -68,7 +68,7 @@
           "users",
           "public"
         ],
-        "operationId": "users_[userId]_get",
+        "operationId": "users_userId_get",
         "parameters": [
           {
             "name": "id",
@@ -179,7 +179,7 @@
           "users",
           "public"
         ],
-        "operationId": "users_[userId]_put",
+        "operationId": "users_userId_put",
         "parameters": [
           {
             "name": "id",
