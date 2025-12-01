@@ -1,74 +1,92 @@
 ---
-title: Step Functions
+title: Step Functions Function
 ---
 
-# Step Functions function
+# Step Functions Walkthrough
 
-When Step Functions invokes Lambda via the AWS SDK integration
-("arn:aws:states:::lambda:invoke"), the event received by the Lambda handler
-is an object that wraps the original input under a `Payload` key. The Payload
-is already parsed JSON.
+When Step Functions invokes a Lambda via the AWS SDK integration (`"arn:aws:states:::lambda:invoke"`), the event received by the handler wraps the original input under a `Payload` key. The `Payload` itself is already parsed JSON.
 
-SMOZ’s base event map includes a first‑class `step` token that reflects this:
+SMOZ’s base event map includes a first-class `step` token that reflects this common pattern:
 
 ```ts
-// Conceptual shape (Zod v4):
+// Conceptual shape:
 z.object({ Payload: z.unknown().optional() }).catchall(z.unknown());
 ```
 
-Notes:
+This recipe walks through creating and configuring a non-HTTP Step Functions task.
 
-- Zod v4 deprecates `.passthrough()`. Use `.catchall(z.unknown())` to allow
-  additional properties (e.g., `StatusCode`, `ExecutedVersion`) while keeping a
-  typed `Payload` key.
-- If your integration passes state directly (no wrapper), you can still define
-  an app‑local event token with your preferred shape; the base `step` token
-  covers the common “Lambda Invoke” pattern.
+### 1. Add a Step Function Task
 
-## Minimal registration and handler
+Use the `add` command to scaffold the files for a `step` event type.
 
-```ts
+```bash
+npx smoz add step/exampleTask
+```
+
+This creates:
+
+- `app/functions/step/exampleTask/lambda.ts`
+- `app/functions/step/exampleTask/handler.ts`
+
+### 2. Define the Function (lambda.ts)
+
+Update `lambda.ts` to define the function's schemas. Here, we'll validate that the `Payload` is an object containing a `foo` string.
+
+````ts
 // app/functions/step/exampleTask/lambda.ts
+import { join } from 'node:path';
 import { z } from 'zod';
 import { app, APP_ROOT_ABS } from '@/app/config/app.config';
-import { join } from 'node:path';
 
-// Validate only the part you use; here we expect an object payload.
+// Validate the expected structure of the "Payload" from Step Functions.
 export const eventSchema = z.object({
   Payload: z.object({ foo: z.string() }).optional(),
 });
-export const responseSchema = z.void(); // or z.any().optional()
+
+export const responseSchema = z.any().optional(); // Step Functions can capture output
 
 export const fn = app.defineFunction({
   functionName: 'exampleTask',
-  eventType: 'step', // non‑HTTP
+  eventType: 'step', // non-HTTP
   eventSchema,
   responseSchema,
   callerModuleUrl: import.meta.url,
   endpointsRootAbs: join(APP_ROOT_ABS, 'functions', 'step').replace(/\\/g, '/'),
-});
-```
+});```
+
+### 3. Implement the Handler (handler.ts)
+
+The business logic in your handler can now safely access the typed `Payload`.
 
 ```ts
 // app/functions/step/exampleTask/handler.ts
 import { fn } from './lambda';
 
 export const handler = fn.handler(async (event) => {
-  // The wrapper event may include Payload; validate its structure as needed.
-  const payload = (event as { Payload?: unknown }).Payload as
-    | { foo?: string }
-    | undefined;
-  // ... do work ...
+  // `event` is shaped by the eventSchema, so `Payload` is typed.
+  const payload = event.Payload;
+
+  console.log('Received foo:', payload?.foo);
+
+  // You can return a value to be passed to the next state.
+  return { result: `Processed ${payload?.foo}` };
 });
+````
+
+### 4. Generate and Package
+
+Because this is a non-HTTP function, no `serverless.ts` is needed unless you want to attach other triggers. The function is defined and can be referenced by its ARN in your Step Functions state machine definition.
+
+First, update the registers:
+
+```bash
+npx smoz register
 ```
 
-## Tips
+Then, package the application:
 
-- If you need a stricter guarantee for additional keys, replace
-  `catchall(z.unknown())` with a tighter schema or a pipeline that drops/normalizes
-  unexpected properties before the handler runs.
-- For dictionary‑style payloads (all keys share one schema), prefer `z.record`
-  on the nested Payload.
-- If you own both the Step Functions definition and the Lambda, keep the input
-  contract small and explicit. Validate only what you read—Zod v4’s object with
-  `catchall` maps well to OpenAPI’s `additionalProperties` pattern.
+```bash
+npm run package
+```
+
+Your Step Function can now invoke this Lambda using its generated ARN.

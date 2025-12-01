@@ -168,4 +168,9 @@ When updated: 2025-11-25T00:00:00Z
   - `docs-src/middleware.md`: Restructured the default middleware list to accurately reflect the `before`, `after`, and `onError` execution phases, improving clarity and correctness.
 - Docs: Consolidated contributing guides
   - Merged `docs-src/contributing.md` into the root `CONTRIBUTING.md` to create a single source of truth.
-  - Updated `typedoc.json` to reference the root `CONTRIBUTING.md` in `projectDocuments`.
+  - Updated `typedoc.json` to reference the root `CONTRIBUTING.md` in `projectDocuments`.
+
+- Docs: Consolidated examples into recipes
+  - Merged the narrative walkthroughs from the `examples` directory into their corresponding `docs-src/recipes` documents.
+  - Transformed the SQS and Step Functions recipes into complete, self-contained guides.
+  - Removed the now-redundant `examples` directory and updated `docs-src/recipes/index.md` to remove links to it.

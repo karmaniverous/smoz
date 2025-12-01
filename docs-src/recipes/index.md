@@ -21,11 +21,6 @@ Concrete patterns you can lift into your app. Each recipe links to a focusedpage
 - [Per‑function env (fnEnvKeys)](./per-function-env.md)
 - [Observability (requestId header)](./observability.md)
 - [Troubleshooting](./troubleshooting.md)
-  Examples (in repository)
-
-- REST only: https://github.com/karmaniverous/smoz/tree/main/examples/rest-only
-- REST + SQS (non‑HTTP): https://github.com/karmaniverous/smoz/tree/main/examples/rest-sqs
-- REST + Step Functions (non‑HTTP): https://github.com/karmaniverous/smoz/tree/main/examples/rest-step
 
 Tip: Keep endpoint modules small and focused:
 

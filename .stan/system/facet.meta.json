@@ -15,10 +15,6 @@
     "exclude": ["docs-src/**"],
     "include": ["README.md", "docs-src/overview.md"]
   },
-  "examples": {
-    "exclude": ["examples/**"],
-    "include": ["examples/README.md"]
-  },
   "scripts": {
     "exclude": ["scripts/**"],
     "include": ["scripts/templates-typecheck.ts"]
