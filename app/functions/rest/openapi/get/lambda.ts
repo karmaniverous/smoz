@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { z } from 'zod';
 
 import { app } from '@/app/config/app.config';
-import { APP_ROOT_ABS } from '@/app/config/app.config';
+import { appRootAbs } from '@/app/config/app.config';
 
 export const responseSchema = z.unknown();
 
@@ -21,7 +21,7 @@ export const fn = app.defineFunction({
   eventSchema: undefined,
   responseSchema,
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: join(APP_ROOT_ABS, 'functions', 'rest').replace(/\\/g, '/'),
+  restRootAbs: join(appRootAbs, 'functions', 'rest').replace(/\\/g, '/'),
 });
 
 export type Response = z.infer<typeof responseSchema>;

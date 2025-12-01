@@ -31,7 +31,7 @@ describe('openapi/buildAllOpenApiPaths', () => {
         basePath: 'users',
         httpContexts: ['public', 'private'],
         callerModuleUrl: fileUrl.href,
-        endpointsRootAbs: endpointsRoot,
+        restRootAbs: endpointsRoot,
         openapiBaseOperation: {
           summary: 'List users',
           description: 'Return a list of users.',
@@ -90,7 +90,7 @@ describe('openapi/buildAllOpenApiPaths', () => {
         basePath: 'users/[userId]', // use brackets to test sanitization
         httpContexts: ['public'],
         callerModuleUrl: fileUrl.href,
-        endpointsRootAbs: endpointsRoot,
+        restRootAbs: endpointsRoot,
         openapiBaseOperation: {
           summary: 'Get user',
           description: 'Get a user by ID.',

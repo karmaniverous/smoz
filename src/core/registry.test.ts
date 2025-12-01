@@ -43,7 +43,7 @@ describe('registry', () => {
         method: 'get',
         basePath: 'x',
         callerModuleUrl: dummyUrl,
-        endpointsRootAbs: endpointsRoot,
+        restRootAbs: endpointsRoot,
       });
 
     define('dup');
@@ -59,7 +59,7 @@ describe('registry', () => {
       basePath: 'x',
       fnEnvKeys: ['B'] as const, // per-function
       callerModuleUrl: dummyUrl,
-      endpointsRootAbs: endpointsRoot,
+      restRootAbs: endpointsRoot,
     });
 
     const rows = Array.from(reg.values());
@@ -76,7 +76,7 @@ describe('registry', () => {
       functionName: 'tick',
       eventType: 'sqs',
       callerModuleUrl: dummyUrl,
-      endpointsRootAbs: endpointsRoot,
+      restRootAbs: endpointsRoot,
     });
     api.serverless(extras);
     const rows = Array.from(reg.values());

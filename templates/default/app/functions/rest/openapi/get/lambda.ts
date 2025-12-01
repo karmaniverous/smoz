@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { toPosixPath } from '@karmaniverous/smoz';
 import { z } from 'zod';
 
-import { app, APP_ROOT_ABS } from '@/app/config/app.config';
+import { app, appRootAbs } from '@/app/config/app.config';
 
 export const eventSchema = z.any().optional();
 export const responseSchema = z.unknown();
@@ -25,5 +25,5 @@ export const fn = app.defineFunction({
   eventSchema,
   responseSchema,
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: toPosixPath(join(APP_ROOT_ABS, 'functions', 'rest')),
+  restRootAbs: toPosixPath(join(appRootAbs, 'functions', 'rest')),
 }) as unknown as FnApi;

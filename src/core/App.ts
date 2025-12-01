@@ -244,7 +244,7 @@ export interface AppInit<
       z.infer<StageParamsSchema>))[];
     // Identity & roots
     callerModuleUrl: string;
-    endpointsRootAbs: string;
+    restRootAbs: string;
   }) {
     const functionName =
       options.functionName ??
@@ -271,7 +271,7 @@ export interface AppInit<
           : {}),
         ...(options.fnEnvKeys ? { fnEnvKeys: options.fnEnvKeys } : {}),
         callerModuleUrl: options.callerModuleUrl,
-        endpointsRootAbs: options.endpointsRootAbs,
+        restRootAbs: options.restRootAbs,
       },
     );
   }

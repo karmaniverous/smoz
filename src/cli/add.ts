@@ -90,7 +90,7 @@ import { join } from 'node:path';
 
 import { z } from 'zod';
 
-import { app, APP_ROOT_ABS } from '@/app/config/app.config';
+import { app, appRootAbs } from '@/app/config/app.config';
 
 export const eventSchema = z.unknown();
 export const responseSchema = z.unknown();
@@ -104,7 +104,7 @@ export const fn = app.defineFunction({
   eventSchema,
   responseSchema,
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: join(APP_ROOT_ABS, 'functions', '${token}').replace(/\\\\\\\\/g, '/'),
+  restRootAbs: join(appRootAbs, 'functions', '${token}').replace(/\\\\\\\\/g, '/'),
 });
 `;
 
@@ -174,7 +174,7 @@ import { join } from 'node:path';
 
 import { z } from 'zod';
 
-import { app, APP_ROOT_ABS } from '@/app/config/app.config';
+import { app, appRootAbs } from '@/app/config/app.config';
 
 export const eventSchema = z.unknown();
 export const responseSchema = z.unknown();
@@ -184,7 +184,7 @@ export const fn = app.defineFunction({
   eventSchema,
   responseSchema,
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: join(APP_ROOT_ABS, 'functions', '${token}').replace(/\\\\\\\\/g, '/'),
+  restRootAbs: join(appRootAbs, 'functions', '${token}').replace(/\\\\\\\\/g, '/'),
 });
 `;
 

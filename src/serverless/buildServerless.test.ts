@@ -42,7 +42,7 @@ describe('serverless/buildServerlessFunctions', () => {
         contentType: 'application/json',
         fnEnvKeys: ['PROFILE', 'DOMAIN_NAME'],
         callerModuleUrl: fileUrl.href,
-        endpointsRootAbs: endpointsRoot,
+        restRootAbs: endpointsRoot,
       },
     ];
     const out = buildAllServerlessFunctions(reg, serverlessCfg, buildFnEnv);
@@ -81,7 +81,7 @@ describe('serverless/buildServerlessFunctions', () => {
         eventType: 'sqs',
         serverlessExtras: extraEvent,
         callerModuleUrl: fileUrl.href,
-        endpointsRootAbs: endpointsRoot,
+        restRootAbs: endpointsRoot,
       } as unknown as RegEntry,
     ];
     const out = buildAllServerlessFunctions(reg, serverlessCfg, buildFnEnv);

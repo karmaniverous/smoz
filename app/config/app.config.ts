@@ -13,10 +13,10 @@ import { z } from 'zod';
 import { App, dirFromHere } from '@/src';
 
 // Derive the app root as the parent directory of app/config/
-export const APP_ROOT_ABS = dirFromHere(import.meta.url, 1);
+export const appRootAbs = dirFromHere(import.meta.url, 1);
 
 export const app = App.create({
-  appRootAbs: APP_ROOT_ABS,
+  appRootAbs,
   globalParamsSchema: z.object({
     ESB_MINIFY: z.boolean(),
     ESB_SOURCEMAP: z.boolean(),

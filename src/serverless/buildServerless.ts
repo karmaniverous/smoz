@@ -24,7 +24,7 @@ export type RegEntry = {
   serverlessExtras?: unknown;
   fnEnvKeys?: readonly PropertyKey[];
   callerModuleUrl: string;
-  endpointsRootAbs: string;
+  restRootAbs: string;
 };
 
 export type ServerlessConfigLike = {
@@ -59,7 +59,7 @@ export const buildAllServerlessFunctions = (
           ...(r.httpContexts ? { httpContexts: r.httpContexts } : {}),
         },
         r.callerModuleUrl,
-        r.endpointsRootAbs,
+        r.restRootAbs,
       );
       const path = `/${basePath.replace(/^\/+/, '')}`;
       const ctxs = contexts.length > 0 ? contexts : (['public'] as const);

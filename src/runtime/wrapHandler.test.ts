@@ -65,7 +65,7 @@ describe('wrapHandler: GET happy path', () => {
       eventSchema,
       responseSchema,
       callerModuleUrl: import.meta.url,
-      endpointsRootAbs: process.cwd().replace(/\\/g, '/'),
+      restRootAbs: process.cwd().replace(/\\/g, '/'),
     });
     const handler = fn.handler(async () => {
       logger.debug('business invoked');
@@ -113,7 +113,7 @@ describe('wrapHandler: HEAD short-circuit', () => {
       eventSchema,
       responseSchema,
       callerModuleUrl: import.meta.url,
-      endpointsRootAbs: process.cwd().replace(/\\/g, '/'),
+      restRootAbs: process.cwd().replace(/\\/g, '/'),
     });
     const handler = fn.handler(async () => ({}));
     const event = createApiGatewayV1Event('HEAD', {
@@ -155,7 +155,7 @@ describe('wrapHandler: POST payload', () => {
       eventSchema,
       responseSchema,
       callerModuleUrl: import.meta.url,
-      endpointsRootAbs: process.cwd().replace(/\\/g, '/'),
+      restRootAbs: process.cwd().replace(/\\/g, '/'),
     });
     const handler = fn.handler(async () => ({ what: 'ok' }));
     const event = createApiGatewayV1Event('POST', {

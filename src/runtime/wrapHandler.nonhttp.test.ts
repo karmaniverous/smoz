@@ -49,7 +49,7 @@ describe('wrapHandler (non-HTTP)', () => {
       eventType: 'sqs', // non-HTTP token      eventSchema,
       responseSchema,
       callerModuleUrl: import.meta.url,
-      endpointsRootAbs: process.cwd().replace(/\\/g, '/'),
+      restRootAbs: process.cwd().replace(/\\/g, '/'),
     });
     const handler = fn.handler(async (_event, _ctx, opts) => {
       // env should be present

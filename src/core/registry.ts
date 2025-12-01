@@ -35,7 +35,7 @@ export type RegistryEntry = {
   openapiBaseOperation?: BaseOperation;
   serverlessExtras?: unknown;
   callerModuleUrl: string;
-  endpointsRootAbs: string;
+  restRootAbs: string;
   brandedConfig: Record<string, unknown>;
 };
 
@@ -73,7 +73,7 @@ export const createRegistry = <
       fnEnvKeys?: readonly (keyof (z.infer<GlobalParamsSchema> &
         z.infer<StageParamsSchema>))[];
       callerModuleUrl: string;
-      endpointsRootAbs: string;
+      restRootAbs: string;
     }) {
       const key = options.functionName;
       if (map.has(key)) {
@@ -128,7 +128,7 @@ export const createRegistry = <
           ? { responseSchema: options.responseSchema }
           : {}),
         callerModuleUrl: options.callerModuleUrl,
-        endpointsRootAbs: options.endpointsRootAbs,
+        restRootAbs: options.restRootAbs,
         brandedConfig,
       });
       return {

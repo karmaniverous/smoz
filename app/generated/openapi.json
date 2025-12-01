@@ -11,8 +11,8 @@
     }
   ],
   "info": {
-    "title": "",
-    "version": ""
+    "title": "@karmaniverous/smoz",
+    "version": "0.2.10"
   },
   "paths": {
     "/openapi": {

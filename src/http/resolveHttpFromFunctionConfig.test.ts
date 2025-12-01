@@ -9,7 +9,7 @@ const makePaths = (kind: 'in-root' | 'out-of-root' | 'root-get-tail') => {
     const baseRoot = 'C:/tmp/sandbox';
     if (kind === 'in-root') {
       return {
-        endpointsRootAbs: `${baseRoot}/app/functions/rest`,
+        restRootAbs: `${baseRoot}/app/functions/rest`,
         callerUrl: new URL(
           `file:///C:/tmp/sandbox/app/functions/rest/users/get/lambda.ts`,
         ).href,
@@ -17,14 +17,14 @@ const makePaths = (kind: 'in-root' | 'out-of-root' | 'root-get-tail') => {
     }
     if (kind === 'root-get-tail') {
       return {
-        endpointsRootAbs: `${baseRoot}/app/functions/rest`,
+        restRootAbs: `${baseRoot}/app/functions/rest`,
         callerUrl: new URL(
           `file:///C:/tmp/sandbox/app/functions/rest/get/lambda.ts`,
         ).href,
       };
     }
     return {
-      endpointsRootAbs: `${baseRoot}/app/functions/rest`,
+      restRootAbs: `${baseRoot}/app/functions/rest`,
       callerUrl: new URL(`file:///C:/tmp/other/place/lambda.ts`).href,
     };
   }
@@ -32,7 +32,7 @@ const makePaths = (kind: 'in-root' | 'out-of-root' | 'root-get-tail') => {
   const baseRoot = '/tmp/sandbox';
   if (kind === 'in-root') {
     return {
-      endpointsRootAbs: `${baseRoot}/app/functions/rest`,
+      restRootAbs: `${baseRoot}/app/functions/rest`,
       callerUrl: new URL(
         `file://${baseRoot}/app/functions/rest/users/get/lambda.ts`,
       ).href,
@@ -40,13 +40,13 @@ const makePaths = (kind: 'in-root' | 'out-of-root' | 'root-get-tail') => {
   }
   if (kind === 'root-get-tail') {
     return {
-      endpointsRootAbs: `${baseRoot}/app/functions/rest`,
+      restRootAbs: `${baseRoot}/app/functions/rest`,
       callerUrl: new URL(`file://${baseRoot}/app/functions/rest/get/lambda.ts`)
         .href,
     };
   }
   return {
-    endpointsRootAbs: `${baseRoot}/app/functions/rest`,
+    restRootAbs: `${baseRoot}/app/functions/rest`,
     callerUrl: new URL(`file://${baseRoot}/other/place/lambda.ts`).href,
   };
 };
@@ -72,7 +72,7 @@ describe('resolveHttpFromFunctionConfig', () => {
         httpContexts?: readonly HttpContext[];
       },
       p.callerUrl,
-      p.endpointsRootAbs,
+      p.restRootAbs,
     );
     expect(out.method).toBe('get');
     expect(out.basePath).toBe('users');
@@ -94,7 +94,7 @@ describe('resolveHttpFromFunctionConfig', () => {
           basePath?: string;
         },
         p.callerUrl,
-        p.endpointsRootAbs,
+        p.restRootAbs,
       ),
     ).toThrow(/method missing/i);
   });
@@ -113,7 +113,7 @@ describe('resolveHttpFromFunctionConfig', () => {
           basePath?: string;
         },
         p.callerUrl,
-        p.endpointsRootAbs,
+        p.restRootAbs,
       ),
     ).toThrow(/derived basePath is empty/i);
   });

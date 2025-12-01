@@ -32,7 +32,7 @@ export const HTTP_METHODS: ReadonlySet<MethodKey> = new Set<MethodKey>([
  * @typeParam EventType      - selected event token
  * @param functionConfig - the per‑function config (may omit method/basePath)
  * @param callerModuleUrl - import.meta.url of the registering module
- * @param endpointsRootAbs - absolute root of endpoints
+ * @param restRootAbs - absolute root of endpoints
  * @throws Error if method/basePath cannot be inferred under endpoints root
  * @returns HTTP method key, basePath, and unique contexts list
  */
@@ -53,7 +53,7 @@ export const resolveHttpFromFunctionConfig = <
     EventType
   >,
   callerModuleUrl: string,
-  endpointsRootAbs: string,
+  restRootAbs: string,
 ): {
   method: MethodKey;
   basePath: string;
@@ -70,10 +70,7 @@ export const resolveHttpFromFunctionConfig = <
   };
 
   // Compute relative path from endpoints root to the caller directory
-  const relPath = relative(
-    endpointsRootAbs,
-    dirname(fileURLToPath(callerModuleUrl)),
-  )
+  const relPath = relative(restRootAbs, dirname(fileURLToPath(callerModuleUrl)))
     .split(sep)
     .join('/');
   const underEndpointsRoot = !relPath.startsWith('..');

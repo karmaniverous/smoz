@@ -5,12 +5,12 @@ import { App, toPosixPath } from '@karmaniverous/smoz';
 import { z } from 'zod';
 
 // Derive the app root as the parent directory of app/config/
-export const APP_ROOT_ABS = toPosixPath(
+export const appRootAbs = toPosixPath(
   fileURLToPath(new URL('..', import.meta.url)),
 );
 
 export const app = App.create({
-  appRootAbs: APP_ROOT_ABS,
+  appRootAbs,
   globalParamsSchema: z.object({
     ESB_MINIFY: z.boolean(),
     ESB_SOURCEMAP: z.boolean(),
@@ -58,5 +58,5 @@ export const app = App.create({
 });
 
 export const ENDPOINTS_ROOT_REST = toPosixPath(
-  join(APP_ROOT_ABS, 'functions', 'rest'),
+  join(appRootAbs, 'functions', 'rest'),
 );

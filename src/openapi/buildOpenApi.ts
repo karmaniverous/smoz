@@ -18,7 +18,7 @@ export type RegEntry = {
   basePath?: string;
   httpContexts?: readonly HttpContext[];
   callerModuleUrl: string;
-  endpointsRootAbs: string;
+  restRootAbs: string;
   openapiBaseOperation?: BaseOperation;
 };
 
@@ -45,7 +45,7 @@ export const buildAllOpenApiPaths = (
         httpContexts?: readonly HttpContext[];
       },
       r.callerModuleUrl,
-      r.endpointsRootAbs,
+      r.restRootAbs,
     );
 
     const ctxs = contexts.length > 0 ? contexts : (['public'] as const);

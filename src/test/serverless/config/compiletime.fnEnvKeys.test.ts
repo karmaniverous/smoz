@@ -38,7 +38,7 @@ const ok = app.defineFunction({
   contentType: 'application/json',
   fnEnvKeys: ['PROFILE', 'DOMAIN_NAME'] as const,
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: process.cwd().replace(/\\/g, '/'),
+  restRootAbs: process.cwd().replace(/\\/g, '/'),
 });
 void ok;
 
@@ -53,7 +53,7 @@ app.defineFunction({
   // @ts-expect-error invalid fnEnvKeys
   fnEnvKeys: ['NOT_A_KEY'] as const,
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: process.cwd().replace(/\\/g, '/'),
+  restRootAbs: process.cwd().replace(/\\/g, '/'),
 });
 
 // Minimal runtime suite so Vitest considers this a test file
