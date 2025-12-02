@@ -4,7 +4,7 @@ import '@/app/generated/register.serverless';
 
 import type { AWS } from '@serverless/typescript';
 
-import { app, environment, stages } from '@/app/config/app.config';
+import { app } from '@/app/config/app.config';
 const config: AWS = {
   service: '${param:SERVICE_NAME}',
   frameworkVersion: '4',
@@ -46,7 +46,7 @@ const config: AWS = {
       noPrependStageInUrl: true,
     },
   },
-  stages,
+  stages: app.stages,
   provider: {
     apiGateway: {
       apiKeys: ['${param:SERVICE_NAME}-${param:STAGE}'],
@@ -59,7 +59,7 @@ const config: AWS = {
     },
     deploymentMethod: 'direct',
     endpointType: 'edge',
-    environment,
+    environment: app.environment,
     iam: {
       role: {
         managedPolicies: [

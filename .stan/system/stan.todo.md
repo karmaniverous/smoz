@@ -176,4 +176,7 @@ When updated: 2025-11-25T00:00:00Z
   - Removed the now-redundant `examples` directory and updated `docs-src/recipes/index.md` to remove links to it.
 - OpenAPI: Sanitize operationId for path parameters
   - Updated `buildOpenApi.ts` to strip `{}` from path segments when constructing `operationId`.
-  - Updated `buildPath.ts` to sanitize `[param]` to `{param}` to handle file-system-native path parameter syntax.
+  - Updated `buildPath.ts` to sanitize `[param]` to `{param}` to handle file-system-native path parameter syntax.
+- Refactor app config exports (/app fixture)
+  - Removed redundant re-exports of stages/environment from app.config.ts
+  - Updated serverless.ts to access `app.stages` and `app.environment` directly

@@ -77,4 +77,3 @@ export const app = App.create({
     envKeys: ['STAGE'],
   },
 });
-export const { stages, environment, buildFnEnv } = app;
