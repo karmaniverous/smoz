@@ -1,30 +1,17 @@
 stan-core:
   stanPath: .stan
   imports:
-    entity-client-dynamodb:
+    '@karmaniverous/entity-client-dynamodb':
       - ../entity-client-dynamodb/.stan/interop/smoz/**
-      # - ../entity-client-dynamodb/.stan/system/stan.requirements.md
-      - ../entity-client-dynamodb/dist/index.d.ts
-      # - ../entity-client-dynamodb/guides/entityclient-and-crud.md
-      # - ../entity-client-dynamodb/guides/querying-with-querybuilder.md
-      # - ../entity-client-dynamodb/guides/tables-and-definition.md
-      # - ../entity-client-dynamodb/src/EntityClient/EntityClient.test.ts
-    entity-manager:
+      - ../entity-client-dynamodb/guides/stan-assistant-guide.md
+    '@karmaniverous/entity-manager':
       - ../entity-manager/.stan/interop/smoz/**
-      # - ../entity-manager/.stan/system/stan.requirements.md
-      - ../entity-manager/dist/index.d.ts
-    # entity-manager-demo:
-    #   - ../entity-manager-demo/src/entity-manager/entityClient.ts
-    #   - ../entity-manager-demo/src/entity-manager/entityManager.ts
-    #   - ../entity-manager-demo/src/entity-manager/User.ts
-    #   - ../entity-manager-demo/src/handlers/user/**
-    get-dotenv:
+      - ../entity-manager/guides/stan-assistant-guide.md
+    '@karmaniverous/entity-manager-demo':
+      - ../entity-manager-demo/.stan/interop/smoz/**
+    '@karmaniverous/get-dotenv':
       - ../get-dotenv/.stan/interop/smoz/**
-      - ../get-dotenv/guides/config.md
-      - ../get-dotenv/guides/plugins/index.md
-    string-utilities:
-      - ../string-utilities/.stan/interop/smoz/**
-      - ../string-utilities/dist/index.d.ts
+      - ../get-dotenv/guides/stan-assistant-guide.md
   includes:
     - templates/**
   excludes:
