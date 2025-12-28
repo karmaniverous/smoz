@@ -96,4 +96,6 @@ When updated: 2025-12-28T00:00:00Z
   local cli.ts scaffolding plus a `cli` script.
 - Tests: add /app EntityClient env resolver coverage and a compile-time
   by-token inference guard (strict non-projection; partial projection).
+
+- Tests: add CLI help coverage for aws/dynamodb local commands.
 
