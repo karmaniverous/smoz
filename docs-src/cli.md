@@ -170,3 +170,29 @@ Notes:
 - The loop seeds basic env (e.g., `STAGE`) and prints “Updated” vs “No changes” per task run; bursts are debounced.
 - Env seeding:
   - The dev loop imports `app/config/app.config.ts` and seeds `process.env` for keys declared in your app’s `global.envKeys` and `stage.envKeys`, using the concrete values from `stages.default.params` (global) and `stages[<stage>].params` (selected stage). Existing `process.env` entries are not overridden. This provides parity with provider-level env in production so handlers validate cleanly in dev.
+
+## aws dynamodb
+
+SMOZ includes the get-dotenv DynamoDB plugin from `@karmaniverous/entity-client-dynamodb` nested under `aws`, so the command surface is:
+
+```bash
+npx smoz aws dynamodb --help
+```
+
+Local DynamoDB orchestration is exposed under:
+
+```bash
+npx smoz aws dynamodb local start
+npx smoz aws dynamodb local status
+npx smoz aws dynamodb local stop
+```
+
+Notes:
+
+- Configuration is provided via get-dotenv plugin config under the realized mount path:
+  - `plugins['aws/dynamodb']`
+- Local orchestration uses config-first behavior (run configured start/stop/status commands when present), and relies on native environment interpolation for:
+  - `DYNAMODB_LOCAL_ENDPOINT`
+  - `DYNAMODB_LOCAL_PORT`
+- For general get-dotenv configuration, interpolation, and script execution behavior, see:
+  - https://docs.karmanivero.us/get-dotenv

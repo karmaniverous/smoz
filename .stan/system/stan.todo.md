@@ -38,7 +38,6 @@ When updated: 2025-12-28T00:00:00Z
     - `smoz aws dynamodb local start|stop|status`
     - Config-first behavior with native get-dotenv env interpolation ($DYNAMODB_LOCAL_ENDPOINT / $DYNAMODB_LOCAL_PORT)
     - Embedded fallback via @karmaniverous/dynamodb-local when present
-  - SMOZ docs: add a cross-link to plugin docs for Local orchestration
 
 - Tests
   - Ensure Local endpoint switching works when `DYNAMODB_LOCAL_ENDPOINT` is present (mock or integration)
@@ -108,3 +107,5 @@ When updated: 2025-12-28T00:00:00Z
 
 - Verification: vitest run passes on Windows; aws/dynamodb help integration test
   completes within the per-test/spawn timeouts and emits actionable diagnostics.
+
+- Docs: document `smoz aws dynamodb local` usage and link to get-dotenv docs.

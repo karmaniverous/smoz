@@ -18,6 +18,14 @@ npx smoz register
 
 Tip: Commit the generated `register.*.ts` to keep typecheck stable. The Serverless plugin (exported as `@karmaniverous/smoz/serverless-plugin`) runs `smoz register` before package/deploy.
 
+## DynamoDB Local commands (CLI path)
+
+If you’re looking for the DynamoDB Local lifecycle commands, they are nested under `aws`:
+
+```bash
+npx smoz aws dynamodb local --help
+```
+
 ## Windows TypeScript path issues
 
 - Normalize separators when deriving paths:
