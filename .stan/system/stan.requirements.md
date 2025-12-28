@@ -112,6 +112,32 @@ Conventions:
 
 Commands:
 
+- CLI composition (published `smoz` bin)
+  - The published CLI binary name is `smoz`.
+  - Avoid redundant namespacing like `smoz smoz ...`:
+    - SMOZ’s own commands MUST be installed at the root command (no umbrella “smoz” namespace).
+    - Implement SMOZ commands as individual, composable get-dotenv plugins mounted at root:
+      - `smoz init`, `smoz add`, `smoz register`, `smoz openapi`, `smoz dev`.
+    - Provide a convenience installer (composition helper) for downstream reuse:
+      - e.g., `useSmozPlugins(cli)` which mounts the default SMOZ plugin set with stable defaults.
+  - Default composition MUST keep shipped get-dotenv plugins in their usual configuration at root:
+    - `cmd` (as default; supports `-c, --cmd <command...>`)
+    - `batch`
+    - `aws`
+    - Exclude whoami from the default composition:
+      - Do NOT install `awsWhoamiPlugin` (and do not expose an `aws whoami` command via an extra plugin).
+  - get-dotenv init MUST be present but ONLY under the `getdotenv` namespace:
+    - Use `groupPlugins({ ns: 'getdotenv' })` to mount the get-dotenv init plugin:
+      - Command path: `smoz getdotenv init ...`
+    - Do not group any other shipped get-dotenv plugins under `getdotenv`; only init is grouped.
+    - Configure the get-dotenv init plugin to NOT place templates:
+      - SMOZ’s `init` command owns template placement and template selection.
+      - If the get-dotenv init plugin does not currently support disabling template placement, add the capability upstream in `@karmaniverous/get-dotenv` (do not engineer a workaround in SMOZ).
+  - Third-party plugin composition MUST remain straightforward:
+    - Example: include the entity-client-dynamodb get-dotenv plugin nested under aws:
+      - `smoz aws dynamodb ...`
+      - Config keying follows realized mount path: `plugins['aws/dynamodb']`.
+
 - smoz init — scaffold app files, seed empty registers, add serverless.ts and
   an OpenAPI build script; optionally install dependencies.
 - smoz register — one‑shot; generate app/generated/register.functions.ts,
@@ -122,6 +148,10 @@ Commands:
      (restart/refresh if applicable).
 - DynamoDB CLI plugin (always included by SMOZ):
   - Table lifecycle: generate, validate, create, delete, purge, migrate (see §20 for deployment/migration policy).
+  - Composition requirement:
+    - Must be nested under `aws` (do not mount at root).
+    - Command path: `smoz aws dynamodb ...`
+    - Config keying: `plugins['aws/dynamodb']` (realized mount path).
   - Local orchestration:
     - smoz dynamodb local start [--port <n>]
       - Config‑first: run `plugins.dynamodb.local.start` and block until healthy.

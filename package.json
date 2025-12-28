@@ -13,7 +13,7 @@
     "url": "https://github.com/karmaniverous/smoz/issues"
   },
   "dependencies": {
-    "@karmaniverous/get-dotenv": "^6.1.1",
+    "@karmaniverous/get-dotenv": "^6.2.3",
     "@middy/core": "^6.4.5",
     "@middy/http-content-negotiation": "^6.4.5",
     "@middy/http-cors": "^6.4.5",
@@ -33,7 +33,7 @@
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.51.2",
     "@eslint/js": "^9.39.2",
-    "@karmaniverous/entity-client-dynamodb": "^0.11.0",
+    "@karmaniverous/entity-client-dynamodb": "^0.11.1",
     "@karmaniverous/entity-manager": "^8.0.0",
     "@karmaniverous/entity-tools": "^0.8.0",
     "@karmaniverous/string-utilities": "^0.2.2",

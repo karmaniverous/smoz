@@ -4,6 +4,21 @@ When updated: 2025-11-25T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
+- CLI composition: adopt get-dotenv v6.2.x plugin model
+  - Replace SMOZ CLI bootstrap to use get-dotenv `createCli` composition (avoid deprecated host chaining; remove reliance on `passOptions`).
+  - Implement SMOZ commands as individual get-dotenv plugins mounted at root:
+    - `init`, `add`, `register`, `openapi`, `dev`.
+  - Provide a convenience installer for downstream reuse:
+    - e.g., `useSmozPlugins(cli)` mounts the default SMOZ plugin set.
+  - Keep shipped get-dotenv plugins in their usual root configuration:
+    - `cmd` (as default), `batch`, `aws`
+    - Omit whoami (do not install `awsWhoamiPlugin`).
+  - Group ONLY the get-dotenv init plugin under `getdotenv`:
+    - `smoz getdotenv init ...`
+    - Configure get-dotenv init to not place templates (SMOZ init owns templates); add upstream support if missing.
+  - Compose DynamoDB plugin nested under aws:
+    - `smoz aws dynamodb ...` with config keyed under `plugins['aws/dynamodb']`.
+
 - Align to upstream by‑token typing end state (entity‑manager v8 / client v1)
   - Dependencies:
     - Switch devDependencies to stable ranges once released:
@@ -88,95 +103,7 @@ When updated: 2025-11-25T00:00:00Z
 
 **CRITICAL: Append-only list. Add new completed items at the end. Prune old completed entries from the top. Do not edit existing entries.**
 
-- Interop note: DDB CLI plugin local orchestration
-  - Defined config-first `start|stop|status` commands with native env interpolation
-  - Embedded fallback via @karmaniverous/dynamodb-local; `start` blocks until healthy
-  - Standardized `DYNAMODB_LOCAL_ENDPOINT` / `DYNAMODB_LOCAL_PORT`
-  - Dynamic naming anchored on `STAGE_NAME = ${SERVICE_NAME}-${STAGE}` with versioned TableName `${param:STAGE_NAME}-NNN` in generated YAML
-- Plugin docs updated (entity-client-dynamodb)
-  - Added “Local DynamoDB” page and linked it in CLI index
-  - Updated recipes with local orchestration examples
-- Spawn-env usage consolidated
-  - SMOZ CLI uses get-dotenv’s `buildSpawnEnv` directly; removed local wrappers
-  - Ensured inline/offline/serverless hooks rely on composed envs
-
-- Exclude STAN workspace from tools
-  - Vitest: added '**/.stan/**' to test.exclude
-  - Knip: added ".stan/\*\*" to ignore
-- Fix typecheck in dev inline tests
-  - Typed vi.mock factories to Node module shapes (fs/child_process)
-- Resolve DeepOverride lint
-  - Reworked mapped type to avoid redundant type constituents
-
-- Fix lint in dev inline tests
-  - Removed typeof import() type annotations; use local type aliases to satisfy consistent-type-imports
-
-- Default template: seed STAGE_NAME param
-  - Add STAGE_NAME = ${SERVICE_NAME}-${STAGE} (not consumed yet)
-
-- DynamoDB template: seed dependencies and CLI
-  - Renamed package to smoz-template-dynamodb
-  - Added @karmaniverous/smoz as a devDependency (CLI available without ambient mapping)
-  - Added entity/client stack deps (@karmaniverous/entity-client-dynamodb, entity-manager, entity-tools, string-utilities) and nanoid
-
-- DynamoDB template: scaffold v000 + domain and wire resources
-  - Added app/domain/user.ts (authoritative Zod)
-  - Added tables/000/{entityManager.ts, table.yml}
-  - Added resources.Resources.Table000 import in template serverless.ts
-
-- Knip: ignore template-only devDeps used for template typecheck
-  - Added @karmaniverous/entity-manager and @karmaniverous/entity-tools to knip.json ignoreDependencies
-  - Rationale: templates/\*\* are excluded from knip’s project scan; these deps are required only for template typechecking
-
-- Templates lint wiring & TS cast
-  - Fixed lint arg forwarding that appended "." to template runs; added explicit
-    lint:templates:\*:fix scripts to avoid repo-wide lint with template configs
-  - Ensured templates/dynamodb lints with its own flat config (not default's)
-  - Cast serverless resources to NonNullable<AWS['resources']> so template
-    typecheck surfaces real ESLint errors (e.g., no-unsafe-assignment) instead
-    of being blocked by TS2322; normalized LF in that block to satisfy Prettier
-
-- Knip: remove used devDep from ignoreDependencies
-  - Dropped @karmaniverous/entity-manager from knip.json ignoreDependencies per configuration hint
-
-- DynamoDB template: add users CRUD/search endpoints
-  - Added app/entity/entityClient.ts (env-driven; supports Local endpoint)
-  - Added GET /users (search), POST /users (create), GET/PUT/DELETE /users/{id}
-  - Reused domain Zod and EntityClient/QueryBuilder; baseline compiles and is ready for extension
-
-- Knip: ignore template-only devDep entity-client-dynamodb
-  - Added @karmaniverous/entity-client-dynamodb to knip.json ignoreDependencies
-
-- /app fixture: seed STAGE_NAME stage param (best practice; not consumed yet)
-
-- /app fixture: scaffold domain schema, EntityManager, EntityClient, and add a
-  Serverless resource import skeleton for table v000
-
-- /app: implement REST users endpoints (CRUD + search)
-  - Typed params via zod overrides in lambda.ts (no in-handler casts)
-  - Kept configs minimal (no explicit defaults); explicit basePath only for {id}
-
-- /app: GET /users returns strict domain items (non‑projection)
-  - Enriched query results via getItems, removed keys, and shaped response
-  - Matches responseSchema { items: z.array(userSchema), pageKeyMap?: string }
-
-- Docs: export HttpPropKeys for Typedoc
-  - Exported type from src/types/DeepOverride.ts to remove warning and surface in API docs
-
-- Docs pass (general alignment):
-  - `docs-src/templates.md`: Removed reference to obsolete `templates/project` directory and clarified that the `default` template is self-contained.
-  - `docs-src/middleware.md`: Restructured the default middleware list to accurately reflect the `before`, `after`, and `onError` execution phases, improving clarity and correctness.
-- Docs: Consolidated contributing guides
-  - Merged `docs-src/contributing.md` into the root `CONTRIBUTING.md` to create a single source of truth.
-  - Updated `typedoc.json` to reference the root `CONTRIBUTING.md` in `projectDocuments`.
-
-- Docs: Consolidated examples into recipes
-  - Merged the narrative walkthroughs from the `examples` directory into their corresponding `docs-src/recipes` documents.
-  - Transformed the SQS and Step Functions recipes into complete, self-contained guides.
-  - Removed the now-redundant `examples` directory and updated `docs-src/recipes/index.md` to remove links to it.
-- OpenAPI: Sanitize operationId for path parameters
-  - Updated `buildOpenApi.ts` to strip `{}` from path segments when constructing `operationId`.
-  - Updated `buildPath.ts` to sanitize `[param]` to `{param}` to handle file-system-native path parameter syntax.
-- Refactor app config exports (/app fixture)
-  - Removed redundant re-exports of stages/environment from app.config.ts
-  - Updated serverless.ts to access `app.stages` and `app.environment` directly
+- Requirements: define CLI composition under get-dotenv v6.2.x
+  - Root-mounted SMOZ command plugins (no `smoz smoz ...`)
+  - Only get-dotenv init grouped under `getdotenv` and configured to avoid templates
+  - Keep cmd/batch/aws at root, omit whoami, nest dynamodb under aws

@@ -243,6 +243,26 @@ await run();
 - Resolved context is available via `cli.getCtx()` inside any plugin mount/action.
 - Root hooks in the shipped factory also persist a merged “root options bag” for actions: use `readMergedOptions(thisCommand)` to retrieve it.
 
+### Grouping plugins under a namespace: `groupPlugins(...)`
+
+If you want a namespace-only parent command to group plugins under a shared prefix (for example, `smoz getdotenv init`), use `groupPlugins` rather than trying to “call” another plugin or inventing alias command names like `getdotenv-init`.
+
+```ts
+import { groupPlugins } from '@karmaniverous/get-dotenv/cliHost';
+import { initPlugin } from '@karmaniverous/get-dotenv/plugins';
+
+program.use(
+  groupPlugins({ ns: 'getdotenv', description: 'getdotenv tools' }).use(
+    initPlugin(),
+  ),
+);
+```
+
+Notes:
+
+- Config keys for children follow the realized mount path (e.g., `plugins['getdotenv/init']`).
+- If you mount `cmdPlugin({ optionAlias: ... })` under the group, the alias attaches to the group command (e.g., `smoz getdotenv -c ...`), not the root.
+
 ### Minimal plugin pattern
 
 ```ts
