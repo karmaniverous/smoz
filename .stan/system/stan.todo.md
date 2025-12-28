@@ -34,8 +34,8 @@ When updated: 2025-12-28T00:00:00Z
 
 - Plugin integration validation in SMOZ
   - (continues; no change)
-  - Verify SMOZ wires the DynamoDB plugin (already included) and local subcommands:
-    - `smoz dynamodb local start|stop|status`
+  - Verify SMOZ wires the DynamoDB plugin (already included) under `aws` and exposes local subcommands:
+    - `smoz aws dynamodb local start|stop|status`
     - Config-first behavior with native get-dotenv env interpolation ($DYNAMODB_LOCAL_ENDPOINT / $DYNAMODB_LOCAL_PORT)
     - Embedded fallback via @karmaniverous/dynamodb-local when present
   - SMOZ docs: add a cross-link to plugin docs for Local orchestration
