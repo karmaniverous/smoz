@@ -1,6 +1,6 @@
 # Development Plan
 
-When updated: 2025-11-25T00:00:00Z
+When updated: 2025-12-28T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
@@ -13,11 +13,16 @@ When updated: 2025-11-25T00:00:00Z
   - Keep shipped get-dotenv plugins in their usual root configuration:
     - `cmd` (as default), `batch`, `aws`
     - Omit whoami (do not install `awsWhoamiPlugin`).
-  - Group ONLY the get-dotenv init plugin under `getdotenv`:
-    - `smoz getdotenv init ...`
-    - Configure get-dotenv init to not place templates (SMOZ init owns templates); add upstream support if missing.
+  - get-dotenv init plugin is not part of SMOZ. SMOZ owns init scaffolding.
   - Compose DynamoDB plugin nested under aws:
     - `smoz aws dynamodb ...` with config keyed under `plugins['aws/dynamodb']`.
+  - Remove any direct parsing of get-dotenv config files from SMOZ (no JSON-only probes); rely on get-dotenv host ctx and plugin config APIs.
+
+- smoz init: always scaffold get-dotenv config (DX-first)
+  - Generate `getdotenv.config.ts` and `getdotenv.dynamic.ts` in the downstream app root.
+  - Wire dynamic derivations (STAGE, STAGE_NAME, TABLE_NAME, TABLE_NAME_DEPLOYED) in `getdotenv.dynamic.ts`.
+  - Treat get-dotenv env as SMOZ stage.
+  - Add `--cli` option to scaffold a downstream `cli.ts` (exact copy of default SMOZ CLI) and add `"cli": "tsx cli.ts"` to package.json.
 
 - Align to upstream by‑token typing end state (entity‑manager v8 / client v1)
   - Dependencies:
@@ -107,3 +112,8 @@ When updated: 2025-11-25T00:00:00Z
   - Root-mounted SMOZ command plugins (no `smoz smoz ...`)
   - Only get-dotenv init grouped under `getdotenv` and configured to avoid templates
   - Keep cmd/batch/aws at root, omit whoami, nest dynamodb under aws
+
+- Amendment: Drop get-dotenv init plugin from SMOZ requirements; `smoz init`
+  owns get-dotenv scaffolding and always writes `getdotenv.config.ts` plus
+  `getdotenv.dynamic.ts` (get-dotenv env == SMOZ stage). Add downstream `--cli`
+  option to scaffold root `cli.ts` and a `tsx` script.

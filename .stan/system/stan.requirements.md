@@ -1,6 +1,6 @@
 # Project Requirements — @karmaniverous/smoz
 
-When updated: 2025-11-25T00:00:00Z
+When updated: 2025-12-28T00:00:00Z
 
 Purpose
 
@@ -126,20 +126,27 @@ Commands:
     - `aws`
     - Exclude whoami from the default composition:
       - Do NOT install `awsWhoamiPlugin` (and do not expose an `aws whoami` command via an extra plugin).
-  - get-dotenv init MUST be present but ONLY under the `getdotenv` namespace:
-    - Use `groupPlugins({ ns: 'getdotenv' })` to mount the get-dotenv init plugin:
-      - Command path: `smoz getdotenv init ...`
-    - Do not group any other shipped get-dotenv plugins under `getdotenv`; only init is grouped.
-    - Configure the get-dotenv init plugin to NOT place templates:
-      - SMOZ’s `init` command owns template placement and template selection.
-      - If the get-dotenv init plugin does not currently support disabling template placement, add the capability upstream in `@karmaniverous/get-dotenv` (do not engineer a workaround in SMOZ).
   - Third-party plugin composition MUST remain straightforward:
     - Example: include the entity-client-dynamodb get-dotenv plugin nested under aws:
       - `smoz aws dynamodb ...`
       - Config keying follows realized mount path: `plugins['aws/dynamodb']`.
+  - Encapsulation:
+    - SMOZ MUST NOT parse get-dotenv config files directly (no JSON-only probes).
+    - All config access MUST go through the get-dotenv host context / plugin config APIs.
 
 - smoz init — scaffold app files, seed empty registers, add serverless.ts and
   an OpenAPI build script; optionally install dependencies.
+  - get-dotenv config scaffolding (always):
+    - `smoz init` MUST scaffold a typed `getdotenv.config.ts` (DX-first).
+    - `smoz init` MUST also scaffold `getdotenv.dynamic.ts` and wire it via config
+      so derived values can be computed during dotenv resolution.
+    - The config file should remain mostly declarative; derivation logic should
+      live in `getdotenv.dynamic.ts` (separation of concerns).
+  - Local CLI scaffolding (opt-in):
+    - When `smoz init --cli` is selected, scaffold a downstream `cli.ts` at the
+      project root that wires an exact copy of the default SMOZ CLI composition.
+    - Add a convenience script to the downstream package.json to run it via tsx:
+      - e.g., `"cli": "tsx cli.ts"`.
 - smoz register — one‑shot; generate app/generated/register.functions.ts,
   register.openapi.ts, and register.serverless.ts; idempotent and formatted.
 - smoz openapi — one‑shot; run the app’s OpenAPI builder.
@@ -196,6 +203,9 @@ Local modes (HTTP):
 Stage & environment in dev:
 
 - Stage default: first stage key in app.stages not named "default"; fallback dev.
+- get-dotenv env alignment:
+  - The selected get-dotenv `env` MUST be treated as the SMOZ `stage`.
+  - Derived values (e.g., STAGE_NAME, TABLE_NAME) SHOULD be computed via get-dotenv dynamic.
 - Seed process.env from app.global.params and app.stage.params[stage] so dev
   mirrors provider env semantics.
 - For DynamoDB Local: handlers switch to local when `DYNAMODB_LOCAL_ENDPOINT` is present in the environment.
@@ -311,6 +321,20 @@ Defaults file (optional): smoz.config.json may provide:
 
 - cliDefaults.init.onConflict, cliDefaults.init.install, cliDefaults.init.template,
   and cliDefaults.dev.local.
+
+get-dotenv config discovery (init UX):
+
+- `smoz init` MUST always scaffold get-dotenv configuration so users discover the
+  capability without additional steps:
+  - `getdotenv.config.ts`
+  - `getdotenv.dynamic.ts`
+- get-dotenv dynamic (baseline derived values):
+  - STAGE (from selected get-dotenv env)
+  - STAGE_NAME (typically `${SERVICE_NAME}-${STAGE}`)
+  - TABLE_NAME (typically `${STAGE_NAME}-${TABLE_VERSION}`)
+  - TABLE_NAME_DEPLOYED (typically `${STAGE_NAME}-${TABLE_VERSION_DEPLOYED}`)
+- `.env*` files are not the primary configuration mechanism; they are used only
+  for CI and DynamoDB (local endpoint + secrets-derived values).
 
 Manifest handling:
 
