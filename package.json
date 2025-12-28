@@ -13,6 +13,7 @@
     "url": "https://github.com/karmaniverous/smoz/issues"
   },
   "dependencies": {
+    "@karmaniverous/entity-client-dynamodb": "^0.11.2",
     "@karmaniverous/get-dotenv": "^6.2.4",
     "@middy/core": "^6.4.5",
     "@middy/http-content-negotiation": "^6.4.5",
@@ -33,7 +34,6 @@
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.51.2",
     "@eslint/js": "^9.39.2",
-    "@karmaniverous/entity-client-dynamodb": "^0.11.2",
     "@karmaniverous/entity-manager": "^8.0.0",
     "@karmaniverous/entity-tools": "^0.8.0",
     "@karmaniverous/string-utilities": "^0.2.2",
@@ -89,6 +89,16 @@
       "require": {
         "types": "./dist/index.d.ts",
         "default": "./dist/cjs/index.js"
+      }
+    },
+    "./cli": {
+      "import": {
+        "types": "./dist/cli.d.ts",
+        "default": "./dist/mjs/cli.js"
+      },
+      "require": {
+        "types": "./dist/cli.d.ts",
+        "default": "./dist/cjs/cli.js"
       }
     },
     "./serverless-plugin": {

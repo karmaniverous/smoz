@@ -25,6 +25,8 @@ const outputPath = 'dist';
 // Multi-entry mapping to produce subpath bundles for JS and DTS.
 const entryPoints = {
   index: 'src/index.ts',
+  // Programmatic CLI composition helpers (not the bin entry).
+  cli: 'src/cli/public.ts',
   // Serverless plugin entry (CJS/ESM build + DTS). The plugin is intended to be
   // loaded via CJS by Serverless; we still emit both formats for completeness.
   'serverless-plugin': 'src/serverless/plugin.ts',

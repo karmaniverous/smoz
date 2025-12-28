@@ -8,7 +8,11 @@ import { readJson, writeJson } from './fs';
 import { detectPm, runInstall } from './install';
 import { ensureToolkitDependency, mergeAdditive } from './manifest';
 import { resolveTemplatesBase, toPosix } from './paths';
-import { seedRegisterPlaceholders } from './seed';
+import {
+  seedCliEntrypoint,
+  seedGetDotenvScaffold,
+  seedRegisterPlaceholders,
+} from './seed';
 import type { ConflictPolicy, InitOptions, InitResult } from './types';
 
 const toPosixSep = (p: string): string => p.split(sep).join('/');
@@ -141,6 +145,13 @@ export const runInit = async (
     // best-effort
   }
 
+  // Seed get-dotenv config scaffold (always).
+  {
+    const res = await seedGetDotenvScaffold(root);
+    created.push(...res.created);
+    skipped.push(...res.skipped);
+  }
+
   // Seed app/generated/register.* placeholders
   {
     const res = await seedRegisterPlaceholders(root);
@@ -161,6 +172,13 @@ export const runInit = async (
     };
     if (!optAll.dryRun) await writeJson(pkgPath, pkg);
     created.push(posix.normalize(pkgPath));
+  }
+
+  // Optional: seed a downstream local cli.ts entrypoint (tsx).
+  if (optAll.cli) {
+    const res = await seedCliEntrypoint(root);
+    created.push(...res.created);
+    skipped.push(...res.skipped);
   }
 
   // 4) Merge manifest additively (prefer template's embedded package.json)
@@ -188,6 +206,23 @@ export const runInit = async (
     }
   }
   if (!optAll.dryRun && pkgChanged) await writeJson(pkgPath, pkg);
+
+  // 4.75) If --cli was selected, ensure a convenient script exists.
+  if (optAll.cli) {
+    const scripts = (pkg.scripts as Record<string, string> | undefined) ?? {};
+    const desired = 'tsx cli.ts';
+    if (!scripts.cli) {
+      scripts.cli = desired;
+      merged.push('scripts:cli');
+      pkgChanged = true;
+    } else if (scripts.cli !== desired && !scripts['cli:smoz']) {
+      scripts['cli:smoz'] = desired;
+      merged.push('scripts:cli:smoz');
+      pkgChanged = true;
+    }
+    pkg.scripts = scripts;
+    if (!optAll.dryRun && pkgChanged) await writeJson(pkgPath, pkg);
+  }
 
   // 5) Optional install
   let installed:

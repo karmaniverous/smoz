@@ -3,6 +3,7 @@ export type ConflictPolicy = 'overwrite' | 'example' | 'skip' | 'ask';
 export type InitOptions = {
   install?: string | boolean;
   yes?: boolean;
+  cli?: boolean;
   noInstall?: boolean;
   conflict?: string;
   dryRun?: boolean;

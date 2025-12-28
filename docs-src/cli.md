@@ -50,6 +50,7 @@ Options:
 - `-t, --template <nameOrPath>` — template name (e.g., `default`) or a filesystem directory
 - `--install [pm]` — install deps with npm|pnpm|yarn|bun
 - `--no-install` — skip installation (overrides `-y`)
+- `--cli` — scaffold a local `cli.ts` and add a `cli` script (`tsx cli.ts`)
 - `-y, --yes` — no prompts
 - `--dry-run` — show actions without writing
 

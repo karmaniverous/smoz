@@ -4,12 +4,6 @@ When updated: 2025-12-28T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
-- smoz init: always scaffold get-dotenv config (DX-first)
-  - Generate `getdotenv.config.ts` and `getdotenv.dynamic.ts` in the downstream app root.
-  - Wire dynamic derivations (STAGE, STAGE_NAME, TABLE_NAME, TABLE_NAME_DEPLOYED) in `getdotenv.dynamic.ts`.
-  - Treat get-dotenv env as SMOZ stage.
-  - Add `--cli` option to scaffold a downstream `cli.ts` (exact copy of default SMOZ CLI) and add `"cli": "tsx cli.ts"` to package.json.
-
 - Align to upstream by‑token typing end state (entity‑manager v8 / client v1)
   - Dependencies:
     - Switch devDependencies to stable ranges once released:
@@ -98,3 +92,5 @@ When updated: 2025-12-28T00:00:00Z
 - Plan: prune completed items from “Next up”.
 
 - CLI: mount aws/dynamodb plugin (entity-client-dynamodb) under `smoz aws`.
+- Init: always seed get-dotenv config + dynamic, and add optional `--cli`
+  local cli.ts scaffolding plus a `cli` script.

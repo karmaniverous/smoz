@@ -13,6 +13,10 @@ export const smozInitPlugin = () =>
         .option('-y, --yes', 'assume “example” on conflicts')
         .option('--no-install', 'do not install dependencies')
         .option(
+          '--cli',
+          'scaffold a local cli.ts (tsx) that composes the SMOZ CLI',
+        )
+        .option(
           '--install <pm>',
           'explicit package manager (npm|pnpm|yarn|bun)',
         )
@@ -23,6 +27,7 @@ export const smozInitPlugin = () =>
             typeof opts.template === 'string' ? opts.template : 'default';
 
           const yes = Boolean(opts.yes);
+          const cliFlag = Boolean((opts as { cli?: unknown }).cli);
           const installOpt = (opts as { install?: unknown }).install;
           const noInstall = installOpt === false;
           const pmRaw = typeof installOpt === 'string' ? installOpt : undefined;
@@ -31,6 +36,7 @@ export const smozInitPlugin = () =>
           await runInit(root, template, {
             ...(yes ? { yes } : {}),
             ...(noInstall ? { noInstall } : {}),
+            ...(cliFlag ? { cli: true } : {}),
             ...(pmRaw ? { install: pmRaw } : {}),
             ...(conflict ? { conflict } : {}),
           });
