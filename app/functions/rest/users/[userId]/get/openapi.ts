@@ -5,7 +5,7 @@ fn.openapi({
   description:
     'Returns the user with the specified id. Empty list when not found.',
   parameters: [
-    { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+    { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
   ],
   responses: {
     200: {

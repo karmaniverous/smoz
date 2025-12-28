@@ -5,7 +5,7 @@ fn.openapi({
   description:
     'Shallow update — undefined ignored; null deletes optional properties. Returns updated items.',
   parameters: [
-    { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+    { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
   ],
   requestBody: {
     description: 'Update payload',

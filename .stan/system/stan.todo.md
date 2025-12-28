@@ -28,10 +28,15 @@ When updated: 2025-12-28T00:00:00Z
 
 - Template extraction (after fixture is green)
   - Finish extracting the proven /app pattern into templates/dynamodb
-    - Add the users CRUD/search endpoints and ensure they typecheck.
+    - Add the users endpoints in small, reviewable slices:
+      - Slice 1: GET /users (search) — schemas + handler + openapi (template)
+      - Slice 2: POST /users (create) — schemas + handler + openapi (template)
+      - Slice 3: /users/{userId} GET/PUT/DELETE — schemas + handlers + openapi (template)
     - Keep annotations minimal (inference first).
     - Ensure template typechecks without generated registers (ambient declarations).
     - Do not publish until the extracted template mirrors the fixture’s behavior.
+  - Fix /app fixture OpenAPI path-param naming to match route templates
+    - Ensure path parameter names match `{userId}` for `/users/{userId}` routes.
 
 - Plugin integration validation in SMOZ
   - (continues; no change)
@@ -111,3 +116,8 @@ When updated: 2025-12-28T00:00:00Z
 - Templates: add initial templates/dynamodb scaffold (tsconfigs + manifest merge,
   serverless import of Table000, App/OpenAPI wiring, EntityManager v000, and an
   /openapi endpoint with a placeholder app/generated/openapi.json).
+
+- Templates: add first dynamodb template endpoint slice
+  - Add GET /users (search) under templates/dynamodb with the same schema
+    surface as the /app fixture (query params + { items, pageKeyMap } response).
+  - Fix /app OpenAPI path param names for /users/{userId} routes.
