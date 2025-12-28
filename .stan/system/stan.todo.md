@@ -120,4 +120,6 @@ When updated: 2025-12-28T00:00:00Z
   seeding reads params from app.stages with stage overrides for global keys).
 
 - CLI: refactor SMOZ commands into root-mounted get-dotenv plugins
-  (init/add/register/openapi/dev) and add useSmozPlugins installer.
+  (init/add/register/openapi/dev) and add useSmozPlugins installer.
+
+- CLI: add missing smoz dev plugin module to fix typecheck/lint.
