@@ -196,3 +196,21 @@ Notes:
   - `DYNAMODB_LOCAL_PORT`
 - For general get-dotenv configuration, interpolation, and script execution behavior, see:
   - https://docs.karmanivero.us/get-dotenv
+
+### Dynamic naming and versioned tables
+
+SMOZ uses a versioned-table convention (e.g., `000`, `001`, …) to support safe migrations.
+
+In SMOZ templates and the in-repo `/app` fixture, a common best-practice policy is:
+
+- `STAGE_NAME` is a first-class param (often `${SERVICE_NAME}-${STAGE}`).
+- `TABLE_VERSION` is the code-expected table version (tracked).
+- `TABLE_VERSION_DEPLOYED` is the currently deployed version (private / env-managed).
+- Canonical runtime names are derived from those inputs:
+  - `TABLE_NAME = ${STAGE_NAME}-${TABLE_VERSION}`
+  - `TABLE_NAME_DEPLOYED = ${STAGE_NAME}-${TABLE_VERSION_DEPLOYED}`
+
+Important: versioned DynamoDB tables are typically created by **Serverless deploy** via
+imported CloudFormation resources (multiple versions can coexist during migration).
+The DynamoDB CLI plugin can provide lifecycle/migration helpers, but templates do not
+assume “create tables via CLI” as the default path.

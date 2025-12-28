@@ -44,11 +44,7 @@ When updated: 2025-12-28T00:00:00Z
   - Keep template typecheck and lint scripts green
 
 - Docs (SMOZ)
-  - Explain dynamic naming and canonical runtime table policy:
-    - STAGE_NAME, TABLE_VERSION, TABLE_VERSION_DEPLOYED, TABLE_NAME / TABLE_NAME_DEPLOYED
-  - Clarify that tables are created via Serverless deploy (imports) and not by default via CLI create in the template path
-  - Note that multiple versioned tables can coexist during migration
-  - Cross-link to DynamoDB plugin docs for Local orchestration (config-first vs embedded fallback)
+  - Cross-link to DynamoDB plugin docs for Local orchestration (config-first vs embedded fallback) if/when published
 
 - Facets
   - Phase 2 (templates + fixture + endpoints): activate templates, app, docs, tests, ci
@@ -109,3 +105,6 @@ When updated: 2025-12-28T00:00:00Z
   completes within the per-test/spawn timeouts and emits actionable diagnostics.
 
 - Docs: document `smoz aws dynamodb local` usage and link to get-dotenv docs.
+
+- Docs: describe versioned DynamoDB naming (STAGE*NAME/TABLE*\*VERSION) and
+  clarify the default “Serverless deploy creates tables” workflow.
