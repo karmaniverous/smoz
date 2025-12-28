@@ -5,7 +5,6 @@ When updated: 2025-12-28T00:00:00Z
 ## Next up (near‑term, actionable)
 
 - CLI composition: adopt get-dotenv v6.2.x plugin model
-  - Replace SMOZ CLI bootstrap to use get-dotenv `createCli` composition (avoid deprecated host chaining; remove reliance on `passOptions`).
   - Implement SMOZ commands as individual get-dotenv plugins mounted at root:
     - `init`, `add`, `register`, `openapi`, `dev`.
   - Provide a convenience installer for downstream reuse:
@@ -116,4 +115,8 @@ When updated: 2025-12-28T00:00:00Z
 - Amendment: Drop get-dotenv init plugin from SMOZ requirements; `smoz init`
   owns get-dotenv scaffolding and always writes `getdotenv.config.ts` plus
   `getdotenv.dynamic.ts` (get-dotenv env == SMOZ stage). Add downstream `--cli`
-  option to scaffold root `cli.ts` and a `tsx` script.
+  option to scaffold root `cli.ts` and a `tsx` script.
+
+- CLI: migrate bootstrap to get-dotenv createCli and remove SMOZ JSON-only
+  parsing of getdotenv config (stage inference now uses env/app.stages; env
+  seeding reads params from app.stages with stage overrides for global keys).

@@ -5,7 +5,7 @@
  *   and install the SMOZ command plugin (init/add/register/openapi/dev).
  * - Resolve dotenv context once, then parse argv.
  */
-import { GetDotenvCli } from '@karmaniverous/get-dotenv/cliHost';
+import { createCli } from '@karmaniverous/get-dotenv/cli';
 import {
   awsPlugin,
   batchPlugin,
@@ -15,27 +15,26 @@ import {
 import { smozPlugin } from '@/src/cli/plugins/smoz';
 
 const main = async (): Promise<void> => {
-  const cli = new GetDotenvCli('smoz');
-
-  await cli.brand({
-    importMetaUrl: import.meta.url,
-    description: 'SMOZ CLI',
+  const run = createCli({
+    alias: 'smoz',
+    branding: {
+      importMetaUrl: import.meta.url,
+      description: 'SMOZ CLI',
+    },
+    compose: (p) =>
+      p
+        .use(smozPlugin())
+        .use(awsPlugin())
+        .use(
+          cmdPlugin({
+            asDefault: true,
+            optionAlias: '-c, --cmd <command...>',
+          }),
+        )
+        .use(batchPlugin()),
   });
 
-  cli
-    .attachRootOptions()
-    .use(smozPlugin())
-    .use(awsPlugin())
-    .use(
-      cmdPlugin({
-        asDefault: true,
-        optionAlias: '-c, --cmd <command...>',
-      }),
-    )
-    .use(batchPlugin())
-    .passOptions();
-
-  await cli.parseAsync();
+  await run(process.argv.slice(2));
 };
 
 void main();
