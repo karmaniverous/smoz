@@ -46,11 +46,6 @@ When updated: 2025-12-28T00:00:00Z
 - Docs (SMOZ)
   - Cross-link to DynamoDB plugin docs for Local orchestration (config-first vs embedded fallback) if/when published
 
-- Facets
-  - Phase 2 (templates + fixture + endpoints): activate templates, app, docs, tests, ci
-  - Keep examples/diagrams facets inactive
-  - Ensure anchors are present so overlays remain intelligible
-
 ## Completed
 
 **CRITICAL: Append-only list. Add new completed items at the end. Prune old completed entries from the top. Do not edit existing entries.**
@@ -108,3 +103,6 @@ When updated: 2025-12-28T00:00:00Z
 
 - Docs: describe versioned DynamoDB naming (STAGE*NAME/TABLE*\*VERSION) and
   clarify the default “Serverless deploy creates tables” workflow.
+
+- Docs: add troubleshooting note on by-token entity typing (strict vs projected)
+  and the “re-enrich for strict responses” rule of thumb.

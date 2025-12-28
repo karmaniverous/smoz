@@ -26,6 +26,42 @@ If you’re looking for the DynamoDB Local lifecycle commands, they are nested u
 npx smoz aws dynamodb local --help
 ```
 
+## Entity typing: strict vs projection (by-token)
+
+If you’re using `@karmaniverous/entity-client-dynamodb` and `@karmaniverous/entity-manager`, the “by-token” typing model distinguishes:
+
+- Strict (full) reads: `getItems(token, keys)` returns strict records; removing keys returns strict domain items.
+- Projection reads: `getItems(token, keys, attributes as const)` returns projected/partial records; removing keys remains projected/partial.
+
+Practical rule of thumb:
+
+- If you need to return strict domain shapes (matching your Zod domain schema), avoid projections in the final fetch.
+- If you do use projections for efficiency, re-enrich (fetch full records) before returning strict responses.
+
+Example (strict, non-projection):
+
+```ts
+const token = 'user' as const;
+const keys = entityClient.entityManager.getPrimaryKey(token, { userId: 'u1' });
+
+const { items: records } = await entityClient.getItems(token, keys);
+const items = entityClient.entityManager.removeKeys(token, records);
+// items is strict domain shape for `token`
+```
+
+Example (projection stays partial):
+
+```ts
+const token = 'user' as const;
+const keys = entityClient.entityManager.getPrimaryKey(token, { userId: 'u1' });
+
+const { items: projected } = await entityClient.getItems(token, keys, [
+  'userId',
+] as const);
+const items = entityClient.entityManager.removeKeys(token, projected);
+// items is projected/partial (not assignable to strict domain without re-enrich)
+```
+
 ## Windows TypeScript path issues
 
 - Normalize separators when deriving paths:
