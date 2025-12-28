@@ -91,7 +91,8 @@ When updated: 2025-12-28T00:00:00Z
 
 - Plan: prune completed items from “Next up”.
 
-- CLI: mount aws/dynamodb plugin (entity-client-dynamodb) under `smoz aws`.
+- CLI: mount aws/dynamodb plugin (entity-client-dynamodb) under `smoz aws`.
+
 - Init: always seed get-dotenv config + dynamic, and add optional `--cli`
   local cli.ts scaffolding plus a `cli` script.
 - Tests: add /app EntityClient env resolver coverage and a compile-time
@@ -102,4 +103,5 @@ When updated: 2025-12-28T00:00:00Z
 - Tests: fix aws/dynamodb help test invocation (argv).
 
 - Tests: make aws/dynamodb help test deterministic (no dist).
-
+
+- Tests: extend aws/dynamodb help test timeout and diagnostics.

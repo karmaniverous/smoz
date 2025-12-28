@@ -36,12 +36,18 @@ const resolveCliInvocation = (): {
 
 const runHelp = (args: string[]) => {
   const { cmd, argsPrefix, shell } = resolveCliInvocation();
+  const fullArgs = [...argsPrefix, ...args];
+  const invoked = [cmd, ...fullArgs].join(' ');
 
-  const res = spawnSync(cmd, [...argsPrefix, ...args], {
+  const res = spawnSync(cmd, fullArgs, {
     cwd: process.cwd(),
     shell,
     stdio: ['ignore', 'pipe', 'pipe'],
     encoding: 'utf8',
+    // Guard: spawning tsx + type-loading can be slow on Windows CI.
+    // If this trips, the diagnostic returned below will show that the child
+    // timed out rather than silently hanging the test process.
+    timeout: 20000,
     env: {
       ...process.env,
       // Ensure TSX can resolve TS config paths when running the TS entry.
@@ -54,22 +60,36 @@ const runHelp = (args: string[]) => {
   const stdout = typeof res.stdout === 'string' ? res.stdout : '';
   const stderr = typeof res.stderr === 'string' ? res.stderr : '';
   const combined = `${stdout}\n${stderr}`.trim();
-  return { status: res.status, combined, stdout, stderr };
+  const errorLine = res.error
+    ? `${res.error.name}: ${res.error.message}`
+    : undefined;
+  const diagnostic = [
+    `invoked: ${invoked}`,
+    `status: ${String(res.status)} signal: ${String(res.signal)}`,
+    ...(errorLine ? [`error: ${errorLine}`] : []),
+    stdout.trim().length
+      ? `--- stdout ---\n${stdout.trimEnd()}`
+      : '--- stdout ---\n(none)',
+    stderr.trim().length
+      ? `--- stderr ---\n${stderr.trimEnd()}`
+      : '--- stderr ---\n(none)',
+  ].join('\n');
+
+  return { status: res.status, combined, stdout, stderr, invoked, diagnostic };
 };
 
 describe('CLI composition: aws/dynamodb', () => {
   it('exposes aws dynamodb local subcommands', () => {
     const ddb = runHelp(['aws', 'dynamodb', '--help']);
-    expect(ddb.status, ddb.combined).toBe(0);
-    expect((ddb.combined || ddb.stdout || ddb.stderr).toLowerCase()).toContain(
-      'local',
-    );
+    expect(ddb.status, ddb.diagnostic).toBe(0);
+    const ddbText = (ddb.combined || ddb.stdout || ddb.stderr).toLowerCase();
+    expect(ddbText, ddb.diagnostic).toContain('local');
 
     const local = runHelp(['aws', 'dynamodb', 'local', '--help']);
-    expect(local.status, local.combined).toBe(0);
+    expect(local.status, local.diagnostic).toBe(0);
     const text = (local.combined || local.stdout || local.stderr).toLowerCase();
-    expect(text).toContain('start');
-    expect(text).toContain('stop');
-    expect(text).toContain('status');
-  });
+    expect(text, local.diagnostic).toContain('start');
+    expect(text, local.diagnostic).toContain('stop');
+    expect(text, local.diagnostic).toContain('status');
+  }, 20000);
 });

@@ -15,23 +15,17 @@ import {
 
 import { useSmozPlugins } from '@/src/cli/plugins/smoz';
 
-const main = async (): Promise<void> => {
-  const run = createCli({
-    alias: 'smoz',
-    branding: 'SMOZ CLI',
-    compose: (p) =>
-      useSmozPlugins(p)
-        .use(awsPlugin().use(dynamodbPlugin()))
-        .use(
-          cmdPlugin({
-            asDefault: true,
-            optionAlias: '-c, --cmd <command...>',
-          }),
-        )
-        .use(batchPlugin()),
-  });
-
-  await run(process.argv.slice(2));
-};
-
-void main();
+await createCli({
+  alias: 'smoz',
+  branding: 'SMOZ CLI',
+  compose: (p) =>
+    useSmozPlugins(p)
+      .use(awsPlugin().use(dynamodbPlugin()))
+      .use(
+        cmdPlugin({
+          asDefault: true,
+          optionAlias: '-c, --cmd <command...>',
+        }),
+      )
+      .use(batchPlugin()),
+})();
