@@ -93,4 +93,7 @@ When updated: 2025-12-28T00:00:00Z
 
 - CLI: mount aws/dynamodb plugin (entity-client-dynamodb) under `smoz aws`.
 - Init: always seed get-dotenv config + dynamic, and add optional `--cli`
-  local cli.ts scaffolding plus a `cli` script.
+  local cli.ts scaffolding plus a `cli` script.
+- Tests: add /app EntityClient env resolver coverage and a compile-time
+  by-token inference guard (strict non-projection; partial projection).
+
