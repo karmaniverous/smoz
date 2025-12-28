@@ -26,18 +26,6 @@ When updated: 2025-12-28T00:00:00Z
   - Docs:
     - Update docs and snippets to use by‑token names and clarify projection ergonomics.
 
-- Template extraction (after fixture is green)
-  - Finish extracting the proven /app pattern into templates/dynamodb
-    - Add the users endpoints in small, reviewable slices:
-      - Slice 1: GET /users (search) — schemas + handler + openapi (template)
-      - Slice 2: POST /users (create) — schemas + handler + openapi (template)
-      - Slice 3: /users/{userId} GET/PUT/DELETE — schemas + handlers + openapi (template)
-    - Keep annotations minimal (inference first).
-    - Ensure template typechecks without generated registers (ambient declarations).
-    - Do not publish until the extracted template mirrors the fixture’s behavior.
-  - Fix /app fixture OpenAPI path-param naming to match route templates
-    - Ensure path parameter names match `{userId}` for `/users/{userId}` routes.
-
 - Plugin integration validation in SMOZ
   - (continues; no change)
   - Verify SMOZ wires the DynamoDB plugin (already included) under `aws` and exposes local subcommands:
@@ -51,6 +39,10 @@ When updated: 2025-12-28T00:00:00Z
 
 - Docs (SMOZ)
   - Cross-link to DynamoDB plugin docs for Local orchestration (config-first vs embedded fallback) if/when published
+
+- Template extraction (later)
+  - Defer `templates/dynamodb` until the /app fixture is feature-complete.
+  - Keep DynamoDB examples and parity work in /app until then.
 
 ## Completed
 
@@ -120,4 +112,8 @@ When updated: 2025-12-28T00:00:00Z
 - Templates: add first dynamodb template endpoint slice
   - Add GET /users (search) under templates/dynamodb with the same schema
     surface as the /app fixture (query params + { items, pageKeyMap } response).
-  - Fix /app OpenAPI path param names for /users/{userId} routes.
+  - Fix /app OpenAPI path param names for /users/{userId} routes.
+
+- Amendment: remove templates/dynamodb from the repo for now and defer the
+  DynamoDB template implementation until the /app fixture reaches the desired
+  functional baseline.
