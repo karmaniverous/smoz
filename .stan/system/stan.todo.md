@@ -27,10 +27,11 @@ When updated: 2025-12-28T00:00:00Z
     - Update docs and snippets to use by‑token names and clarify projection ergonomics.
 
 - Template extraction (after fixture is green)
-  - Extract the proven /app pattern into templates/dynamodb with minimal
-    deltas and keep annotations minimal (inference first).
-  - Ensure template typechecks without generated registers (ambient declarations).
-  - Do not publish until the extracted template mirrors the fixture’s behavior.
+  - Finish extracting the proven /app pattern into templates/dynamodb
+    - Add the users CRUD/search endpoints and ensure they typecheck.
+    - Keep annotations minimal (inference first).
+    - Ensure template typechecks without generated registers (ambient declarations).
+    - Do not publish until the extracted template mirrors the fixture’s behavior.
 
 - Plugin integration validation in SMOZ
   - (continues; no change)
@@ -106,3 +107,7 @@ When updated: 2025-12-28T00:00:00Z
 
 - Docs: add troubleshooting note on by-token entity typing (strict vs projected)
   and the “re-enrich for strict responses” rule of thumb.
+
+- Templates: add initial templates/dynamodb scaffold (tsconfigs + manifest merge,
+  serverless import of Table000, App/OpenAPI wiring, EntityManager v000, and an
+  /openapi endpoint with a placeholder app/generated/openapi.json).
