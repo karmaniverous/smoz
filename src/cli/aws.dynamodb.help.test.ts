@@ -18,32 +18,15 @@ const resolveCliInvocation = (): {
 } => {
   const root = process.cwd();
 
-  // Prefer the compiled CJS CLI if present; it matches production invocation
-  // semantics exactly (argv shape).
-  const compiled = path.resolve(root, 'dist', 'cli', 'index.cjs');
-  if (existsSync(compiled)) {
-    return { cmd: process.execPath, argsPrefix: [compiled], shell: false };
-  }
-
-  // Fall back to author-time TS execution. IMPORTANT: invoke via `tsx <entry>`
-  // (not `node tsx/cli.js <entry>`) so `process.argv` is `[node, entry, ...]`
-  // and `src/cli/index.ts` can safely do `process.argv.slice(2)`.
+  // Determinism: tests must not depend on build artifacts (dist/ may be absent
+  // or stale). Always run the TS entry via tsx, preferring the project-local
+  // JS CLI to avoid shell/.cmd quirks.
   const entry = path.resolve(root, 'src', 'cli', 'index.ts');
-  const localBin = path.resolve(
-    root,
-    'node_modules',
-    '.bin',
-    process.platform === 'win32' ? 'tsx.cmd' : 'tsx',
-  );
-  if (existsSync(localBin)) {
-    return {
-      cmd: localBin,
-      argsPrefix: [entry],
-      shell: process.platform === 'win32',
-    };
+  const tsxJs = path.resolve(root, 'node_modules', 'tsx', 'dist', 'cli.js');
+  if (existsSync(tsxJs)) {
+    return { cmd: process.execPath, argsPrefix: [tsxJs, entry], shell: false };
   }
-
-  // Final fallback: PATH resolution (CI or unusual installs).
+  // Fallback: PATH resolution (CI or unusual installs).
   return {
     cmd: process.platform === 'win32' ? 'tsx.cmd' : 'tsx',
     argsPrefix: [entry],
@@ -77,13 +60,13 @@ const runHelp = (args: string[]) => {
 describe('CLI composition: aws/dynamodb', () => {
   it('exposes aws dynamodb local subcommands', () => {
     const ddb = runHelp(['aws', 'dynamodb', '--help']);
-    expect(ddb.status).toBe(0);
+    expect(ddb.status, ddb.combined).toBe(0);
     expect((ddb.combined || ddb.stdout || ddb.stderr).toLowerCase()).toContain(
       'local',
     );
 
     const local = runHelp(['aws', 'dynamodb', 'local', '--help']);
-    expect(local.status).toBe(0);
+    expect(local.status, local.combined).toBe(0);
     const text = (local.combined || local.stdout || local.stderr).toLowerCase();
     expect(text).toContain('start');
     expect(text).toContain('stop');

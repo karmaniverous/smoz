@@ -100,4 +100,6 @@ When updated: 2025-12-28T00:00:00Z
 - Tests: add CLI help coverage for aws/dynamodb local commands.
 
 - Tests: fix aws/dynamodb help test invocation (argv).
+
+- Tests: make aws/dynamodb help test deterministic (no dist).
 
