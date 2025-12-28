@@ -5,8 +5,6 @@ When updated: 2025-12-28T00:00:00Z
 ## Next up (near‑term, actionable)
 
 - CLI composition: adopt get-dotenv v6.2.x plugin model
-  - Implement SMOZ commands as individual get-dotenv plugins mounted at root:
-    - `init`, `add`, `register`, `openapi`, `dev`.
   - Provide a convenience installer for downstream reuse:
     - e.g., `useSmozPlugins(cli)` mounts the default SMOZ plugin set.
   - Keep shipped get-dotenv plugins in their usual root configuration:
@@ -119,4 +117,7 @@ When updated: 2025-12-28T00:00:00Z
 
 - CLI: migrate bootstrap to get-dotenv createCli and remove SMOZ JSON-only
   parsing of getdotenv config (stage inference now uses env/app.stages; env
-  seeding reads params from app.stages with stage overrides for global keys).
+  seeding reads params from app.stages with stage overrides for global keys).
+
+- CLI: refactor SMOZ commands into root-mounted get-dotenv plugins
+  (init/add/register/openapi/dev) and add useSmozPlugins installer.

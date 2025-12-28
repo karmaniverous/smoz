@@ -12,7 +12,7 @@ import {
   cmdPlugin,
 } from '@karmaniverous/get-dotenv/plugins';
 
-import { smozPlugin } from '@/src/cli/plugins/smoz';
+import { useSmozPlugins } from '@/src/cli/plugins/smoz';
 
 const main = async (): Promise<void> => {
   const run = createCli({
@@ -22,8 +22,7 @@ const main = async (): Promise<void> => {
       description: 'SMOZ CLI',
     },
     compose: (p) =>
-      p
-        .use(smozPlugin())
+      useSmozPlugins(p)
         .use(awsPlugin())
         .use(
           cmdPlugin({
