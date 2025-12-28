@@ -5,6 +5,7 @@
  *   and install the SMOZ command plugin (init/add/register/openapi/dev).
  * - Resolve dotenv context once, then parse argv.
  */
+import { dynamodbPlugin } from '@karmaniverous/entity-client-dynamodb/get-dotenv';
 import { createCli } from '@karmaniverous/get-dotenv/cli';
 import {
   awsPlugin,
@@ -20,7 +21,7 @@ const main = async (): Promise<void> => {
     branding: 'SMOZ CLI',
     compose: (p) =>
       useSmozPlugins(p)
-        .use(awsPlugin())
+        .use(awsPlugin().use(dynamodbPlugin()))
         .use(
           cmdPlugin({
             asDefault: true,

@@ -4,10 +4,6 @@ When updated: 2025-12-28T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
-- CLI composition: add DynamoDB plugin under aws
-  - Compose the entity-client-dynamodb DynamoDB plugin nested under aws:
-    - `smoz aws dynamodb ...` with config keyed under `plugins['aws/dynamodb']`.
-
 - smoz init: always scaffold get-dotenv config (DX-first)
   - Generate `getdotenv.config.ts` and `getdotenv.dynamic.ts` in the downstream app root.
   - Wire dynamic derivations (STAGE, STAGE_NAME, TABLE_NAME, TABLE_NAME_DEPLOYED) in `getdotenv.dynamic.ts`.
@@ -100,3 +96,5 @@ When updated: 2025-12-28T00:00:00Z
 - Docs: record owned-deps no-web-search policy in stan.project.md.
 
 - Plan: prune completed items from “Next up”.
+
+- CLI: mount aws/dynamodb plugin (entity-client-dynamodb) under `smoz aws`.
