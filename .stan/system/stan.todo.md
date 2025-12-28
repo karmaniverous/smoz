@@ -4,11 +4,9 @@ When updated: 2025-12-28T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
-- Unblock CLI execution (owned deps)
-  - get-dotenv: investigate/fix `Plugin config not available` crash triggered
-    by SMOZ `createCli(...).run(argv)` during `resolveAndLoad()`.
-  - entity-client-dynamodb: ensure local/dev installs provide the published
-    `dist/mjs/index.js` entry referenced by its exports (inline server test).
+- Unblock current CI gates
+  - Fix get-dotenv v6.2.4 type drift in SMOZ CLI composition (createCli branding + plugin installer typing).
+  - Make inline server integration test resilient to slow TSX cold start (avoid false timeouts; surface spawn errors).
 
 - CLI composition: adopt get-dotenv v6.2.x plugin model
   - Provide a convenience installer for downstream reuse:
@@ -130,6 +128,6 @@ When updated: 2025-12-28T00:00:00Z
 
 - CLI: add missing smoz dev plugin module to fix typecheck/lint.
 
-- Interop: document get-dotenv plugin-config crash under .stan/interop.
+- CLI: update createCli branding and useSmozPlugins typing for get-dotenv v6.2.4.
 
-- Interop: document entity-client-dynamodb missing dist/mjs under .stan/interop.
+- Tests: increase inline server startup timeout and fail fast on spawn errors.

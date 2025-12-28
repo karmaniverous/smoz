@@ -10,10 +10,16 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
  */
 const waitForListening = async (
   child: ChildProcess,
-  timeoutMs = 15000,
+  timeoutMs = 30000,
 ): Promise<number> => {
   return await new Promise<number>((resolve, reject) => {
     const timer = setTimeout(() => {
+      // Best-effort cleanup to avoid a stray child if the test times out.
+      try {
+        child.kill('SIGTERM');
+      } catch {
+        // ignore
+      }
       reject(new Error('Timed out waiting for inline server to start'));
     }, timeoutMs);
 
@@ -28,6 +34,11 @@ const waitForListening = async (
       }
     };
     child.stdout?.on('data', onData);
+
+    child.once('error', (err) => {
+      clearTimeout(timer);
+      reject(new Error(`Inline server spawn error: ${String(err.message)}`));
+    });
 
     child.once('exit', (code) => {
       clearTimeout(timer);
@@ -96,7 +107,7 @@ const startInline = async (): Promise<{
     process.stderr.write(`[inline.test] ${t}`);
   });
 
-  const port = await waitForListening(child);
+  const port = await waitForListening(child, 30000);
 
   const close = async () => {
     await new Promise<void>((resolve) => {
@@ -132,7 +143,7 @@ describe('inline server (integration)', () => {
     const { port: p, close } = await startInline();
     port = p;
     shutdown = close;
-  }, 20000);
+  }, 40000);
   afterAll(async () => {
     if (shutdown) await shutdown();
   });

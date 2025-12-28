@@ -17,10 +17,7 @@ import { useSmozPlugins } from '@/src/cli/plugins/smoz';
 const main = async (): Promise<void> => {
   const run = createCli({
     alias: 'smoz',
-    branding: {
-      importMetaUrl: import.meta.url,
-      description: 'SMOZ CLI',
-    },
+    branding: 'SMOZ CLI',
     compose: (p) =>
       useSmozPlugins(p)
         .use(awsPlugin())
