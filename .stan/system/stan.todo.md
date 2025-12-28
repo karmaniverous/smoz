@@ -105,3 +105,6 @@ When updated: 2025-12-28T00:00:00Z
 - Tests: make aws/dynamodb help test deterministic (no dist).
 
 - Tests: extend aws/dynamodb help test timeout and diagnostics.
+
+- Verification: vitest run passes on Windows; aws/dynamodb help integration test
+  completes within the per-test/spawn timeouts and emits actionable diagnostics.
