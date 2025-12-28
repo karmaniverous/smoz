@@ -66,6 +66,14 @@ How to work in this repo (assistant expectations)
   - Only after validating a true gap should new CLI behavior be implemented;
     record the rationale in the development plan.
 
+- Owned dependency research policy (assistant)
+  - Do not use web search for information about dependencies we own (e.g.,
+    @karmaniverous/get-dotenv, @karmaniverous/entity-client-dynamodb,
+    @karmaniverous/entity-manager).
+  - If the imported STAN assistant guides and in-repo docs are insufficient for
+    a failure mode, request the missing information (logs, versions, code
+    excerpts, minimal repro) rather than guessing or searching.
+
 - get‑dotenv ownership alert (new directive)
   - We own @karmaniverous/get-dotenv. When there appears to be an issue with
     get‑dotenv (API/export shape, types, packaging, runtime behavior), DO NOT

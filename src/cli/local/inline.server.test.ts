@@ -37,7 +37,7 @@ const waitForListening = async (
 
     child.once('error', (err) => {
       clearTimeout(timer);
-      reject(new Error(`Inline server spawn error: ${String(err.message)}`));
+      reject(new Error(`Inline server spawn error: ${err.message}`));
     });
 
     child.once('exit', (code) => {

@@ -4,9 +4,9 @@ When updated: 2025-12-28T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
-- Unblock current CI gates
-  - Fix get-dotenv v6.2.4 type drift in SMOZ CLI composition (createCli branding + plugin installer typing).
-  - Make inline server integration test resilient to slow TSX cold start (avoid false timeouts; surface spawn errors).
+- Verify CI gates are green after recent dependency updates
+  - npm run lint:fix
+  - npm run typecheck
 
 - CLI composition: adopt get-dotenv v6.2.x plugin model
   - Provide a convenience installer for downstream reuse:
@@ -131,3 +131,9 @@ When updated: 2025-12-28T00:00:00Z
 - CLI: update createCli branding and useSmozPlugins typing for get-dotenv v6.2.4.
 
 - Tests: increase inline server startup timeout and fail fast on spawn errors.
+
+- CLI: make useSmozPlugins structurally typed to avoid nominal mismatches.
+
+- Lint: remove unnecessary String() conversion in inline server test.
+
+- Docs: record owned-deps no-web-search policy in stan.project.md.

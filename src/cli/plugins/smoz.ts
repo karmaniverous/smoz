@@ -6,7 +6,10 @@
  * - Provide a convenience installer for downstream reuse: useSmozPlugins(...).
  */
 import type { GetDotenvOptions } from '@karmaniverous/get-dotenv';
-import type { GetDotenvCli } from '@karmaniverous/get-dotenv/cliHost';
+import type {
+  GetDotenvCliPlugin,
+  PluginNamespaceOverride,
+} from '@karmaniverous/get-dotenv/cliHost';
 
 import { smozAddPlugin } from './smoz.add';
 import { smozDevPlugin } from './smoz.dev';
@@ -20,9 +23,15 @@ export { smozInitPlugin } from './smoz.init';
 export { smozOpenapiPlugin } from './smoz.openapi';
 export { smozRegisterPlugin } from './smoz.register';
 
-type Cli = GetDotenvCli<GetDotenvOptions>;
+type SmozCliPlugin = GetDotenvCliPlugin<GetDotenvOptions>;
 
-export const useSmozPlugins = (p: Cli): Cli =>
+export const useSmozPlugins = <
+  T extends {
+    use: (plugin: SmozCliPlugin, override?: PluginNamespaceOverride) => T;
+  },
+>(
+  p: T,
+): T =>
   p
     .use(smozInitPlugin())
     .use(smozAddPlugin())
