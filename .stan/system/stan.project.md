@@ -78,6 +78,13 @@ How to work in this repo (assistant expectations)
     4. acceptance criteria.
   - Coordinate resolution upstream; only then adjust this repo if needed.
 
+- Owned-dependency information policy (new directive)
+  - Do not use web search for dependencies we own (e.g., get-dotenv,
+    entity-client-dynamodb, entity-manager).
+  - Prefer in-repo docs and imported STAN assistant guides.
+  - If those are insufficient to diagnose a failure mode, request the missing
+    info explicitly (logs, code excerpts, versions, minimal repro).
+
 - OpenAPI and contracts
   - OpenAPI is hand‑crafted; never reverse‑generate from Zod. When an endpoint
     changes, ensure its `openapi.ts` remains the source of truth and the

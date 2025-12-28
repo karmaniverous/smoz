@@ -4,6 +4,12 @@ When updated: 2025-12-28T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
+- Unblock CLI execution (owned deps)
+  - get-dotenv: investigate/fix `Plugin config not available` crash triggered
+    by SMOZ `createCli(...).run(argv)` during `resolveAndLoad()`.
+  - entity-client-dynamodb: ensure local/dev installs provide the published
+    `dist/mjs/index.js` entry referenced by its exports (inline server test).
+
 - CLI composition: adopt get-dotenv v6.2.x plugin model
   - Provide a convenience installer for downstream reuse:
     - e.g., `useSmozPlugins(cli)` mounts the default SMOZ plugin set.
@@ -122,4 +128,8 @@ When updated: 2025-12-28T00:00:00Z
 - CLI: refactor SMOZ commands into root-mounted get-dotenv plugins
   (init/add/register/openapi/dev) and add useSmozPlugins installer.
 
-- CLI: add missing smoz dev plugin module to fix typecheck/lint.
+- CLI: add missing smoz dev plugin module to fix typecheck/lint.
+
+- Interop: document get-dotenv plugin-config crash under .stan/interop.
+
+- Interop: document entity-client-dynamodb missing dist/mjs under .stan/interop.
