@@ -98,4 +98,6 @@ When updated: 2025-12-28T00:00:00Z
   by-token inference guard (strict non-projection; partial projection).
 
 - Tests: add CLI help coverage for aws/dynamodb local commands.
+
+- Tests: fix aws/dynamodb help test invocation (argv).
 
