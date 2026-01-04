@@ -72,6 +72,6 @@
   "todo-tree.tree.hideIconsWhenGroupedByTag": true,
   "todo-tree.tree.labelFormat": "${tag} ${after}",
   "todo-tree.tree.showCountsInTree": true,
-  "yaml.format.singleQuote": true,
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "yaml.format.singleQuote": true
 }

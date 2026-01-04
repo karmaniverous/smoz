@@ -45,20 +45,20 @@ npx smoz add rest/foo/get
 
 ## Quick links
 
-- [Overview](./docs-src/overview.md)
-- [Why smoz?](./docs-src/why-smoz.md)
-- [Getting started](./docs-src/getting-started.md)
-- [10-minute tour](./docs-src/tour-10-minutes.md)
+- [Overview](./guides/overview.md)
+- [Why smoz?](./guides/why-smoz.md)
+- [Getting started](./guides/getting-started.md)
+- [10-minute tour](./guides/tour-10-minutes.md)
 - [HTTP Middleware](https://docs.karmanivero.us/smoz/documents/HTTP_middleware.html)
-- [Recipes](./docs-src/recipes/index.md)
-  - [SQS function](./docs-src/recipes/sqs.md)
-  - [Step Functions function](./docs-src/recipes/step.md)
-  - [Contexts + Cognito authorizer](./docs-src/recipes/contexts-auth.md) - [Custom middleware insertion](./docs-src/recipes/custom-middleware.md)
-  - [Per‑function env](./docs-src/recipes/per-function-env.md)
-  - [Observability](./docs-src/recipes/observability.md)
-  - [Troubleshooting](./docs-src/recipes/troubleshooting.md)
-- [Templates](./docs-src/templates.md)
-- [CLI](./docs-src/cli.md)
+- [Recipes](./guides/recipes/index.md)
+  - [SQS function](./guides/recipes/sqs.md)
+  - [Step Functions function](./guides/recipes/step.md)
+  - [Contexts + Cognito authorizer](./guides/recipes/contexts-auth.md) - [Custom middleware insertion](./guides/recipes/custom-middleware.md)
+  - [Per‑function env](./guides/recipes/per-function-env.md)
+  - [Observability](./guides/recipes/observability.md)
+  - [Troubleshooting](./guides/recipes/troubleshooting.md)
+- [Templates](./guides/templates.md)
+- [CLI](./guides/cli.md)
 - [Contributing](./CONTRIBUTING.md)
 
 ## Install

@@ -5,6 +5,7 @@
  *   and install the SMOZ command plugin (init/add/register/openapi/dev).
  * - Resolve dotenv context once, then parse argv.
  */
+import { secretsPlugin } from '@karmaniverous/aws-secrets-manager-tools';
 import { dynamodbPlugin } from '@karmaniverous/entity-client-dynamodb/get-dotenv';
 import { createCli } from '@karmaniverous/get-dotenv/cli';
 import {
@@ -20,7 +21,7 @@ await createCli({
   branding: 'SMOZ CLI',
   compose: (p) =>
     useSmozPlugins(p)
-      .use(awsPlugin().use(dynamodbPlugin()))
+      .use(awsPlugin().use(dynamodbPlugin()).use(secretsPlugin()))
       .use(
         cmdPlugin({
           asDefault: true,

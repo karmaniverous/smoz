@@ -13,6 +13,7 @@
     "url": "https://github.com/karmaniverous/smoz/issues"
   },
   "dependencies": {
+    "@karmaniverous/aws-secrets-manager-tools": "^0.1.1",
     "@karmaniverous/entity-client-dynamodb": "^0.11.2",
     "@karmaniverous/get-dotenv": "^6.2.4",
     "@middy/core": "^6.4.5",
@@ -30,7 +31,7 @@
     "radash": "^12.1.1",
     "zod": "^4.2.1"
   },
-  "description": "John Galt Services back end.",
+  "description": "SMOZ: a TypeScript toolkit for AWS Lambda combining Serverless, Middy, OpenAPI 3.1 and Zod for schema‑first apps with robust HTTP middleware and typed validation.",
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.51.2",
     "@eslint/js": "^9.39.2",

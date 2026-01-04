@@ -3,21 +3,12 @@
     "exclude": ["app/**"],
     "include": ["app/README.md"]
   },
-  "ci": {
-    "exclude": [".github/**"],
-    "include": [".github/workflows/sync.yml"]
-  },
   "diagrams": {
-    "exclude": ["diagrams/**"],
-    "include": ["diagrams/aws.pu"]
+    "exclude": ["diagrams/**"]
   },
   "docs": {
-    "exclude": ["docs-src/**"],
-    "include": ["README.md", "docs-src/overview.md"]
-  },
-  "scripts": {
-    "exclude": ["scripts/**"],
-    "include": ["scripts/templates-typecheck.ts"]
+    "exclude": ["guides/**"],
+    "include": ["README.md", "guides/overview.md"]
   },
   "src": {
     "exclude": ["src/**"],
@@ -25,21 +16,9 @@
   },
   "templates": {
     "exclude": ["templates/**"],
-    "include": [
-      "templates/default/README.md",
-      "templates/default/types/registers.d.ts"
-    ]
+    "include": ["templates/**/README.md"]
   },
   "tests": {
-    "exclude": [
-      "src/**/*.test.ts",
-      "templates/**/test/**",
-      "examples/**/test/**"
-    ],
-    "include": ["src/test/http.ts"]
-  },
-  "vscode": {
-    "exclude": [".vscode/**"],
-    "include": [".vscode/extensions.json"]
+    "exclude": ["src/**/*.test.ts", "templates/**/test/**"]
   }
 }

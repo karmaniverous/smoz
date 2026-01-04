@@ -71,7 +71,7 @@
         "operationId": "users_userId_get",
         "parameters": [
           {
-            "name": "id",
+            "name": "userId",
             "in": "path",
             "required": true,
             "schema": {
@@ -182,7 +182,7 @@
         "operationId": "users_userId_put",
         "parameters": [
           {
-            "name": "id",
+            "name": "userId",
             "in": "path",
             "required": true,
             "schema": {

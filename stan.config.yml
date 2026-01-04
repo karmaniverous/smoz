@@ -32,7 +32,9 @@ stan-cli:
   scripts:
     build: cross-env NO_COLOR=1 npm run build
     typecheck: npm run typecheck -- --noErrorTruncation
-    lint: npm run lint:fix
+    lint:
+      script: npm run lint:fix
+      warnPattern: \\d+:\\d+\\s+warning
     openapi: npm run openapi
     test: npm run test -- --no-color
     docs:

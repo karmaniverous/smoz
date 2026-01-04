@@ -38,14 +38,14 @@
     "typedoc-plugin-zod"
   ],
   "projectDocuments": [
-    "./docs-src/overview.md",
-    "./docs-src/why-smoz.md",
-    "./docs-src/getting-started.md",
-    "./docs-src/tour-10-minutes.md",
-    "./docs-src/middleware.md",
-    "./docs-src/recipes/index.md",
-    "./docs-src/templates.md",
-    "./docs-src/cli.md",
+    "./guides/overview.md",
+    "./guides/why-smoz.md",
+    "./guides/getting-started.md",
+    "./guides/tour-10-minutes.md",
+    "./guides/middleware.md",
+    "./guides/recipes/index.md",
+    "./guides/templates.md",
+    "./guides/cli.md",
     "./CONTRIBUTING.md",
     "./CHANGELOG.md"
   ],
