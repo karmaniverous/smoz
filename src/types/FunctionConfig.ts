@@ -50,8 +50,9 @@ export type FunctionConfig<
   /** Optional; defaults to [] wherever consumed. */
   fnEnvKeys?: readonly (keyof GlobalParams | keyof StageParams)[];
 
-  /** Optional Zod schemas applied uniformly across all handlers. */
+  /** Event Zod schema. */
   eventSchema?: EventSchema;
+  /** Response Zod schema. */
   responseSchema?: ResponseSchema;
   /** Optional extra serverless events (e.g., SQS triggers). */
   events?: PropFromUnion<AWS['functions'], string>['events'];
@@ -62,15 +63,21 @@ export type FunctionConfig<
   ? {
       /** HTTP-only options (permitted for base HTTP tokens). */
       httpContexts?: readonly HttpContext[];
+      /** HTTP method. */
       method?: MethodKey;
+      /** HTTP base path. */
       basePath?: string;
+      /** HTTP content type. */
       contentType?: string;
     }
   : {
       /** Non-HTTP: deny HTTP-only options via type system. */
       httpContexts?: never;
+      /** Non-HTTP: deny method. */
       method?: never;
+      /** Non-HTTP: deny basePath. */
       basePath?: never;
+      /** Non-HTTP: deny contentType. */
       contentType?: never;
     });
 
@@ -82,14 +89,18 @@ export type FunctionHttpCustomization = {
   options?: Partial<HttpStackOptions>;
   /** Simple injection points: append steps into phases */
   extend?: {
+    /** Middleware to run before the handler. */
     before?: MiddlewareObj[];
+    /** Middleware to run after the handler. */
     after?: MiddlewareObj[];
+    /** Middleware to run on error. */
     onError?: MiddlewareObj[];
   };
   /** Targeted transforms */
   transform?: HttpTransform;
   /** Full replacement escape hatch */
   replace?: {
+    /** Replacement middleware stack. */
     stack: MiddlewareObj | PhasedArrays;
   };
 };
