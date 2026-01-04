@@ -43,9 +43,10 @@ Contents
   - Serverless/OpenAPI aggregators and helpers.
   - Configuration typing and utilities (e.g., path helpers).
 - Build & publish policy (bundling & path aliases):
-  - Published outputs (ESM/CJS/DTS) MUST NOT contain project‑local TS alias
+  - Published outputs (ESM/DTS) MUST NOT contain project‑local TS alias
     specifiers (e.g., `@/src/...`). The Rollup build resolves `@/` → `src/`
     via @rollup/plugin‑alias so downstream runtimes never see alias specifiers.
+  - Package `exports` are ESM-only (no `require` condition targets).
 
 ## 2) Architecture and application model
 

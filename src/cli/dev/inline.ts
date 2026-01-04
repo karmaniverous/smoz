@@ -39,13 +39,7 @@ export const resolveTsxCommand = (
 export const resolveInlineEntry = (
   pkgRoot: string,
 ): { entry: string; kind: 'compiled' | 'ts' } => {
-  const compiled = path.resolve(
-    pkgRoot,
-    'dist',
-    'mjs',
-    'cli',
-    'inline-server.js',
-  );
+  const compiled = path.resolve(pkgRoot, 'dist', 'cli', 'inline-server.js');
   if (fs.existsSync(compiled)) return { entry: compiled, kind: 'compiled' };
   const tsPath = path.resolve(
     pkgRoot,

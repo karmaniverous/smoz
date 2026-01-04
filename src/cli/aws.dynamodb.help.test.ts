@@ -21,7 +21,7 @@ const resolveCliInvocation = (): {
   // Determinism: tests must not depend on build artifacts (dist/ may be absent
   // or stale). Always run the TS entry via tsx, preferring the project-local
   // JS CLI to avoid shell/.cmd quirks.
-  const entry = path.resolve(root, 'src', 'cli', 'index.ts');
+  const entry = path.resolve(root, 'src', 'cli', 'bin.ts');
   const tsxJs = path.resolve(root, 'node_modules', 'tsx', 'dist', 'cli.js');
   if (existsSync(tsxJs)) {
     return { cmd: process.execPath, argsPrefix: [tsxJs, entry], shell: false };

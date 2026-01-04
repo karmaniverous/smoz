@@ -7,7 +7,7 @@
     "hideCredit": true
   },
   "bin": {
-    "smoz": "dist/cli/index.cjs"
+    "smoz": "dist/bin/smoz.js"
   },
   "bugs": {
     "url": "https://github.com/karmaniverous/smoz/issues"
@@ -83,28 +83,15 @@
   },
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/mjs/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/cjs/index.js"
-      }
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./cli": {
-      "import": {
-        "types": "./dist/cli.d.ts",
-        "default": "./dist/mjs/cli.js"
-      },
-      "require": {
-        "types": "./dist/cli.d.ts",
-        "default": "./dist/cjs/cli.js"
-      }
+      "types": "./dist/cli.d.ts",
+      "default": "./dist/cli.js"
     },
     "./serverless-plugin": {
-      "import": "./dist/mjs/serverless-plugin.js",
-      "require": "./dist/cjs/serverless-plugin.js"
+      "default": "./dist/serverless-plugin.js"
     },
     "./package.json": "./package.json"
   },
@@ -136,8 +123,8 @@
     "toolkit"
   ],
   "license": "BSD-3-Clause",
-  "main": "dist/cjs/index.js",
-  "module": "dist/mjs/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "name": "@karmaniverous/smoz",
   "publishConfig": {
     "access": "public"
@@ -180,7 +167,7 @@
   "scripts": {
     "build": "rimraf dist && rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "changelog": "auto-changelog",
-    "deploy": "tsx src/cli/index.ts register && serverless deploy",
+    "deploy": "tsx src/cli/bin.ts register && serverless deploy",
     "diagrams": "cd diagrams/src && plantuml -tpng -o ../out -r .",
     "docs": "typedoc",
     "domain:create": "serverless create_domain",
@@ -190,14 +177,14 @@
     "lint:fix": "eslint --fix . && npm run lint:templates:default:fix",
     "lint:templates:default": "eslint -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\"",
     "lint:templates:default:fix": "eslint --fix -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\"",
-    "openapi": "tsx src/cli/index.ts register && tsx app/config/openapi && prettier -w app/generated/openapi.json",
-    "package": "tsx src/cli/index.ts register && serverless package",
+    "openapi": "tsx src/cli/bin.ts register && tsx app/config/openapi && prettier -w app/generated/openapi.json",
+    "package": "tsx src/cli/bin.ts register && serverless package",
     "release": "dotenvx run -f .env.local -- release-it",
     "release:pre": "dotenvx run -f .env.local -- release-it --no-git.requireBranch --github.prerelease --preRelease",
     "remove": "serverless remove",
-    "smoz": "tsx src/cli/index.ts",
+    "smoz": "tsx src/cli/bin.ts",
     "test": "vitest run",
-    "typecheck": "tsx src/cli/index.ts register && tsx scripts/typecheck-templates.ts && tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsx src/cli/bin.ts register && tsx scripts/typecheck-templates.ts && tsc -p tsconfig.json --noEmit"
   },
   "type": "module",
   "version": "0.2.10",

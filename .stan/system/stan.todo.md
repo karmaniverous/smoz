@@ -1,8 +1,12 @@
 # Development Plan
 
-When updated: 2025-12-28T00:00:00Z
+When updated: 2026-01-04T00:00:00Z
 
 ## Next up (near‑term, actionable)
+
+- Validate Serverless v4 plugin loading under ESM-only exports
+  - Confirm Serverless can load `@karmaniverous/smoz/serverless-plugin` when it resolves to ESM.
+  - If Serverless still requires CJS, decide whether to ship a minimal `.cjs` shim as an explicit exception and document the constraint.
 
 - Align to upstream by‑token typing end state (entity‑manager v8 / client v1)
   - Dependencies:
@@ -117,3 +121,7 @@ When updated: 2025-12-28T00:00:00Z
 - Amendment: remove templates/dynamodb from the repo for now and defer the
   DynamoDB template implementation until the /app fixture reaches the desired
   functional baseline.
+
+- Build: switch SMOZ dist to ESM-only and de-orphan CLI exports
+  - Publish ESM-only `dist/*.js` entrypoints and move the executable to `dist/bin/smoz.js`.
+  - Remove `src/cli/public.ts` and make `src/cli/index.ts` the `@karmaniverous/smoz/cli` surface.

@@ -1,20 +1,20 @@
 /* REQUIREMENTS ADDRESSED
  * - Provide a lightweight Serverless Framework plugin that ensures registers are fresh
  *   by running `smoz register` before package/deploy.
- * - Keep it simple: spawn Node to run the packaged CJS CLI, inherit stdio, and fail fast.
+ * - Keep it simple: spawn Node to run the packaged ESM CLI bin, inherit stdio, and fail fast.
  *
  * Notes:
- * - This file is bundled to dist/cjs/serverless-plugin.js and exported via the "./serverless-plugin" subpath.
- * - Serverless v4 loads CJS plugins via `require`; exporting a default class allows
- *   rollup to wrap it for CJS while preserving the ESM entry for completeness.
+ * - This file is bundled to dist/serverless-plugin.js and exported via the "./serverless-plugin" subpath.
  */
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const runRegister = (): void => {
-  // Resolve the packaged CLI entry relative to the compiled CJS plugin:
-  // dist/cjs/serverless-plugin.js -> ../cli/index.cjs
-  const cliPath = path.resolve(__dirname, '../cli/index.cjs');
+  // Resolve the packaged CLI bin relative to this compiled module:
+  // dist/serverless-plugin.js -> dist/bin/smoz.js
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const cliPath = path.resolve(here, 'bin', 'smoz.js');
   const res = spawnSync(process.execPath, [cliPath, 'register'], {
     stdio: 'inherit',
     shell: false,

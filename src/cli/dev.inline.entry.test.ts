@@ -24,13 +24,7 @@ describe('dev.inline: resolveInlineEntry', async () => {
 
   it('prefers compiled dist entry when present', () => {
     const pkgRoot = path.resolve('/', 'tmp', 'pkg');
-    const compiled = path.resolve(
-      pkgRoot,
-      'dist',
-      'mjs',
-      'cli',
-      'inline-server.js',
-    );
+    const compiled = path.resolve(pkgRoot, 'dist', 'cli', 'inline-server.js');
     fsMod.default.existsSync.mockImplementation((p: unknown) => {
       return String(p) === compiled;
     });

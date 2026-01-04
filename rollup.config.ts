@@ -1,6 +1,6 @@
 /* See <stanPath>/system/stan.project.md for global requirements.
  * Requirements addressed:
- * - Minimal library bundling: ESM + CJS outputs.
+ * - Minimal library bundling: ESM-only outputs.
  * - Generate a single type declarations bundle at dist/index.d.ts.
  * - Keep runtime dependencies and Node built-ins external.
  * - Resolve TS path alias "@/..." to real sources for published outputs.
@@ -26,7 +26,7 @@ const outputPath = 'dist';
 const entryPoints = {
   index: 'src/index.ts',
   // Programmatic CLI composition helpers (not the bin entry).
-  cli: 'src/cli/public.ts',
+  cli: 'src/cli/index.ts',
   // Serverless plugin entry (CJS/ESM build + DTS). The plugin is intended to be
   // loaded via CJS by Serverless; we still emit both formats for completeness.
   'serverless-plugin': 'src/serverless/plugin.ts',
@@ -102,8 +102,8 @@ const commonInputOptions = (tsconfigPath?: string): InputOptions => ({
     ),
 });
 const outCommon = (dest: string): OutputOptions[] => [
-  { dir: `${dest}/mjs`, format: 'esm', sourcemap: false },
-  { dir: `${dest}/cjs`, format: 'cjs', sourcemap: false },
+  // ESM-only output. Multi-entry emits: dist/index.js, dist/cli.js, dist/serverless-plugin.js
+  { dir: dest, format: 'esm', sourcemap: false, entryFileNames: '[name].js' },
 ];
 
 export const buildLibrary = (
@@ -147,7 +147,7 @@ export const buildTypes = (dest: string): RollupOptions => ({
 });
 /**
  * Inline server build (ESM only).
- * - Output: dist/mjs/cli/inline-server.js
+ * - Output: dist/cli/inline-server.js
  * - Externalization: reuse commonInputOptions to keep built-ins/deps external.
  */
 export const buildInlineServer = (
@@ -156,24 +156,24 @@ export const buildInlineServer = (
 ): RollupOptions => ({
   input: 'src/cli/local/inline.server/index.ts',
   output: {
-    file: `${dest}/mjs/cli/inline-server.js`,
+    file: `${dest}/cli/inline-server.js`,
     format: 'esm',
     sourcemap: false,
   },
   ...commonInputOptions(tsconfigPath),
 });
 /**
- * CLI build (CJS bin with shebang).
- * - Output: dist/cli/index.cjs
+ * CLI build (ESM bin with shebang).
+ * - Output: dist/bin/smoz.js
  * - Externalization: reuse commonInputOptions to keep built-ins/deps external. */
 export const buildCli = (
   dest: string,
   tsconfigPath?: string,
 ): RollupOptions => ({
-  input: 'src/cli/index.ts',
+  input: 'src/cli/bin.ts',
   output: {
-    file: `${dest}/cli/index.cjs`,
-    format: 'cjs',
+    file: `${dest}/bin/smoz.js`,
+    format: 'esm',
     banner: '#!/usr/bin/env node',
     sourcemap: false,
   },
