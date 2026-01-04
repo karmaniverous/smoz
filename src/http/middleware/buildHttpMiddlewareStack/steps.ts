@@ -17,14 +17,18 @@ import type { ConsoleLogger } from '@/src/types/Loggable';
 
 // Use the exported public alias so TypeDoc includes the type in docs.
 
+/** Create the HEAD short-circuit middleware. */
 export const makeHead = (): ApiMiddleware => shortCircuitHead as ApiMiddleware;
 
+/** Create the header normalizer middleware. */
 export const makeHeaderNormalizer = (): ApiMiddleware =>
   asApiMiddleware(httpHeaderNormalizer({ canonical: true }));
 
+/** Create the event normalizer middleware. */
 export const makeEventNormalizer = (): ApiMiddleware =>
   asApiMiddleware(httpEventNormalizer());
 
+/** Create the JSON body parser middleware (conditional). */
 export const makeJsonBodyParser = (): ApiMiddleware => {
   // Conditional body parse (skip GET/HEAD; parse only when body present)
   const inner = asApiMiddleware(
@@ -52,6 +56,7 @@ export const makeJsonBodyParser = (): ApiMiddleware => {
   return mw;
 };
 
+/** Create the content negotiation middleware. */
 export const makeContentNegotiation = (contentType: string): ApiMiddleware =>
   asApiMiddleware(
     httpContentNegotiation({
@@ -62,6 +67,7 @@ export const makeContentNegotiation = (contentType: string): ApiMiddleware =>
     }),
   );
 
+/** Create the Zod validator middleware. */
 export const makeZodValidator = (
   logger: ConsoleLogger,
   eventSchema?: z.ZodType,
@@ -75,6 +81,7 @@ export const makeZodValidator = (
     }),
   );
 
+/** Create the preferred media type middleware. */
 export const makePreferredMedia = (contentType: string): ApiMiddleware => ({
   before: (request) => {
     const req = request as { preferredMediaTypes?: string[] };
@@ -102,6 +109,7 @@ export const makePreferredMedia = (contentType: string): ApiMiddleware => ({
   },
 });
 
+/** Create the HEAD finalize middleware. */
 export const makeHeadFinalize = (contentType: string): ApiMiddleware => ({
   after: (request) => {
     const evt = (request as unknown as { event?: APIGatewayProxyEvent }).event;
@@ -129,6 +137,7 @@ export const makeHeadFinalize = (contentType: string): ApiMiddleware => ({
   },
 });
 
+/** Create the response shaping and content type middleware. */
 export const makeShapeAndContentType = (
   contentType: string,
 ): ApiMiddleware => ({
@@ -174,6 +183,7 @@ export const makeShapeAndContentType = (
   },
 });
 
+/** Create the error exposure middleware. */
 export const makeErrorExposure = (logger: ConsoleLogger): ApiMiddleware => ({
   onError: (request) => {
     void logger;
@@ -192,6 +202,7 @@ export const makeErrorExposure = (logger: ConsoleLogger): ApiMiddleware => ({
   },
 });
 
+/** Create the error handler middleware. */
 export const makeErrorHandler = (logger: ConsoleLogger): ApiMiddleware =>
   asApiMiddleware(
     httpErrorHandler({
@@ -201,6 +212,7 @@ export const makeErrorHandler = (logger: ConsoleLogger): ApiMiddleware =>
     }),
   );
 
+/** Create the CORS middleware. */
 export const makeCors = (): ApiMiddleware =>
   asApiMiddleware(
     httpCors({
@@ -210,6 +222,7 @@ export const makeCors = (): ApiMiddleware =>
     }),
   );
 
+/** Create the response serializer middleware. */
 export const makeResponseSerializer = (
   contentType: string,
   logger: ConsoleLogger,

@@ -8,20 +8,29 @@
  */
 import { diff, unique } from 'radash';
 import type { ZodObject, ZodRawShape } from 'zod';
+/** Dictionary type alias. */
 export type Dict<T> = Record<string, T>;
 
+/** Input for stages factory. */
 export type StagesFactoryInput<
   GlobalParams extends Record<string, unknown>,
   StageParams extends Record<string, unknown>,
 > = {
+  /** Global parameters schema. */
   globalParamsSchema: ZodObject<ZodRawShape>;
+  /** Stage parameters schema. */
   stageParamsSchema: ZodObject<ZodRawShape>;
+  /** Global parameters values. */
   globalParams: GlobalParams;
+  /** Global environment keys. */
   globalEnvKeys: readonly (keyof GlobalParams)[];
+  /** Stage environment keys. */
   stageEnvKeys: readonly (keyof StageParams)[];
+  /** Map of stage names to stage parameters. */
   stages: Dict<StageParams>;
 };
 
+/** Output from stages factory. */
 export type StagesFactoryOutput<
   GlobalParams extends Record<string, unknown>,
   StageParams extends Record<string, unknown>,

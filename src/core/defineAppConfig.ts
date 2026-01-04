@@ -12,12 +12,14 @@ import type { SecurityContextHttpEventMap } from '@/src/types/SecurityContextHtt
  * @remarks Used to express “these keys are allowed to be exposed from this schema”.
  */
 export interface EnvKeysNode<Schema extends ZodObject<ZodRawShape>> {
+  /** List of keys to expose from the schema to the environment. */
   envKeys: readonly (keyof z.infer<Schema>)[];
 }
 /** For wrapper input: schema + envKeys. */
 export interface EnvSchemaNode<
   Schema extends ZodObject<ZodRawShape>,
 > extends EnvKeysNode<Schema> {
+  /** Zod schema for the parameters. */
   paramsSchema: Schema;
 }
 /** Wrapper input: no glue; both global and stage sides. */
@@ -31,7 +33,9 @@ export interface GlobalEnvConfig<
   GlobalParamsSchema extends ZodObject<ZodRawShape>,
   StageParamsSchema extends ZodObject<ZodRawShape>,
 > {
+  /** Global environment configuration. */
   global: EnvSchemaNode<GlobalParamsSchema>;
+  /** Stage environment configuration. */
   stage: EnvSchemaNode<StageParamsSchema>;
 }
 
@@ -45,6 +49,7 @@ export interface GlobalEnvConfig<
 export interface GlobalParamsNode<
   GlobalParamsSchema extends ZodObject<ZodRawShape>,
 > extends EnvKeysNode<GlobalParamsSchema> {
+  /** Concrete global parameter values. */
   params: z.infer<GlobalParamsSchema>;
 }
 
@@ -58,6 +63,7 @@ export interface GlobalParamsNode<
 export interface StageParamsNode<
   StageParamsSchema extends ZodObject<ZodRawShape>,
 > extends EnvKeysNode<StageParamsSchema> {
+  /** Concrete parameter values keyed by stage name. */
   params: Record<string, z.infer<StageParamsSchema>>;
 }
 
@@ -73,12 +79,15 @@ export interface DefineAppConfigInput<
   GlobalParamsSchema extends ZodObject<ZodRawShape>,
   StageParamsSchema extends ZodObject<ZodRawShape>,
 > {
+  /** Serverless configuration defaults. */
   serverless: {
     defaultHandlerFileName: string;
     defaultHandlerFileExport: string;
     httpContextEventMap: SecurityContextHttpEventMap;
   };
+  /** Global parameters and environment exposure. */
   global: GlobalParamsNode<GlobalParamsSchema>;
+  /** Stage parameters and environment exposure. */
   stage: StageParamsNode<StageParamsSchema>;
 }
 
@@ -92,12 +101,16 @@ export interface DefineAppConfigOutput<
   GlobalParamsSchema extends ZodObject<ZodRawShape>,
   StageParamsSchema extends ZodObject<ZodRawShape>,
 > extends GlobalEnvConfig<GlobalParamsSchema, StageParamsSchema> {
+  /** Serverless configuration defaults. */
   serverless: DefineAppConfigInput<
     GlobalParamsSchema,
     StageParamsSchema
   >['serverless'];
+  /** Generated Serverless stage configurations. */
   stages: ReturnType<typeof stagesFactory>['stages'];
+  /** Generated Serverless provider environment variables. */
   environment: ReturnType<typeof stagesFactory>['environment'];
+  /** Helper to build per-function environment variables. */
   buildFnEnv: ReturnType<typeof stagesFactory>['buildFnEnv'];
 }
 

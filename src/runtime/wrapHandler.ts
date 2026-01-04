@@ -26,8 +26,9 @@ import type { FunctionConfig } from '@/src/types/FunctionConfig';
 import type { Handler, ShapedEvent } from '@/src/types/Handler';
 
 /**
- * Wrap a business handler with SMOZ runtime. *
- * - HTTP event tokens receive the full Middy pipeline (validation, shaping, CORS, etc.)
+ * Wrap a business handler with SMOZ runtime.
+ *
+ * - HTTP event tokens receive the full Middy pipeline (validation, shaping, CORS, etc.).
  * - Non‑HTTP tokens bypass Middy and call the business function directly.
  *
  * @typeParam GlobalParamsSchema - global params schema type

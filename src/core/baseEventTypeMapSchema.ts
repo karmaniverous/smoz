@@ -26,20 +26,37 @@ import type {
 } from 'aws-lambda';
 import { z } from 'zod';
 
+/**
+ * Base event type map schema containing standard AWS Lambda event types.
+ */
 export const baseEventTypeMapSchema = z.object({
+  /** API Gateway Proxy Event (v1). */
   rest: z.custom<APIGatewayProxyEvent>(),
+  /** API Gateway Proxy Event (v2). */
   http: z.custom<APIGatewayProxyEventV2>(),
+  /** Application Load Balancer Event. */
   alb: z.custom<ALBEvent>(),
+  /** SQS Event. */
   sqs: z.custom<SQSEvent>(),
+  /** SNS Event. */
   sns: z.custom<SNSEvent>(),
+  /** S3 Event. */
   s3: z.custom<S3Event>(),
+  /** DynamoDB Stream Event. */
   dynamodb: z.custom<DynamoDBStreamEvent>(),
+  /** Kinesis Stream Event. */
   kinesis: z.custom<KinesisStreamEvent>(),
+  /** EventBridge Event. */
   eventbridge: z.custom<EventBridgeEvent<string, unknown>>(),
+  /** CloudWatch Logs Event. */
   'cloudwatch-logs': z.custom<CloudWatchLogsEvent>(),
+  /** SES Event. */
   ses: z.custom<SESEvent>(),
+  /** CloudFront Request Event. */
   cloudfront: z.custom<CloudFrontRequestEvent>(),
+  /** Firehose Transformation Event. */
   firehose: z.custom<FirehoseTransformationEvent>(),
+  /** Cognito User Pool Trigger Event. */
   // eslint-disable-next-line @typescript-eslint/no-deprecated -- Upstream AWS types mark this as deprecated; we retain the token for compatibility with existing apps.
   'cognito-userpool': z.custom<CognitoUserPoolTriggerEvent>(),
   /**
@@ -57,6 +74,7 @@ export const baseEventTypeMapSchema = z.object({
    *   passes state directly, apps can still treat the event via their
    *   own app-local event map if needed.
    */
+  /** Step Functions Lambda Invoke Payload wrapper. */
   step: z.object({ Payload: z.unknown().optional() }).catchall(z.unknown()),
 });
 

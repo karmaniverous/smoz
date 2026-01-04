@@ -10,6 +10,7 @@ import type { MethodKey } from '@/src/types/FunctionConfig';
 import type { FunctionConfig } from '@/src/types/FunctionConfig';
 import type { HttpContext } from '@/src/types/HttpContext';
 
+/** Set of supported HTTP methods. */
 export const HTTP_METHODS: ReadonlySet<MethodKey> = new Set<MethodKey>([
   'get',
   'put',

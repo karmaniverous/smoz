@@ -19,8 +19,10 @@ import type { ApiMiddleware, HttpStackOptions, Zodish } from './types';
 
 type M = ApiMiddleware;
 
+/** Create tagged HEAD middleware. */
 export const makeHead = (): M => tagStep(shortCircuitHead as M, 'head');
 
+/** Create tagged header normalizer middleware. */
 export const makeHeaderNormalizer = (opts?: HttpStackOptions): M =>
   tagStep(
     asApiMiddleware(
@@ -29,9 +31,11 @@ export const makeHeaderNormalizer = (opts?: HttpStackOptions): M =>
     'header-normalizer',
   );
 
+/** Create tagged event normalizer middleware. */
 export const makeEventNormalizer = (): M =>
   tagStep(asApiMiddleware(httpEventNormalizer()), 'event-normalizer');
 
+/** Create tagged content negotiation middleware. */
 export const makeContentNegotiation = (
   contentType: string,
   opts?: HttpStackOptions,
@@ -50,6 +54,7 @@ export const makeContentNegotiation = (
   );
 };
 
+/** Create tagged JSON body parser middleware. */
 export const makeJsonBodyParser = (opts?: HttpStackOptions): M => {
   const inner = asApiMiddleware(
     httpJsonBodyParser({
@@ -75,6 +80,7 @@ export const makeJsonBodyParser = (opts?: HttpStackOptions): M => {
   return tagStep(mw, 'json-body-parser');
 };
 
+/** Create tagged Zod 'before' middleware. */
 export const makeZodBefore = (
   logger: ConsoleLogger,
   eventSchema?: Zodish,
@@ -88,6 +94,7 @@ export const makeZodBefore = (
   return tagStep(mw, 'zod-before');
 };
 
+/** Create tagged Zod 'after' middleware. */
 export const makeZodAfter = (
   logger: ConsoleLogger,
   responseSchema?: Zodish,
@@ -101,6 +108,7 @@ export const makeZodAfter = (
   return tagStep(mw, 'zod-after');
 };
 
+/** Create tagged HEAD finalize middleware. */
 export const makeHeadFinalize = (contentType: string): M =>
   tagStep(
     {
@@ -136,6 +144,7 @@ export const makeHeadFinalize = (contentType: string): M =>
     'head-finalize',
   );
 
+/** Create tagged preferred media middleware. */
 export const makePreferredMedia = (contentType: string): M =>
   tagStep(
     {
@@ -163,6 +172,7 @@ export const makePreferredMedia = (contentType: string): M =>
     'preferred-media',
   );
 
+/** Create tagged error expose middleware. */
 export const makeErrorExpose = (logger: ConsoleLogger): M =>
   tagStep(
     {
@@ -185,6 +195,7 @@ export const makeErrorExpose = (logger: ConsoleLogger): M =>
     'error-expose',
   );
 
+/** Create tagged error handler middleware. */
 export const makeErrorHandler = (opts?: HttpStackOptions): M =>
   tagStep(
     asApiMiddleware(
@@ -199,6 +210,7 @@ export const makeErrorHandler = (opts?: HttpStackOptions): M =>
     'error-handler',
   );
 
+/** Create tagged CORS middleware. */
 export const makeCors = (opts?: HttpStackOptions): M =>
   tagStep(
     asApiMiddleware(
@@ -211,6 +223,7 @@ export const makeCors = (opts?: HttpStackOptions): M =>
     'cors',
   );
 
+/** Create tagged shape and content type middleware. */
 export const makeShapeAndContentType = (contentType: string): M =>
   tagStep(
     {
@@ -252,6 +265,7 @@ export const makeShapeAndContentType = (contentType: string): M =>
     'shape',
   );
 
+/** Create tagged serializer middleware. */
 export const makeSerializer = (
   contentType: string,
   opts?: HttpStackOptions,
@@ -280,6 +294,7 @@ export const makeSerializer = (
     'serializer',
   );
 
+/** Build default middleware phases with options. */
 export const buildDefaultPhases = (args: {
   contentType: string;
   logger: ConsoleLogger;
@@ -310,6 +325,12 @@ export const buildDefaultPhases = (args: {
 };
 
 /** Public helper: build default phases suitable for replace scenarios. */
+/**
+ * Build default safe middleware phases.
+ *
+ * @param args - Configuration arguments.
+ * @returns Phased middleware arrays.
+ */
 export type BuildSafeDefaultsArgs = Parameters<typeof buildDefaultPhases>[0];
 export const buildSafeDefaults = (args: BuildSafeDefaultsArgs) =>
   buildDefaultPhases(args);

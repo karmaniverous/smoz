@@ -10,8 +10,10 @@ import type { MiddlewareObj } from '@middy/core';
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 
 const ID_PROP = '__id' as const;
+/** Alias for an API Gateway middleware object. */
 export type ApiMiddleware = MiddlewareObj<APIGatewayProxyEvent, Context>;
 
+/** Identifiers for standard middleware steps. */
 export type StepId =
   | 'head'
   | 'header-normalizer'
@@ -89,19 +91,30 @@ export const removeStep = (
   return [...list.slice(0, i), ...list.slice(i + 1)];
 };
 
+/** Arrays representing the three middleware phases. */
 export type PhasedArrays = {
+  /** Before phase middleware. */
   before?: ApiMiddleware[];
+  /** After phase middleware. */
   after?: ApiMiddleware[];
+  /** OnError phase middleware. */
   onError?: ApiMiddleware[];
 };
 
+/** Function that transforms middleware phases. */
 export type HttpTransform = (stack: {
+  /** Current before phase. */
   before: ApiMiddleware[];
+  /** Current after phase. */
   after: ApiMiddleware[];
+  /** Current onError phase. */
   onError: ApiMiddleware[];
 }) => Partial<{
+  /** New before phase. */
   before: ApiMiddleware[];
+  /** New after phase. */
   after: ApiMiddleware[];
+  /** New onError phase. */
   onError: ApiMiddleware[];
 }>;
 

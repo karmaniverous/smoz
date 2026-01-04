@@ -11,17 +11,33 @@ import { resolveHttpFromFunctionConfig } from '@/src/http/resolveHttpFromFunctio
 import type { BaseOperation } from '@/src/openapi/types';
 import type { MethodKey } from '@/src/types/FunctionConfig';
 import type { HttpContext } from '@/src/types/HttpContext';
+
+/** Registry entry with OpenAPI metadata. */
 export type RegEntry = {
+  /** Function name. */
   functionName: string;
+  /** Event type token. */
   eventType: string;
+  /** HTTP method. */
   method?: MethodKey;
+  /** HTTP base path. */
   basePath?: string;
+  /** HTTP contexts. */
   httpContexts?: readonly HttpContext[];
+  /** Caller module URL. */
   callerModuleUrl: string;
+  /** REST endpoints root path. */
   restRootAbs: string;
+  /** OpenAPI operation definition. */
   openapiBaseOperation?: BaseOperation;
 };
 
+/**
+ * Build OpenAPI paths object from registered functions.
+ *
+ * @param registry - Iterator of registry entries.
+ * @returns Zod OpenAPI paths object.
+ */
 export const buildAllOpenApiPaths = (
   registry: Iterable<RegEntry>,
 ): ZodOpenApiPathsObject => {

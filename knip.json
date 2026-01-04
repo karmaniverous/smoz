@@ -1,5 +1,5 @@
 {
-  "entry": ["serverless.ts"],
+  "entry": ["serverless.ts", "src/index.ts", "src/cli/index.ts", "src/serverless/plugin.ts"],
   "project": ["src/**", "app/**", "!**/generated/**", "!docs/**"],
   "ignore": [
     "lib/test/**",

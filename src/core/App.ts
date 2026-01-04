@@ -42,24 +42,36 @@ import { buildAllServerlessFunctions as buildFns } from '@/src/serverless/buildS
 import type { MethodKey } from '@/src/types/FunctionConfig';
 import type { HttpContext } from '@/src/types/HttpContext';
 
+/**
+ * Initialization options for the {@link App} instance.
+ */
 export interface AppInit<
   GlobalParamsSchema extends ZodObj,
   StageParamsSchema extends ZodObj,
   EventTypeMapSchema extends ZodObj,
 > {
+  /** Absolute path to the application root directory. */
   appRootAbs: string;
+  /** Zod schema for global parameters. */
   globalParamsSchema: GlobalParamsSchema;
+  /** Zod schema for stage-specific parameters. */
   stageParamsSchema: StageParamsSchema;
+  /** Optional Zod schema mapping event tokens to runtime types. Defaults to {@link baseEventTypeMapSchema}. */
   eventTypeMapSchema?: EventTypeMapSchema;
   /** Accept raw serverless config; App will parse it internally. */
   serverless: z.input<typeof serverlessConfigSchema>;
+  /** Global configuration (params and environment keys). */
   global: {
+    /** Global parameter values. */
     params: z.infer<GlobalParamsSchema>;
+    /** Environment keys exposed globally. */
     envKeys: readonly (keyof z.infer<GlobalParamsSchema>)[];
   };
+  /** Stage configuration (params and environment keys). */
   stage: {
     /** Accept raw stage param objects; App will parse with (global.partial + stage) */
     params: Record<string, Record<string, unknown>>;
+    /** Environment keys exposed per stage. */
     envKeys: readonly (keyof z.infer<StageParamsSchema>)[];
   };
   /**
@@ -76,12 +88,17 @@ export interface AppInit<
     fnEnvKeys?: readonly string[];
   };
 }
+
 /**
  * Application class. *
- * @typeParam GlobalParamsSchema - Zod object schema for global parameters
- * @typeParam StageParamsSchema  - Zod object schema for per‑stage parameters
- * @typeParam EventTypeMapSchema - Zod object schema mapping event tokens to runtime types
- */ export class App<
+ *
+ * Central orchestrator for a SMOZ application.
+ *
+ * @typeParam GlobalParamsSchema - Zod object schema for global parameters.
+ * @typeParam StageParamsSchema  - Zod object schema for per‑stage parameters.
+ * @typeParam EventTypeMapSchema - Zod object schema mapping event tokens to runtime types.
+ */
+export class App<
   GlobalParamsSchema extends ZodObj,
   StageParamsSchema extends ZodObj,
   EventTypeMapSchema extends ZodObj,
@@ -90,28 +107,40 @@ export interface AppInit<
   private static readonly _stageArtifactsType = null as unknown as ReturnType<
     typeof buildStageArtifacts
   >;
+  /** Absolute path to the application root. */
   public readonly appRootAbs: string;
   // Schemas
+  /** Global parameters Zod schema. */
   public readonly globalParamsSchema: GlobalParamsSchema;
+  /** Stage parameters Zod schema. */
   public readonly stageParamsSchema: StageParamsSchema;
+  /** Event type map Zod schema. */
   public readonly eventTypeMapSchema: EventTypeMapSchema; // Serverless config
+  /** Parsed Serverless configuration. */
   public readonly serverless: AppServerlessConfig;
 
   // Env exposure
+  /** Global environment schema node. */
   public readonly global: EnvSchemaNode<GlobalParamsSchema>;
+  /** Stage environment schema node. */
   public readonly stage: EnvSchemaNode<StageParamsSchema>;
 
   // Derived stage artifacts
+  /** Generated Serverless stage parameters. */
   public readonly stages: ReturnType<typeof buildStageArtifacts>['stages'];
+  /** Generated Serverless provider environment variables. */
   public readonly environment: ReturnType<
     typeof buildStageArtifacts
   >['environment'];
+  /** Helper to build per-function environment variables. */
   public readonly buildFnEnv: ReturnType<
     typeof buildStageArtifacts
   >['buildFnEnv'];
 
+  /** Application-level HTTP middleware configuration. */
   public readonly http: AppHttpConfig;
   // HTTP tokens for runtime decision
+  /** List of event tokens treated as HTTP events at runtime. */
   public readonly httpEventTypeTokens: readonly string[];
   // Registry (delegated to src/app/registry)
   private readonly registry: ReturnType<

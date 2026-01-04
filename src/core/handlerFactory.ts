@@ -12,6 +12,7 @@ import type { Handler } from '@/src/types/Handler'; /**
  * - Fully typed; no any; no dynamic import() types.
  *
  * @param httpEventTypeTokens - runtime widening of HTTP event tokens
+ * @param httpConfig - application-level HTTP configuration
  * @returns a function that binds a branded FunctionConfig and a business handler, producing a Lambda handler
  */
 export const handlerFactory = <

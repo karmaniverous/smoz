@@ -14,24 +14,46 @@ import { resolveHttpFromFunctionConfig } from '@/src/http/resolveHttpFromFunctio
 import type { MethodKey } from '@/src/types/FunctionConfig';
 import type { HttpContext } from '@/src/types/HttpContext';
 
+/** Registry entry for Serverless function building. */
 export type RegEntry = {
+  /** Function name. */
   functionName: string;
+  /** Event type token. */
   eventType: string;
+  /** HTTP method. */
   method?: MethodKey;
+  /** HTTP base path. */
   basePath?: string;
+  /** HTTP contexts. */
   httpContexts?: readonly HttpContext[];
+  /** HTTP content type. */
   contentType?: string;
+  /** Serverless extra configuration. */
   serverlessExtras?: unknown;
+  /** Function-specific environment keys. */
   fnEnvKeys?: readonly PropertyKey[];
+  /** Caller module URL. */
   callerModuleUrl: string;
+  /** REST endpoints root path. */
   restRootAbs: string;
 };
 
+/** Serverless configuration subset used by the builder. */
 export type ServerlessConfigLike = {
+  /** Default handler file name. */
   defaultHandlerFileName: string;
+  /** Default handler file export name. */
   defaultHandlerFileExport: string;
 };
 
+/**
+ * Build all Serverless function definitions from the registry.
+ *
+ * @param registry - Iterator of registry entries.
+ * @param serverless - Serverless configuration.
+ * @param buildFnEnv - Helper to build function environment variables.
+ * @returns Serverless functions object.
+ */
 export const buildAllServerlessFunctions = (
   registry: Iterable<RegEntry>,
   serverless: ServerlessConfigLike,

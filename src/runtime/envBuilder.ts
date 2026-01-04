@@ -46,7 +46,9 @@ export const splitKeysBySchema = <
   globalParamsSchema: G,
   stageParamsSchema: S,
 ): {
+  /** Keys belonging to the global schema. */
   globalPick: readonly (keyof z.infer<G>)[];
+  /** Keys belonging to the stage schema (and not global). */
   stagePick: readonly (keyof z.infer<S>)[];
 } => {
   const gKeySet = new Set(Object.keys(globalParamsSchema.shape));

@@ -4,6 +4,13 @@
  */
 import type { ConsoleLogger } from '@/src/types/Loggable';
 
+/**
+ * Wrap a serializer function to add logging.
+ *
+ * @param fn - The serializer function.
+ * @param opts - Logging options.
+ * @returns A wrapped serializer function.
+ */
 export const wrapSerializer = <T extends (args: { body: unknown }) => string>(
   fn: T,
   opts: { label: string; logger: ConsoleLogger },

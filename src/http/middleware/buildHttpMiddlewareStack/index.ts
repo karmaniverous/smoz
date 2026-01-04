@@ -21,11 +21,16 @@ import {
   makeZodValidator,
 } from './steps';
 
+/**
+ * Options for building the HTTP middleware stack.
+ */
 export type BuildHttpMiddlewareStackOptions<
   EventSchema extends z.ZodType | undefined,
   ResponseSchema extends z.ZodType | undefined,
 > = {
+  /** Zod schema to validate the incoming event. */
   eventSchema?: EventSchema;
+  /** Zod schema to validate the outgoing response. */
   responseSchema?: ResponseSchema;
   /** default: 'application/json' */
   contentType?: string;
@@ -33,6 +38,12 @@ export type BuildHttpMiddlewareStackOptions<
   logger?: ConsoleLogger;
 };
 
+/**
+ * Build a Middy middleware stack for HTTP handlers.
+ *
+ * @param options - Configuration options.
+ * @returns Composed Middy middleware.
+ */
 export const buildHttpMiddlewareStack = <
   EventSchema extends z.ZodType | undefined,
   ResponseSchema extends z.ZodType | undefined,

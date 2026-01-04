@@ -16,6 +16,7 @@ export type ShapedEvent<
 
 /** Handler options shared across invocation modes. */
 export type HandlerOptions = {
+  /** Typed environment variables. */
   env: Record<string, unknown>;
   /** Present only for HTTP calls; omitted for SQS/Step/etc. */
   securityContext?: unknown;

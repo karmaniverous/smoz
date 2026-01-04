@@ -26,7 +26,11 @@ const runRegister = (): void => {
 };
 
 // Minimal Serverless v4 plugin: register hooks that run before package/deploy.
+/**
+ * Serverless Framework plugin to ensure registers are fresh.
+ */
 export default class SmozRegisterPlugin {
+  /** Serverless hooks. */
   hooks: Record<string, () => void>;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -19,13 +19,22 @@ export interface EnvAttached<
   GlobalParamsSchema extends ZodObject<ZodRawShape>,
   StageParamsSchema extends ZodObject<ZodRawShape>,
 > {
+  /** @internal Environment configuration attachment. */
   [ENV_CONFIG]: {
+    /** Global environment schema node. */
     global: EnvSchemaNode<GlobalParamsSchema>;
+    /** Stage environment schema node. */
     stage: EnvSchemaNode<StageParamsSchema>;
   };
 }
 
 /** @see {@link runtime/wrapHandler.wrapHandler | wrapHandler} */
+/**
+ * Extract environment configuration from a branded function config.
+ *
+ * @param fc - The function configuration object.
+ * @returns The global and stage environment schema nodes.
+ */
 export function getEnvFromFunctionConfig<
   GlobalParamsSchema extends ZodObject<ZodRawShape>,
   StageParamsSchema extends ZodObject<ZodRawShape>,

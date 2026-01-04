@@ -10,12 +10,15 @@ import type { z } from 'zod';
 import type { ConsoleLogger, Loggable } from '@/src/types/Loggable';
 import { pojofy } from '@/src/util/pojofy';
 
+/** Options for the HTTP Zod validator. */
 export type HttpZodValidatorOptions<
   EventSchema extends z.ZodType | undefined,
   ResponseSchema extends z.ZodType | undefined,
   Logger extends ConsoleLogger,
 > = {
+  /** Zod schema for validating the event. */
   eventSchema?: EventSchema;
+  /** Zod schema for validating the response. */
   responseSchema?: ResponseSchema;
 } & Partial<Loggable<Logger>>;
 const assertWithZod = (
