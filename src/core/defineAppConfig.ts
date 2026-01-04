@@ -81,8 +81,11 @@ export interface DefineAppConfigInput<
 > {
   /** Serverless configuration defaults. */
   serverless: {
+    /** Default handler file name (e.g., 'handler.ts'). */
     defaultHandlerFileName: string;
+    /** Default handler export name (e.g., 'handler'). */
     defaultHandlerFileExport: string;
+    /** Map of security contexts to event fragments. */
     httpContextEventMap: SecurityContextHttpEventMap;
   };
   /** Global parameters and environment exposure. */

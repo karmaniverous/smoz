@@ -56,8 +56,11 @@ export const resolveHttpFromFunctionConfig = <
   callerModuleUrl: string,
   restRootAbs: string,
 ): {
+  /** HTTP method. */
   method: MethodKey;
+  /** Base path. */
   basePath: string;
+  /** HTTP contexts. */
   contexts: readonly HttpContext[];
 } => {
   const {

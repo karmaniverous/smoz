@@ -85,6 +85,7 @@ export interface AppInit<
   http?: AppHttpConfig;
   /** Optional defaults applied to every function (merged per registration). */
   functionDefaults?: {
+    /** Default per-function env keys applied to all functions (merged). */
     fnEnvKeys?: readonly string[];
   };
 }
@@ -214,7 +215,11 @@ export class App<
    * @param init - initialization object (schemas, serverless defaults, params/envKeys)
    * @returns a new App instance
    */
-  // Overload 1: eventTypeMapSchema provided → infer from provided schema (typed)
+  /**
+   * Create an App instance with an explicit event type map schema.
+   *
+   * @param init - Initialization options including `eventTypeMapSchema`.
+   */
   static create<
     GlobalParamsSchema extends ZodObj,
     StageParamsSchema extends ZodObj,
@@ -222,7 +227,11 @@ export class App<
   >(
     init: AppInit<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema>,
   ): App<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema>;
-  // Overload 2: eventTypeMapSchema omitted → default to baseEventTypeMapSchema (typed)
+  /**
+   * Create an App instance using the default base event type map schema.
+   *
+   * @param init - Initialization options without `eventTypeMapSchema`.
+   */
   static create<
     GlobalParamsSchema extends ZodObj,
     StageParamsSchema extends ZodObj,

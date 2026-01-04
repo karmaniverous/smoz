@@ -36,8 +36,17 @@ export type StagesFactoryOutput<
   StageParams extends Record<string, unknown>,
 > = {
   /** Serverless 'params' object: { default: { params: GlobalParams }, <stage>: { params: StageParams } } */
-  stages: { default: { params: GlobalParams } } & {
-    [K in keyof Dict<StageParams>]: { params: StageParams };
+  stages: {
+    /** Default stage parameters. */
+    default: {
+      /** Global parameters. */
+      params: GlobalParams;
+    };
+  } & {
+    [K in keyof Dict<StageParams>]: {
+      /** Stage parameters. */
+      params: StageParams;
+    };
   };
   /** Provider-level environment mapping for globally exposed keys */
   environment: Record<string, string>;

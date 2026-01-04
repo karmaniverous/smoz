@@ -10,6 +10,7 @@ import type { ConsoleLogger } from '@/src/types/Loggable';
  * @param fn - The serializer function.
  * @param opts - Logging options.
  * @returns A wrapped serializer function.
+ * @typeParam T - The type of the serializer function.
  */
 export const wrapSerializer = <T extends (args: { body: unknown }) => string>(
   fn: T,

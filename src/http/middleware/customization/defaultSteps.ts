@@ -301,7 +301,14 @@ export const buildDefaultPhases = (args: {
   opts?: HttpStackOptions;
   eventSchema?: z.ZodType | undefined;
   responseSchema?: z.ZodType | undefined;
-}): { before: M[]; after: M[]; onError: M[] } => {
+}): {
+  /** Middleware to run before the handler. */
+  before: M[];
+  /** Middleware to run after the handler. */
+  after: M[];
+  /** Middleware to run on error. */
+  onError: M[];
+} => {
   const { contentType, logger, opts, eventSchema, responseSchema } = args;
   const before: M[] = [
     makeHead(),
@@ -332,5 +339,11 @@ export const buildDefaultPhases = (args: {
  * @returns Phased middleware arrays.
  */
 export type BuildSafeDefaultsArgs = Parameters<typeof buildDefaultPhases>[0];
+/**
+ * Build safe default middleware phases.
+ *
+ * @param args - Configuration arguments.
+ * @returns Phased middleware arrays.
+ */
 export const buildSafeDefaults = (args: BuildSafeDefaultsArgs) =>
   buildDefaultPhases(args);

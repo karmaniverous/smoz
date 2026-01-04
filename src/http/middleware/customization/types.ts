@@ -34,7 +34,12 @@ export type HttpStackOptions = {
   /** Serializer configuration. */
   serializer?: {
     /** JSON serializer configuration. */
-    json?: { label?: string; stringify?: (value: unknown) => string };
+    json?: {
+      /** Label for logging. */
+      label?: string;
+      /** Stringify function. */
+      stringify?: (value: unknown) => string;
+    };
   };
   /** Options for `http-json-body-parser`. */
   jsonBodyParser?: Parameters<typeof httpJsonBodyParser>[0];
@@ -63,7 +68,12 @@ export type HttpProfile = HttpStackOptions & {
 /** Application-level HTTP configuration. */
 export type AppHttpConfig = {
   /** Default options and behavior. */
-  defaults?: HttpStackOptions & { extend?: Extend; transform?: HttpTransform };
+  defaults?: HttpStackOptions & {
+    /** Default middleware extensions. */
+    extend?: Extend;
+    /** Default middleware transformation. */
+    transform?: HttpTransform;
+  };
   /** Named profiles. */
   profiles?: Record<string, HttpProfile>;
 };
@@ -79,7 +89,10 @@ export type FunctionHttpConfig = {
   /** Transformation function. */
   transform?: HttpTransform;
   /** Full stack replacement. */
-  replace?: { stack: MiddlewareObj | PhasedArrays };
+  replace?: {
+    /** Replacement middleware stack. */
+    stack: MiddlewareObj | PhasedArrays;
+  };
 };
 /** Optional Zod type used by step builders. */
 export type Zodish = z.ZodType | undefined;

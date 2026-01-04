@@ -104,6 +104,9 @@ export const createRegistry = <
       callerModuleUrl: string;
       restRootAbs: string;
     }) {
+      /**
+       * Function name.
+       */
       const key = options.functionName;
       if (map.has(key)) {
         const other = map.get(key)!;
