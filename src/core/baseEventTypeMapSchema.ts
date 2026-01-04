@@ -75,7 +75,12 @@ export const baseEventTypeMapSchema = z.object({
    *   own app-local event map if needed.
    */
   /** Step Functions Lambda Invoke Payload wrapper. */
-  step: z.object({ Payload: z.unknown().optional() }).catchall(z.unknown()),
+  step: z
+    .object({
+      /** Payload object from the Step Function state. */
+      Payload: z.unknown().optional(),
+    })
+    .catchall(z.unknown()),
 });
 
 /** Canonical base event map type (schema‑first). Extend the schema in your App. */

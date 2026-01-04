@@ -6,7 +6,9 @@ import type { ZodObj } from '@/src/core/types';
 import type { AppHttpConfig } from '@/src/http/middleware/httpStackCustomization';
 import { wrapHandler } from '@/src/runtime/wrapHandler';
 import type { FunctionConfig } from '@/src/types/FunctionConfig';
-import type { Handler } from '@/src/types/Handler'; /**
+import type { Handler } from '@/src/types/Handler';
+
+/**
 + handlerFactory
  * - Produces a function that builds a wrapped handler with runtime HTTP tokens.
  * - Fully typed; no any; no dynamic import() types.
@@ -26,6 +28,12 @@ export const handlerFactory = <
   httpEventTypeTokens: readonly string[],
   httpConfig: AppHttpConfig,
 ) => {
+  /**
+   * Create a Lambda handler from a function configuration and business logic.
+   *
+   * @param functionConfig - The branded function configuration.
+   * @param business - The business logic handler.
+   */
   return (
     functionConfig: FunctionConfig<
       EventSchema,
