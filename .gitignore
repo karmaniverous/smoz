@@ -11,9 +11,11 @@ node_modules/
 # (e.g., when a temp env var is undefined and a relative path is composed)
 undefined/temp/tsx-*
 
+# STAN
 .stan/diff/
 .stan/output/
 .stan/patch/
 .stan/system/facet.state.json
 .stan/system/.docs.meta.json
 .stan/dist/
+.stan/imports/

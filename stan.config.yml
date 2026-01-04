@@ -12,6 +12,9 @@ stan-core:
     '@karmaniverous/get-dotenv':
       - ../get-dotenv/.stan/interop/smoz/**
       - ../get-dotenv/guides/stan-assistant-guide.md
+    '@veterancrowd/aws-service':
+      - ../../VeteranCrowd/aws-service/lib/getCognitoUserId.js
+      - ../../VeteranCrowd/aws-service/lib/wrapCognitoEndpointHandler.js
   includes:
     - templates/**
   excludes:
@@ -25,7 +28,7 @@ stan-core:
 stan-cli:
   cliDefaults:
     run:
-      facets: false
+      facets: true
       plan: false
       sequential: true
   patchOpenCommand: code -g {file}

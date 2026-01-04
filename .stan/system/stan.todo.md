@@ -4,6 +4,56 @@ When updated: 2026-01-04T00:00:00Z
 
 ## Next up (near‑term, actionable)
 
+- HTTP context propagation + hybrid context resolvers (NEW)
+  - Requirements (already agreed; see stan.requirements.md):
+    - For HTTP invocations, handler options must include:
+      - `httpContext: HttpContext` (invoked route context token)
+      - `resolvedContext?: ...` (resolver output, optional per context)
+    - Context resolver execution depends on invoked route context (path prefix) only.
+    - Serverless route surface must match OpenAPI route surface (context path prefixes and param normalization).
+  - Config surface (App.create)
+    - Add `contextResolvers?: ...` as a “hybrid” structure:
+      - For HTTP event tokens (e.g., rest/http):
+        - per-event-type map of per-HttpContext resolvers
+      - For non-HTTP tokens:
+        - a single resolver per event type
+    - Ensure resolver typing flows into handler options:
+      - For multi-context endpoints, accept a discriminated union on `options.httpContext`.
+      - `resolvedContext` is optional/undefined when no resolver is configured for that context.
+  - Runtime behavior (wrapHandler)
+    - Rename existing `HandlerOptions.securityContext` → `HandlerOptions.httpContext` (or introduce and deprecate/remove old key).
+    - Introduce `HandlerOptions.resolvedContext?: ...`.
+    - Implement HTTP `httpContext` detection by path prefix only:
+      - first segment `my`/`private` => that context; else `public`
+    - Run the resolver (if configured) after `zod-before` (when schemas present) and before business handler.
+    - Ensure HEAD short-circuit skips resolver execution (because handler is skipped).
+    - Ensure resolver errors flow through the existing HTTP error stack (no special casing).
+  - Serverless/OpenAPI sync fix (required before resolver work is meaningful)
+    - Update Serverless builder so HTTP events:
+      - use context-prefixed paths for non-public contexts (same builder as OpenAPI)
+      - merge `serverless.httpContextEventMap[context]` fragment into each `http` event
+    - Verify inline server routes (built from Serverless functions) now match OpenAPI and support context prefix routing.
+  - Tests (must add/adjust)
+    - Serverless builder unit tests:
+      - ensure distinct paths for public/private/my for the same basePath
+      - ensure context event fragments are merged (authorizer/private flags) per context
+    - Runtime wrapper tests:
+      - `httpContext` is set correctly for:
+        - `/users` => public
+        - `/my/users` => my
+        - `/private/users` => private
+      - resolver invoked only for configured contexts and only on non-HEAD
+      - resolver output appears on `options.resolvedContext`
+      - when resolver throws, HTTP response is shaped by existing error middleware
+    - Type-level tests:
+      - discriminated union narrows `resolvedContext` by `options.httpContext`
+      - resolvedContext is optional when no resolver configured for that context
+  - Docs
+    - Add/extend a recipe documenting “context resolvers”:
+      - show extracting claims + fetching user for `my` using eventType-specific resolver
+      - show handler narrowing on `options.httpContext`
+      - explicitly note reserved `my`/`private` first path segment rule
+
 - Validate Serverless v4 plugin loading under ESM-only exports
   - Confirm Serverless can load `@karmaniverous/smoz/serverless-plugin` when it resolves to ESM.
   - If Serverless still requires CJS, decide whether to ship a minimal `.cjs` shim as an explicit exception and document the constraint.
