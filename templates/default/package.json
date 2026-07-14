@@ -37,8 +37,8 @@
     "docs": "typedoc",
     "lint:fix": "eslint --fix .",
     "lint": "eslint .",
-    "openapi": "smoz register && tsx app/config/openapi && prettier -w app/generated/openapi.json",
-    "package": "smoz register && serverless package",
+    "openapi": "smoz openapi",
+    "package": "serverless package",
     "register": "smoz register",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
