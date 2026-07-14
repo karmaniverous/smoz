@@ -182,11 +182,31 @@ export const makeErrorExpose = (logger: ConsoleLogger): M =>
         }
 
         // JSON-encode the error message so middy's httpErrorHandler emits
-        // application/json instead of text/plain.
+        // application/json instead of text/plain. Guard against double-encoding
+        // since this step is registered in both the after and onError arrays.
+        try {
+          const parsed: unknown = JSON.parse(msg);
+          if (
+            typeof parsed === 'object' &&
+            parsed !== null &&
+            'statusCode' in parsed &&
+            'message' in parsed
+          )
+            return;
+        } catch {
+          // not JSON — proceed with encoding
+        }
         const statusCode =
           typeof (maybe as { statusCode?: unknown }).statusCode === 'number'
             ? (maybe as unknown as { statusCode: number }).statusCode
             : 500;
+        // Ensure statusCode is set so middy's httpErrorHandler doesn't
+        // discard the message with its fallback replacement.
+        if (
+          typeof (maybe as { statusCode?: unknown }).statusCode !== 'number'
+        ) {
+          (maybe as unknown as { statusCode: number }).statusCode = statusCode;
+        }
         const message = msg || 'Internal Server Error';
         maybe.message = JSON.stringify({ statusCode, message });
       },
