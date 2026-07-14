@@ -33,7 +33,6 @@ const findTsxCli = (root: string): SpawnSpec => {
 };
 
 const findPrettierCli = (root: string): SpawnSpec => {
-  // Prefer invoking the JS entry to avoid shell .cmd quirks on Windows.
   const js = path.resolve(
     root,
     'node_modules',
@@ -41,16 +40,16 @@ const findPrettierCli = (root: string): SpawnSpec => {
     'bin',
     'prettier.cjs',
   );
-  if (existsSync(js)) {
-    return {
-      cmd: process.execPath,
-      args: [js, '--write', 'app/generated/openapi.json'],
-      shell: false,
-    };
+  if (!existsSync(js)) {
+    throw new Error(
+      `prettier not found at ${js}. Install it as a devDependency.`,
+    );
   }
-  // Fallback to "prettier" on PATH.
-  const cmd = process.platform === 'win32' ? 'prettier.cmd' : 'prettier';
-  return { cmd, args: ['--write', 'app/generated/openapi.json'], shell: true };
+  return {
+    cmd: process.execPath,
+    args: [js, '--write', 'app/generated/openapi.json'],
+    shell: false,
+  };
 };
 
 export const runOpenapi = async (
@@ -85,7 +84,12 @@ export const runOpenapi = async (
   if (typeof genRes.status !== 'number' || genRes.status !== 0) {
     const code =
       typeof genRes.status === 'number' ? String(genRes.status) : 'unknown';
-    throw new Error(`openapi failed (exit ${code})`);
+    const detail = genRes.error
+      ? `: ${genRes.error.message}`
+      : genRes.signal
+        ? ` (signal ${genRes.signal})`
+        : '';
+    throw new Error(`openapi failed (exit ${code})${detail}`);
   }
 
   // Step 2: format the output with prettier.
@@ -103,7 +107,12 @@ export const runOpenapi = async (
   if (typeof fmtRes.status !== 'number' || fmtRes.status !== 0) {
     const code =
       typeof fmtRes.status === 'number' ? String(fmtRes.status) : 'unknown';
-    throw new Error(`prettier format failed (exit ${code})`);
+    const detail = fmtRes.error
+      ? `: ${fmtRes.error.message}`
+      : fmtRes.signal
+        ? ` (signal ${fmtRes.signal})`
+        : '';
+    throw new Error(`prettier format failed (exit ${code})${detail}`);
   }
 
   // Determine whether the file content changed
