@@ -38,7 +38,7 @@
     "lint:fix": "eslint --fix .",
     "lint": "eslint .",
     "openapi": "smoz openapi",
-    "package": "smoz register && serverless package",
+    "package": "serverless package",
     "register": "smoz register",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
