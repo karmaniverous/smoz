@@ -173,7 +173,7 @@
     "knip": "knip",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "openapi": "tsx src/cli/index.ts register && tsx app/config/openapi && prettier -w app/generated/openapi.json",
+    "openapi": "tsx src/cli/index.ts register && tsx src/cli/index.ts openapi",
     "package": "tsx src/cli/index.ts register && serverless package",
     "release": "dotenvx run -f .env.local -- release-it",
     "release:pre": "dotenvx run -f .env.local -- release-it --no-git.requireBranch --github.prerelease --preRelease",
