@@ -61,9 +61,9 @@ export type { LambdaEvent } from './types/LambdaEvent';
 export type { ConsoleLogger } from './types/Loggable';
 export type { SecurityContextHttpEventMap } from './types/SecurityContextHttpEventMap';
 
-// Note: internal helpers (asApiMiddleware, buildHttpMiddlewareStack, httpZodValidator,
-// shortCircuitHead, envBuilder functions, stagesFactory, etc.) are intentionally
-// not re-exported from the public entry to keep the surface minimal and stable.
+// Note: internal helpers (asApiMiddleware, httpZodValidator, shortCircuitHead,
+// envBuilder functions, stagesFactory, etc.) are intentionally not re-exported
+// from the public entry to keep the surface minimal and stable.
 
 // Cross-platform path helpers (for templates and app config derivations).
 // Small and stable; safe to include in the public surface.

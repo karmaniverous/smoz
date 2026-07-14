@@ -10,15 +10,22 @@ import { z } from 'zod';
 import { createApiGatewayV1Event, createLambdaContext } from '@/src/test/aws';
 import type { HttpResponse } from '@/src/test/http';
 
-import { buildHttpMiddlewareStack } from './buildHttpMiddlewareStack';
+import { computeHttpMiddleware } from './customization/compute';
 
 const run = async (
   base: (e: APIGatewayProxyEvent, c: Context) => Promise<unknown>,
-  opts: Parameters<typeof buildHttpMiddlewareStack>[0],
+  opts: {
+    eventSchema?: z.ZodType;
+    responseSchema?: z.ZodType;
+  },
   event: APIGatewayProxyEvent,
   ctx: Context,
 ): Promise<HttpResponse> => {
-  const stack = buildHttpMiddlewareStack(opts);
+  const stack = computeHttpMiddleware({
+    functionName: 'test',
+    eventSchema: opts.eventSchema,
+    responseSchema: opts.responseSchema,
+  });
   const wrapped = middy(async (e: APIGatewayProxyEvent, c: Context) =>
     base(e, c),
   ).use(stack);
@@ -35,7 +42,6 @@ describe('stack: response shaping & content-type header', () => {
       async () => ({ hello: 'world' }) as const,
       {
         eventSchema: z.object({}),
-        responseSchema: undefined,
       },
       event,
       ctx,
@@ -95,7 +101,6 @@ describe('stack: pre-shaped response', () => {
       }),
       {
         eventSchema: z.object({}),
-        responseSchema: undefined,
       },
       event,
       ctx,
