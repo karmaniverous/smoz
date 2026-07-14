@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.12](https://github.com/karmaniverous/smoz/compare/0.2.11...0.2.12)
+
+- feat: remove legacy middleware path, JSON-encode error responses [`#7`](https://github.com/karmaniverous/smoz/pull/7)
+- fix: sync package-lock.json for npm ci (#6) [`feefa22`](https://github.com/karmaniverous/smoz/commit/feefa2231a78040a7aa820d6bd090f36494163a0)
+- feat: remove legacy middleware path, JSON-encode error responses (#6) [`9dd8ca6`](https://github.com/karmaniverous/smoz/commit/9dd8ca60a1632c497e052473e7f7d653de070f5b)
+- test: add error response tests, fix double-encoding, derive test types (#6) [`1f6519f`](https://github.com/karmaniverous/smoz/commit/1f6519f66e18aa9cae1d5c6394b1290d1396e9dc)
+- chore: trigger CI re-run [`0f106f5`](https://github.com/karmaniverous/smoz/commit/0f106f59dd281a1fd5f371d5ba70be3cc8b4d365)
+
 #### [0.2.11](https://github.com/karmaniverous/smoz/compare/0.2.10...0.2.11)
+
+> 14 July 2026
 
 - feat: run prettier in smoz openapi command [`#5`](https://github.com/karmaniverous/smoz/pull/5)
 - chore: move changelog generation to after:bump hook [`#2`](https://github.com/karmaniverous/smoz/pull/2)
@@ -43,6 +53,7 @@ All notable changes to this project will be documented in this file. Dates are d
 - updated stan [`768bbb6`](https://github.com/karmaniverous/smoz/commit/768bbb62b5c296aea60dc2e6e6b52d0d43069115)
 - feat: run prettier in smoz openapi command (#4) [`a308395`](https://github.com/karmaniverous/smoz/commit/a308395e5365e865ade09ff2ad7a8944280fca0f)
 - chore: add copilot review instructions [`eb5d481`](https://github.com/karmaniverous/smoz/commit/eb5d481582decab24e23e6b2a011dc129be7f50f)
+- chore: release v0.2.11 [`4d3d219`](https://github.com/karmaniverous/smoz/commit/4d3d21938e5ef157f5010db36a1d79032f6773e6)
 - cleanup [`11f0288`](https://github.com/karmaniverous/smoz/commit/11f0288794958d1be1cce30c499a0dc0b72890f2)
 - fix(cli): unify get-dotenv plugin imports, remove legacy tests, lint fixes [`ab98f11`](https://github.com/karmaniverous/smoz/commit/ab98f11d04a0143869a270ec1a54250bd32b9b73)
 - enable facets & update todo [`bd5834e`](https://github.com/karmaniverous/smoz/commit/bd5834e04701014a79b38d954aae3bc5e490b0f6)
