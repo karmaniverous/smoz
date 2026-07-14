@@ -189,6 +189,15 @@ export const makeErrorExposure = (logger: ConsoleLogger): ApiMiddleware => ({
     ) {
       (maybe as { statusCode?: number }).statusCode = 400;
     }
+
+    // JSON-encode the error message so middy's httpErrorHandler emits
+    // application/json instead of text/plain.
+    const statusCode =
+      typeof (maybe as { statusCode?: unknown }).statusCode === 'number'
+        ? (maybe as unknown as { statusCode: number }).statusCode
+        : 500;
+    const message = msg || 'Internal Server Error';
+    maybe.message = JSON.stringify({ statusCode, message });
   },
 });
 
