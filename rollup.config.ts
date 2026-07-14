@@ -1,10 +1,3 @@
-/* See <stanPath>/system/stan.project.md for global requirements.
- * Requirements addressed:
- * - Minimal library bundling: ESM + CJS outputs.
- * - Generate a single type declarations bundle at dist/index.d.ts.
- * - Keep runtime dependencies and Node built-ins external.
- * - Resolve TS path alias "@/..." to real sources for published outputs.
- */
 import { readFileSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import path from 'node:path';
@@ -72,7 +65,7 @@ const makePlugins = (tsconfigPath?: string): Plugin[] => [
   typescriptPlugin({
     // Do not write transpiled output to disk; let Rollup handle bundling.
     outputToFilesystem: false,
-    // Allow a custom tsconfig for specialized builds (e.g., stan:build).
+    // Allow a custom tsconfig for specialized builds.
     tsconfig: tsconfigPath ?? false,
     // Override conflicting tsconfig flags for bundling. Declarations are produced by rollup-plugin-dts.
     compilerOptions: {

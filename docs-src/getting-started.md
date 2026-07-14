@@ -155,7 +155,7 @@ npm run openapi
 
 ## Contributing and local DX
 
-- Run once locally: `npm run stan:build` in the smoz repo so editors resolve `@karmaniverous/smoz` types across templates.
+- Run once locally: `npm run build` in the smoz repo so editors resolve `@karmaniverous/smoz` types across templates.
 - Lint & format: ESLint drives Prettier (`prettier/prettier`: error). Use:
   ```bash
   npm run lint:fix

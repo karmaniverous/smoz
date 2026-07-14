@@ -11,7 +11,6 @@ export default [
   {
     ignores: [
       '.serverless/**',
-      '.stan/**',
       '**/.tsbuild/**',
       '**/generated/**',
       'coverage/**',

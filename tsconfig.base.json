@@ -20,7 +20,7 @@
     "verbatimModuleSyntax": true,
     "paths": {
       "@/*": ["*"],
-      "@karmaniverous/smoz": [".stan/dist/index.d.ts", "dist/index.d.ts"]
+      "@karmaniverous/smoz": ["dist/index.d.ts"]
     }
   }
 }
