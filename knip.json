@@ -4,6 +4,7 @@
   "ignore": [
     "lib/test/**",
     "app/**/handler.ts",
+    "app/config/openapi.ts",
     "app/functions/**/lambda.ts",
     "app/functions/**/openapi.ts",
     "src/serverless/intrinsic.ts",
@@ -13,10 +14,11 @@
   "ignoreBinaries": ["plantuml"],
   "ignoreDependencies": [
     "http-errors",
+    "@types/fs-extra",
     "@types/http-errors",
     "@types/serverless",
     "@vitest/coverage-v8",
-    "cross-env",
+    "fs-extra",
     "serverless-apigateway-log-retention",
     "serverless-deployment-bucket",
     "serverless-domain-manager",
