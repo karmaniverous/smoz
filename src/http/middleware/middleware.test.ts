@@ -4,21 +4,30 @@
 */
 import middy from '@middy/core';
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
+import createHttpError from 'http-errors';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import { createApiGatewayV1Event, createLambdaContext } from '@/src/test/aws';
 import type { HttpResponse } from '@/src/test/http';
 
-import { buildHttpMiddlewareStack } from './buildHttpMiddlewareStack';
+import { computeHttpMiddleware } from './customization/compute';
+
+type StackOpts = Pick<
+  Parameters<typeof computeHttpMiddleware>[0],
+  'eventSchema' | 'responseSchema'
+>;
 
 const run = async (
   base: (e: APIGatewayProxyEvent, c: Context) => Promise<unknown>,
-  opts: Parameters<typeof buildHttpMiddlewareStack>[0],
+  opts: StackOpts,
   event: APIGatewayProxyEvent,
   ctx: Context,
 ): Promise<HttpResponse> => {
-  const stack = buildHttpMiddlewareStack(opts);
+  const stack = computeHttpMiddleware({
+    functionName: 'test',
+    ...opts,
+  });
   const wrapped = middy(async (e: APIGatewayProxyEvent, c: Context) =>
     base(e, c),
   ).use(stack);
@@ -35,7 +44,6 @@ describe('stack: response shaping & content-type header', () => {
       async () => ({ hello: 'world' }) as const,
       {
         eventSchema: z.object({}),
-        responseSchema: undefined,
       },
       event,
       ctx,
@@ -95,7 +103,6 @@ describe('stack: pre-shaped response', () => {
       }),
       {
         eventSchema: z.object({}),
-        responseSchema: undefined,
       },
       event,
       ctx,
@@ -109,5 +116,61 @@ describe('stack: pre-shaped response', () => {
         .includes('application/json'),
     ).toBe(true);
     expect(result.body).toBe('raw');
+  });
+});
+describe('stack: error responses', () => {
+  it('returns JSON body with statusCode and message for http-errors', async () => {
+    const event = createApiGatewayV1Event('GET', {
+      Accept: 'application/json',
+    });
+    const ctx = createLambdaContext();
+
+    const result = await run(
+      async () => {
+        throw createHttpError.NotFound('user not found');
+      },
+      {
+        eventSchema: z.object({}),
+      },
+      event,
+      ctx,
+    );
+
+    expect(result.statusCode).toBe(404);
+    const contentType =
+      result.headers['Content-Type'] ?? result.headers['content-type'] ?? '';
+    expect(contentType.toLowerCase()).toMatch(/application\/json/);
+    const body: unknown =
+      typeof result.body === 'string' ? JSON.parse(result.body) : result.body;
+    expect(body).toEqual({ statusCode: 404, message: 'user not found' });
+  });
+
+  it('defaults to 500 and Internal Server Error for untagged errors', async () => {
+    const event = createApiGatewayV1Event('GET', {
+      Accept: 'application/json',
+    });
+    const ctx = createLambdaContext();
+
+    const result = await run(
+      async () => {
+        throw new Error('');
+      },
+      {
+        eventSchema: z.object({}),
+      },
+      event,
+      ctx,
+    );
+
+    expect(result.statusCode).toBe(500);
+    const contentType =
+      result.headers['Content-Type'] ?? result.headers['content-type'] ?? '';
+    expect(contentType.toLowerCase()).toMatch(/application\/json/);
+    const body: unknown =
+      typeof result.body === 'string' ? JSON.parse(result.body) : result.body;
+    expect(body).toEqual({
+      statusCode: 500,
+      message: 'Internal Server Error',
+    });
   });
 });
