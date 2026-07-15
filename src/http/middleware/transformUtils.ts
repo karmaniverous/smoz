@@ -23,6 +23,8 @@ export type StepId =
   | 'zod-after'
   | 'error-expose'
   | 'error-handler'
+  | 'error-cors'
+  | 'error-shape'
   | 'cors'
   | 'preferred-media'
   | 'shape'

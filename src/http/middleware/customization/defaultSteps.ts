@@ -15,6 +15,11 @@ import { tagStep } from '@/src/http/middleware/transformUtils';
 import { wrapSerializer } from '@/src/http/middleware/wrapSerializer';
 import type { ConsoleLogger } from '@/src/types/Loggable';
 
+import {
+  makeOnErrorCors,
+  makeOnErrorShape,
+  shapeResponse,
+} from './responseShaping';
 import type { ApiMiddleware, HttpStackOptions, Zodish } from './types';
 
 type M = ApiMiddleware;
@@ -245,37 +250,8 @@ export const makeShapeAndContentType = (contentType: string): M =>
     {
       after: (request) => {
         const container = request as unknown as { response?: unknown };
-        const current = container.response;
-        if (current === undefined) return;
-        const looksShaped =
-          typeof current === 'object' &&
-          current !== null &&
-          'statusCode' in (current as Record<string, unknown>) &&
-          'headers' in (current as Record<string, unknown>) &&
-          'body' in (current as Record<string, unknown>);
-        let res: {
-          statusCode: number;
-          headers?: Record<string, string>;
-          body?: unknown;
-        };
-        if (looksShaped)
-          res = current as {
-            statusCode: number;
-            headers?: Record<string, string>;
-            body?: unknown;
-          };
-        else res = { statusCode: 200, headers: {}, body: current };
-        if (res.body !== undefined && typeof res.body !== 'string') {
-          try {
-            res.body = JSON.stringify(res.body);
-          } catch {
-            res.body = String(res.body);
-          }
-        }
-        const headers = res.headers ?? {};
-        headers['Content-Type'] = contentType;
-        res.headers = headers;
-        (request as unknown as { response: typeof res }).response = res;
+        if (container.response === undefined) return;
+        container.response = shapeResponse(container.response, contentType);
       },
     },
     'shape',
@@ -334,7 +310,15 @@ export const buildDefaultPhases = (args: {
     makeShapeAndContentType(contentType),
     makeSerializer(contentType, opts),
   ];
-  const onError: M[] = [makeErrorExpose(logger), makeErrorHandler(opts)];
+  const onError: M[] = [
+    makeErrorExpose(logger),
+    makeErrorHandler(opts),
+    // Post-error-handler processing: middy v6+ does not re-run the after
+    // chain after onError, so CORS and response shaping must happen here.
+    // Shape first so CORS can mutate a well-formed headers object.
+    makeOnErrorShape(contentType),
+    makeOnErrorCors(opts),
+  ];
   return { before, after, onError };
 };
 
