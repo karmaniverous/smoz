@@ -92,14 +92,12 @@ export const createRegistry = <
 
       const brandedConfig = {
         functionName: options.functionName,
-        eventType: options.eventType as string,
+        eventType: options.eventType,
         ...(options.method ? { method: options.method } : {}),
         ...(options.basePath ? { basePath: options.basePath } : {}),
         ...(options.httpContexts ? { httpContexts: options.httpContexts } : {}),
         ...(options.contentType ? { contentType: options.contentType } : {}),
-        ...(mergedFnEnvKeys.length
-          ? { fnEnvKeys: mergedFnEnvKeys as readonly PropertyKey[] }
-          : {}),
+        ...(mergedFnEnvKeys.length ? { fnEnvKeys: mergedFnEnvKeys } : {}),
         ...(options.eventSchema ? { eventSchema: options.eventSchema } : {}),
         ...(options.responseSchema
           ? { responseSchema: options.responseSchema }
@@ -107,22 +105,17 @@ export const createRegistry = <
         [ENV_CONFIG]: {
           global: deps.env.global,
           stage: deps.env.stage,
-        } as {
-          global: EnvSchemaNode<GlobalParamsSchema>;
-          stage: EnvSchemaNode<StageParamsSchema>;
         },
       } as Record<string, unknown>;
 
       map.set(key, {
         functionName: options.functionName,
-        eventType: options.eventType as string,
+        eventType: options.eventType,
         ...(options.method ? { method: options.method } : {}),
         ...(options.basePath ? { basePath: options.basePath } : {}),
         ...(options.httpContexts ? { httpContexts: options.httpContexts } : {}),
         ...(options.contentType ? { contentType: options.contentType } : {}),
-        ...(mergedFnEnvKeys.length
-          ? { fnEnvKeys: mergedFnEnvKeys as readonly PropertyKey[] }
-          : {}),
+        ...(mergedFnEnvKeys.length ? { fnEnvKeys: mergedFnEnvKeys } : {}),
         ...(options.eventSchema ? { eventSchema: options.eventSchema } : {}),
         ...(options.responseSchema
           ? { responseSchema: options.responseSchema }

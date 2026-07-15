@@ -136,7 +136,7 @@ export interface AppInit<
 
     // Validate that eventTypeMapSchema includes base keys at runtime
     validateEventTypeMapSchemaIncludesBase(
-      (this.eventTypeMapSchema as ZodObj).shape as Record<string, unknown>,
+      (this.eventTypeMapSchema as ZodObj).shape,
     );
 
     // Env exposure nodes

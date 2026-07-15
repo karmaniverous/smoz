@@ -1,11 +1,12 @@
 /**
  * SMOZ CLI — plugin-first host built on get-dotenv.
  *
- * - Build a GetDotenvCli host, install included plugins (cmd/batch/aws),
- *   and install the SMOZ command plugin (init/add/register/openapi/dev).
- * - Resolve dotenv context once, then parse argv.
+ * - Create the supported GetDotenv CLI runner so root options, resolution hooks,
+ *   and plugin installation stay aligned with the get-dotenv host API.
+ * - Install included plugins (cmd/batch/aws) and the SMOZ command plugin
+ *   (init/add/register/openapi/dev).
  */
-import { GetDotenvCli } from '@karmaniverous/get-dotenv/cliHost';
+import { createCli } from '@karmaniverous/get-dotenv/cli';
 import {
   awsPlugin,
   batchPlugin,
@@ -14,28 +15,25 @@ import {
 
 import { smozPlugin } from '@/src/cli/plugins/smoz';
 
-const main = async (): Promise<void> => {
-  const cli = new GetDotenvCli('smoz');
+const main = createCli({
+  alias: 'smoz',
+  compose: (cli) => {
+    const setupResult = smozPlugin().setup(cli);
 
-  await cli.brand({
-    importMetaUrl: import.meta.url,
-    description: 'SMOZ CLI',
-  });
+    if (setupResult !== undefined) {
+      throw new Error('smozPlugin root setup must remain synchronous.');
+    }
 
-  cli
-    .attachRootOptions()
-    .use(smozPlugin())
-    .use(awsPlugin())
-    .use(
-      cmdPlugin({
-        asDefault: true,
-        optionAlias: '-c, --cmd <command...>',
-      }),
-    )
-    .use(batchPlugin())
-    .passOptions();
-
-  await cli.parseAsync();
-};
+    return cli
+      .use(awsPlugin())
+      .use(
+        cmdPlugin({
+          asDefault: true,
+          optionAlias: '-c, --cmd <command...>',
+        }),
+      )
+      .use(batchPlugin());
+  },
+});
 
 void main();

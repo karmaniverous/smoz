@@ -24,7 +24,7 @@ import type { ApiMiddleware, HttpStackOptions, Zodish } from './types';
 
 type M = ApiMiddleware;
 
-export const makeHead = (): M => tagStep(shortCircuitHead as M, 'head');
+export const makeHead = (): M => tagStep(shortCircuitHead, 'head');
 
 export const makeHeaderNormalizer = (opts?: HttpStackOptions): M =>
   tagStep(
@@ -268,7 +268,7 @@ export const makeSerializer = (
           {
             regex: /^application\/(?:[a-z0-9.+-]*\+)?json$/i,
             serializer: wrapSerializer(
-              ({ body }) =>
+              ({ body }: { body?: unknown }) =>
                 typeof body === 'string'
                   ? body
                   : (opts?.serializer?.json?.stringify ?? JSON.stringify)(body),

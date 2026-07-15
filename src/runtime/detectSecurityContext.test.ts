@@ -33,7 +33,7 @@ const createV2WithAuthorizer = (
     ...base,
     ...overrides,
     requestContext: ctx,
-  } as APIGatewayProxyEventV2;
+  };
 };
 
 describe('isV1', () => {
@@ -59,7 +59,7 @@ describe('detectSecurityContext', () => {
       ...base.requestContext,
       identity,
       // truthy object indicates an authenticated request
-      authorizer: {} as APIGatewayProxyEvent['requestContext']['authorizer'],
+      authorizer: {},
     };
 
     const v1: APIGatewayProxyEvent = { ...base, requestContext };
@@ -134,7 +134,7 @@ describe('detectSecurityContext', () => {
       accessKey: 'AKIA...',
       apiKey: null,
       apiKeyId: null,
-    } as unknown as APIGatewayProxyEvent['requestContext']['identity'];
+    };
     const requestContext: APIGatewayProxyEvent['requestContext'] = {
       ...base.requestContext,
       identity,

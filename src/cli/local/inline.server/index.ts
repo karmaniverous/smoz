@@ -61,7 +61,7 @@ const start = async (): Promise<void> => {
           done: () => undefined,
           fail: () => undefined,
           succeed: () => undefined,
-        } as never);
+        });
         writeResult(res, result);
       } catch (e) {
         res.statusCode = 500;

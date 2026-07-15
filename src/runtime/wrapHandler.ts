@@ -92,9 +92,9 @@ export function wrapHandler<
   return async (event: unknown, context: Context) => {
     // Compose typed env schema and parse process.env
     const all = deriveAllKeys(
-      envConfig.global.envKeys as readonly PropertyKey[],
-      envConfig.stage.envKeys as readonly PropertyKey[],
-      (functionConfig.fnEnvKeys ?? []) as readonly PropertyKey[],
+      envConfig.global.envKeys,
+      envConfig.stage.envKeys,
+      functionConfig.fnEnvKeys ?? [],
     );
     const { globalPick, stagePick } = splitKeysBySchema(
       all,
@@ -114,9 +114,7 @@ export function wrapHandler<
     const logger = console;
 
     // Non-HTTP: call business directly
-    const httpTokens =
-      opts?.httpEventTypeTokens ??
-      (defaultHttpEventTypeTokens as readonly string[]);
+    const httpTokens = opts?.httpEventTypeTokens ?? defaultHttpEventTypeTokens;
     const isHttp = httpTokens.includes(
       functionConfig.eventType as unknown as string,
     );
@@ -152,7 +150,7 @@ export function wrapHandler<
         ? { contentType: maybeContentType }
         : {}),
       ...(opts?.httpConfig ? { app: opts.httpConfig } : {}),
-      ...(fnHttp ? { fn: fnHttp as FunctionHttpConfig } : {}),
+      ...(fnHttp ? { fn: fnHttp } : {}),
     };
     const http = computeHttpMiddleware(args);
 

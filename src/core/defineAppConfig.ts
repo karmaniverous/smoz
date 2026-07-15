@@ -15,8 +15,9 @@ export interface EnvKeysNode<Schema extends ZodObject<ZodRawShape>> {
   envKeys: readonly (keyof z.infer<Schema>)[];
 }
 /** For wrapper input: schema + envKeys. */
-export interface EnvSchemaNode<Schema extends ZodObject<ZodRawShape>>
-  extends EnvKeysNode<Schema> {
+export interface EnvSchemaNode<
+  Schema extends ZodObject<ZodRawShape>,
+> extends EnvKeysNode<Schema> {
   paramsSchema: Schema;
 }
 /** Wrapper input: no glue; both global and stage sides. */

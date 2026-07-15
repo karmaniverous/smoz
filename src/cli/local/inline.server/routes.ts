@@ -82,8 +82,7 @@ export const loadHandlers = async (
     if (typeof handler !== 'function') continue;
 
     for (const evt of def.events) {
-      const httpEvt = (evt as { http?: { method?: string; path?: string } })
-        .http;
+      const httpEvt = evt.http;
       const method = (httpEvt?.method ?? '').toUpperCase();
       const pattern = '/' + (httpEvt?.path ?? '').replace(/^\/+/, '');
       if (!method || !pattern) continue;

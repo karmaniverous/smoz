@@ -82,7 +82,7 @@ describe('serverless/buildServerlessFunctions', () => {
         serverlessExtras: extraEvent,
         callerModuleUrl: fileUrl.href,
         endpointsRootAbs: endpointsRoot,
-      } as unknown as RegEntry,
+      },
     ];
     const out = buildAllServerlessFunctions(reg, serverlessCfg, buildFnEnv);
     expect(out).toHaveProperty('tick');

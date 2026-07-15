@@ -14,7 +14,7 @@ import {
 
 type M = MiddlewareObj<APIGatewayProxyEvent, Context>;
 
-const mk = (id: Parameters<typeof tagStep>[1]): M => tagStep({} as M, id);
+const mk = (id: Parameters<typeof tagStep>[1]): M => tagStep({}, id);
 
 describe('transformUtils helpers', () => {
   it('getId, findIndex work on tagged steps', () => {

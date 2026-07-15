@@ -94,7 +94,7 @@ export const makeOnErrorCors = (opts?: HttpStackOptions): M => {
     {
       onError: async (request) => {
         if ((request as { response?: unknown }).response === undefined) return;
-        if (cors.after) await cors.after(request as never);
+        if (cors.after) await cors.after(request);
       },
     },
     'error-cors',

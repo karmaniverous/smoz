@@ -13,9 +13,7 @@ describe('httpZodValidator (unit)', () => {
       eventSchema: z.object({ a: z.string() }),
     });
     await expect(
-      mw.before?.(
-        mkReq({ httpMethod: 'GET' } as Partial<APIGatewayProxyEvent>) as never,
-      ),
+      mw.before?.(mkReq({ httpMethod: 'GET' }) as never),
     ).rejects.toMatchObject({ name: 'ZodError', message: 'Invalid event' });
   });
 
