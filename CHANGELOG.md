@@ -2,12 +2,20 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.13](https://github.com/karmaniverous/smoz/compare/0.2.12...0.2.13)
+
+- fix: correct error response shaping and CORS on error path [`#8`](https://github.com/karmaniverous/smoz/pull/8)
+- refactor: address copilot review — extract helpers, tighten guards, fix ordering [`ca96e84`](https://github.com/karmaniverous/smoz/commit/ca96e8457a431dadb1d97d755dca6bd1c1184359)
+
 #### [0.2.12](https://github.com/karmaniverous/smoz/compare/0.2.11...0.2.12)
+
+> 14 July 2026
 
 - feat: remove legacy middleware path, JSON-encode error responses [`#7`](https://github.com/karmaniverous/smoz/pull/7)
 - fix: sync package-lock.json for npm ci (#6) [`feefa22`](https://github.com/karmaniverous/smoz/commit/feefa2231a78040a7aa820d6bd090f36494163a0)
 - feat: remove legacy middleware path, JSON-encode error responses (#6) [`9dd8ca6`](https://github.com/karmaniverous/smoz/commit/9dd8ca60a1632c497e052473e7f7d653de070f5b)
 - test: add error response tests, fix double-encoding, derive test types (#6) [`1f6519f`](https://github.com/karmaniverous/smoz/commit/1f6519f66e18aa9cae1d5c6394b1290d1396e9dc)
+- chore: release v0.2.12 [`79f0b76`](https://github.com/karmaniverous/smoz/commit/79f0b7616da7956fe3daddfdafe2d6d4cca113ab)
 - chore: trigger CI re-run [`0f106f5`](https://github.com/karmaniverous/smoz/commit/0f106f59dd281a1fd5f371d5ba70be3cc8b4d365)
 
 #### [0.2.11](https://github.com/karmaniverous/smoz/compare/0.2.10...0.2.11)
