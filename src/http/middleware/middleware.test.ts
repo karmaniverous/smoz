@@ -118,6 +118,70 @@ describe('stack: pre-shaped response', () => {
     expect(result.body).toBe('raw');
   });
 });
+describe('stack: shaped response without body', () => {
+  it('preserves statusCode when body is missing', async () => {
+    const event = createApiGatewayV1Event('GET', {
+      Accept: 'application/json',
+    });
+    const ctx = createLambdaContext();
+
+    const result = await run(
+      async () => ({ statusCode: 500, headers: { 'X-Error': 'true' } }),
+      { eventSchema: z.object({}) },
+      event,
+      ctx,
+    );
+
+    expect(result.statusCode).toBe(500);
+    expect(result.headers['X-Error'] ?? result.headers['x-error']).toBe('true');
+    expect(result.body).toBe('');
+  });
+
+  it('preserves statusCode when headers and body are both missing', async () => {
+    const event = createApiGatewayV1Event('GET', {
+      Accept: 'application/json',
+    });
+    const ctx = createLambdaContext();
+
+    const result = await run(
+      async () => ({ statusCode: 204 }),
+      { eventSchema: z.object({}) },
+      event,
+      ctx,
+    );
+
+    expect(result.statusCode).toBe(204);
+    expect(result.body).toBe('');
+  });
+});
+describe('stack: error response CORS', () => {
+  it('includes CORS headers on thrown error responses', async () => {
+    const event = createApiGatewayV1Event('GET', {
+      Accept: 'application/json',
+      Origin: 'https://example.com',
+    });
+    const ctx = createLambdaContext();
+
+    const result = await run(
+      async () => {
+        throw createHttpError.BadRequest('bad input');
+      },
+      { eventSchema: z.object({}) },
+      event,
+      ctx,
+    );
+
+    expect(result.statusCode).toBe(400);
+    expect(
+      result.headers['Access-Control-Allow-Credentials'] ??
+        result.headers['access-control-allow-credentials'],
+    ).toBe('true');
+    expect(
+      result.headers['Access-Control-Allow-Origin'] ??
+        result.headers['access-control-allow-origin'],
+    ).toBe('https://example.com');
+  });
+});
 describe('stack: error responses', () => {
   it('returns JSON body with statusCode and message for http-errors', async () => {
     const event = createApiGatewayV1Event('GET', {

@@ -240,42 +240,66 @@ export const makeCors = (opts?: HttpStackOptions): M =>
     'cors',
   );
 
+/**
+ * Detect a shaped Lambda Proxy response.
+ *
+ * A response is "shaped" when it has a `statusCode` property — the
+ * definitive marker of an API-Gateway-style response envelope.  Missing
+ * `headers` or `body` are defaulted rather than treated as "unshaped",
+ * because `{ statusCode, headers }` (no body) is a valid Lambda response.
+ */
+const isShapedResponse = (
+  v: unknown,
+): v is {
+  statusCode: number;
+  headers?: Record<string, string>;
+  body?: unknown;
+} =>
+  typeof v === 'object' &&
+  v !== null &&
+  'statusCode' in (v as Record<string, unknown>);
+
+/** Shape the response into a well-formed Lambda Proxy result. */
+const shapeResponse = (
+  current: unknown,
+  contentType: string,
+): { statusCode: number; headers: Record<string, string>; body: unknown } => {
+  let res: {
+    statusCode: number;
+    headers?: Record<string, string>;
+    body?: unknown;
+  };
+  if (isShapedResponse(current)) {
+    res = current;
+  } else {
+    res = { statusCode: 200, headers: {}, body: current };
+  }
+  // Default missing fields for shaped responses without body/headers.
+  if (res.body === undefined) res.body = '';
+  if (res.body !== undefined && typeof res.body !== 'string') {
+    try {
+      res.body = JSON.stringify(res.body);
+    } catch {
+      res.body = String(res.body);
+    }
+  }
+  const headers = res.headers ?? {};
+  if (!headers['Content-Type']) headers['Content-Type'] = contentType;
+  res.headers = headers;
+  return res as {
+    statusCode: number;
+    headers: Record<string, string>;
+    body: unknown;
+  };
+};
+
 export const makeShapeAndContentType = (contentType: string): M =>
   tagStep(
     {
       after: (request) => {
         const container = request as unknown as { response?: unknown };
-        const current = container.response;
-        if (current === undefined) return;
-        const looksShaped =
-          typeof current === 'object' &&
-          current !== null &&
-          'statusCode' in (current as Record<string, unknown>) &&
-          'headers' in (current as Record<string, unknown>) &&
-          'body' in (current as Record<string, unknown>);
-        let res: {
-          statusCode: number;
-          headers?: Record<string, string>;
-          body?: unknown;
-        };
-        if (looksShaped)
-          res = current as {
-            statusCode: number;
-            headers?: Record<string, string>;
-            body?: unknown;
-          };
-        else res = { statusCode: 200, headers: {}, body: current };
-        if (res.body !== undefined && typeof res.body !== 'string') {
-          try {
-            res.body = JSON.stringify(res.body);
-          } catch {
-            res.body = String(res.body);
-          }
-        }
-        const headers = res.headers ?? {};
-        headers['Content-Type'] = contentType;
-        res.headers = headers;
-        (request as unknown as { response: typeof res }).response = res;
+        if (container.response === undefined) return;
+        container.response = shapeResponse(container.response, contentType);
       },
     },
     'shape',
@@ -309,6 +333,50 @@ export const makeSerializer = (
     'serializer',
   );
 
+/**
+ * Apply CORS headers to error responses.
+ *
+ * middy v6+ does not re-run the `after` chain after `onError` handles an
+ * error, so the regular CORS `after` hook never fires for error responses.
+ * This dedicated `onError` step runs *after* the error handler has set
+ * `request.response`, ensuring CORS headers are present on error responses.
+ */
+export const makeOnErrorCors = (opts?: HttpStackOptions): M => {
+  const cors = httpCors({
+    credentials: true,
+    getOrigin: (o: string) => o,
+    ...(opts?.cors ?? {}),
+  });
+  return tagStep(
+    {
+      onError: async (request) => {
+        if ((request as { response?: unknown }).response === undefined) return;
+        if (cors.after) await cors.after(request as never);
+      },
+    },
+    'error-cors',
+  );
+};
+
+/**
+ * Shape error responses into well-formed Lambda Proxy results.
+ *
+ * Mirrors `makeShapeAndContentType` but runs on the `onError` path,
+ * ensuring error responses have proper `statusCode`, `headers`, and
+ * `body` structure even when the `after` chain is skipped.
+ */
+export const makeOnErrorShape = (contentType: string): M =>
+  tagStep(
+    {
+      onError: (request) => {
+        const container = request as unknown as { response?: unknown };
+        if (container.response === undefined) return;
+        container.response = shapeResponse(container.response, contentType);
+      },
+    },
+    'error-shape',
+  );
+
 export const buildDefaultPhases = (args: {
   contentType: string;
   logger: ConsoleLogger;
@@ -334,7 +402,14 @@ export const buildDefaultPhases = (args: {
     makeShapeAndContentType(contentType),
     makeSerializer(contentType, opts),
   ];
-  const onError: M[] = [makeErrorExpose(logger), makeErrorHandler(opts)];
+  const onError: M[] = [
+    makeErrorExpose(logger),
+    makeErrorHandler(opts),
+    // Post-error-handler processing: middy v6+ does not re-run the after
+    // chain after onError, so CORS and response shaping must happen here.
+    makeOnErrorCors(opts),
+    makeOnErrorShape(contentType),
+  ];
   return { before, after, onError };
 };
 
