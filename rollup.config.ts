@@ -163,8 +163,8 @@ export const buildCli = (
 ): RollupOptions => ({
   input: 'src/cli/index.ts',
   output: {
-    file: `${dest}/cli/index.cjs`,
-    format: 'cjs',
+    file: `${dest}/cli/index.mjs`,
+    format: 'esm',
     banner: '#!/usr/bin/env node',
     sourcemap: false,
   },

@@ -7,7 +7,7 @@
     "hideCredit": true
   },
   "bin": {
-    "smoz": "dist/cli/index.cjs"
+    "smoz": "dist/cli/index.mjs"
   },
   "bugs": {
     "url": "https://github.com/karmaniverous/smoz/issues"
