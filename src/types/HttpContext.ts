@@ -2,4 +2,5 @@
 /**
  * HTTP security context tokens.
  */
-export type HttpContext = 'my' | 'private' | 'public';
+export const httpContexts = ['my', 'private', 'public'] as const;
+export type HttpContext = (typeof httpContexts)[number];

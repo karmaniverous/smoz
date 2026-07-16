@@ -1,4 +1,4 @@
-import type { HttpContext } from '@/src/types/HttpContext';
+import { type HttpContext, httpContexts } from '@/src/types/HttpContext';
 
 export const splitPath = (basePath: string): string[] =>
   basePath.split('/').filter(Boolean);
@@ -21,3 +21,17 @@ export const buildPathElements = (
 
 export const sanitizeBasePath = (p: string): string =>
   p.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+
+/**
+ * Infer the security context from a path that was built by
+ * `buildPathElements`. Non-public contexts appear as the first
+ * path segment; public paths have no context prefix.
+ */
+export const inferContextFromPath = (path: string): HttpContext => {
+  const firstSeg = splitPath(sanitizeBasePath(path))[0];
+  return firstSeg !== undefined &&
+    (httpContexts as readonly string[]).includes(firstSeg) &&
+    firstSeg !== 'public'
+    ? (firstSeg as HttpContext)
+    : 'public';
+};

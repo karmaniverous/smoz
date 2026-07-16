@@ -56,10 +56,13 @@ export {
 export type { MethodKey } from './types/FunctionConfig';
 export type { Handler } from './types/Handler';
 export type { HandlerOptions, ShapedEvent } from './types/Handler';
-export type { HttpContext } from './types/HttpContext';
+export { type HttpContext, httpContexts } from './types/HttpContext';
 export type { LambdaEvent } from './types/LambdaEvent';
 export type { ConsoleLogger } from './types/Loggable';
 export type { SecurityContextHttpEventMap } from './types/SecurityContextHttpEventMap';
+
+// Path utilities (context ↔ path mapping)
+export { buildPathElements, inferContextFromPath } from './http/buildPath';
 
 // Note: internal helpers (asApiMiddleware, httpZodValidator, shortCircuitHead,
 // envBuilder functions, stagesFactory, etc.) are intentionally not re-exported
