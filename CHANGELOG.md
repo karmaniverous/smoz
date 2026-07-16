@@ -2,10 +2,18 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.14](https://github.com/karmaniverous/smoz/compare/0.2.13...0.2.14)
+
+- chore: update dependencies [`#9`](https://github.com/karmaniverous/smoz/pull/9)
+- ni [`c640f90`](https://github.com/karmaniverous/smoz/commit/c640f90527775133935f7d3b6876a84ca7ec2c9d)
+
 #### [0.2.13](https://github.com/karmaniverous/smoz/compare/0.2.12...0.2.13)
+
+> 15 July 2026
 
 - fix: correct error response shaping and CORS on error path [`#8`](https://github.com/karmaniverous/smoz/pull/8)
 - refactor: address copilot review — extract helpers, tighten guards, fix ordering [`ca96e84`](https://github.com/karmaniverous/smoz/commit/ca96e8457a431dadb1d97d755dca6bd1c1184359)
+- chore: release v0.2.13 [`03a2153`](https://github.com/karmaniverous/smoz/commit/03a2153b820018aa2638dfde601244d2396dd98f)
 
 #### [0.2.12](https://github.com/karmaniverous/smoz/compare/0.2.11...0.2.12)
 
