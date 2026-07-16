@@ -3,6 +3,8 @@ import { URL } from 'node:url';
 
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
+import type { HttpContext } from '@/src/types/HttpContext';
+
 import type { Route, Segment } from './routes';
 
 const firstVal = (v: string | string[] | undefined): string | undefined =>
@@ -60,6 +62,48 @@ export const match = (
   return { ok: true, params };
 };
 
+/**
+ * Decode JWT payload without signature validation (local dev only).
+ * Returns the parsed claims object, or an empty object on failure.
+ */
+const decodeJwtClaims = (token: string): Record<string, unknown> => {
+  try {
+    const parts = token.replace(/^Bearer\s+/i, '').split('.');
+    if (parts.length < 2) return {};
+    const payload = Buffer.from(parts[1]!, 'base64url').toString('utf8');
+    const parsed: unknown = JSON.parse(payload);
+    return typeof parsed === 'object' && parsed !== null
+      ? (parsed as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
+};
+
+/**
+ * Build a local-dev authorizer that makes `detectSecurityContext`
+ * return the correct context for the route.
+ *
+ * Only populates the authorizer when the client actually sends
+ * credentials, so `detectSecurityContext` reflects reality:
+ * - `my` route + JWT in Authorization header → decoded claims.
+ * - `private` route → no authorizer; the forwarded `x-api-key`
+ *   header is enough for `detectSecurityContext`.
+ * - No credentials → empty authorizer → `public`.
+ */
+const buildLocalAuthorizer = (
+  context: HttpContext,
+  authHeader: string | undefined,
+): Record<string, unknown> | undefined => {
+  if (context === 'my' && authHeader) {
+    const claims = decodeJwtClaims(authHeader);
+    if (Object.keys(claims).length > 0) return { claims };
+  }
+  // Return undefined so detectSecurityContext sees no authorizer,
+  // rather than {} which it treats as truthy.
+  return undefined;
+};
+
 export const toEvent = async (
   req: http.IncomingMessage,
   route: Route,
@@ -111,7 +155,7 @@ export const toEvent = async (
       requestTimeEpoch: Date.now(),
       resourceId: 'res',
       resourcePath: route.pattern,
-      authorizer: {},
+      authorizer: buildLocalAuthorizer(route.context, single['authorization']),
       protocol: 'HTTP/1.1',
     } as unknown,
   } as unknown as APIGatewayProxyEvent;

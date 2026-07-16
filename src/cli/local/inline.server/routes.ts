@@ -7,6 +7,9 @@ import type {
   Context,
 } from 'aws-lambda';
 
+import { inferContextFromPath } from '@/src/http/buildPath';
+import type { HttpContext } from '@/src/types/HttpContext';
+
 import type { AppLike } from './loaders';
 
 export type Segment = {
@@ -20,6 +23,8 @@ export type Route = {
   segs: Segment[];
   /** module.export (from handler string) */
   handlerRef: string;
+  /** HTTP security context */
+  context: HttpContext;
   handler: (
     e: APIGatewayProxyEvent,
     c: Context,
@@ -87,11 +92,14 @@ export const loadHandlers = async (
       const pattern = '/' + (httpEvt?.path ?? '').replace(/^\/+/, '');
       if (!method || !pattern) continue;
 
+      const context: HttpContext = inferContextFromPath(pattern);
+
       routes.push({
         method,
         pattern,
         segs: splitPattern(pattern),
         handlerRef: `${moduleRel}.${exportName}`,
+        context,
         handler: handler as Route['handler'],
       });
     }

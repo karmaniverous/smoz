@@ -10,9 +10,11 @@ import type { AWS } from '@serverless/typescript';
 import { packageDirectorySync } from 'package-directory';
 
 import type { BaseEventTypeMap } from '@/src/core/baseEventTypeMapSchema';
+import { buildPathElements } from '@/src/http/buildPath';
 import { resolveHttpFromFunctionConfig } from '@/src/http/resolveHttpFromFunctionConfig';
 import type { MethodKey } from '@/src/types/FunctionConfig';
 import type { HttpContext } from '@/src/types/HttpContext';
+import type { SecurityContextHttpEventMap } from '@/src/types/SecurityContextHttpEventMap';
 
 export type RegEntry = {
   functionName: string;
@@ -28,6 +30,7 @@ export type RegEntry = {
 };
 
 export type ServerlessConfigLike = {
+  httpContextEventMap: SecurityContextHttpEventMap;
   defaultHandlerFileName: string;
   defaultHandlerFileExport: string;
 };
@@ -61,11 +64,18 @@ export const buildAllServerlessFunctions = (
         r.callerModuleUrl,
         r.endpointsRootAbs,
       );
-      const path = `/${basePath.replace(/^\/+/, '')}`;
       const ctxs = contexts.length > 0 ? contexts : (['public'] as const);
-      events = ctxs.map(() => ({
-        http: { method, path },
-      }));
+      events = ctxs.map((ctx) => {
+        const elems = buildPathElements(basePath, ctx);
+        const ctxPath = `/${elems.join('/')}`;
+        const ctxEventProps = serverless.httpContextEventMap[ctx] as Record<
+          string,
+          unknown
+        >;
+        return {
+          http: { method, path: ctxPath, ...ctxEventProps },
+        };
+      });
     } catch {
       events = r.serverlessExtras ?? [];
     }

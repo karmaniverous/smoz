@@ -8,6 +8,11 @@ import {
 
 describe('serverless/buildServerlessFunctions', () => {
   const serverlessCfg: ServerlessConfigLike = {
+    httpContextEventMap: {
+      my: { authorizer: { claims: [] } },
+      private: { private: true, authorizer: {} },
+      public: {},
+    },
     defaultHandlerFileName: 'handler',
     defaultHandlerFileExport: 'handler',
   };
@@ -54,13 +59,54 @@ describe('serverless/buildServerlessFunctions', () => {
     };
     expect(fn.events.length).toBe(2);
     const paths = fn.events.map((e) => e.http.path).sort();
-    expect(paths).toEqual(['/users', '/users']);
+    expect(paths).toEqual(['/private/users', '/users']);
+    // Verify httpContextEventMap properties were spread into events
+    const publicEvt = fn.events.find((e) => e.http.path === '/users')!;
+    const privateEvt = fn.events.find((e) => e.http.path === '/private/users')!;
+    expect((privateEvt.http as Record<string, unknown>)['private']).toBe(true);
+    expect(publicEvt.http).not.toHaveProperty('private');
     expect(fn.environment).toEqual({
       PROFILE: '${param:PROFILE}',
       DOMAIN_NAME: '${param:DOMAIN_NAME}',
     });
     expect(typeof fn.handler).toBe('string');
     expect(fn.handler.endsWith('.handler')).toBe(true);
+  });
+
+  it('emits my-context events with authorizer config and prefixed path', () => {
+    const fileUrl =
+      process.platform === 'win32'
+        ? new URL(
+            'file:///C:/tmp/sandbox/app/functions/rest/profile/get/lambda.ts',
+          )
+        : new URL(
+            'file:///tmp/sandbox/app/functions/rest/profile/get/lambda.ts',
+          );
+    const endpointsRoot =
+      process.platform === 'win32'
+        ? 'C:/tmp/sandbox/app/functions/rest'
+        : '/tmp/sandbox/app/functions/rest';
+
+    const reg: RegEntry[] = [
+      {
+        functionName: 'profile_get',
+        eventType: 'rest',
+        method: 'get',
+        basePath: 'profile',
+        httpContexts: ['my'],
+        contentType: 'application/json',
+        callerModuleUrl: fileUrl.href,
+        endpointsRootAbs: endpointsRoot,
+      },
+    ];
+    const out = buildAllServerlessFunctions(reg, serverlessCfg, buildFnEnv);
+    const fn = out.profile_get as unknown as {
+      events: Array<{ http: Record<string, unknown> }>;
+    };
+    expect(fn.events).toHaveLength(1);
+    const evt = fn.events[0]!;
+    expect(evt.http['path']).toBe('/my/profile');
+    expect(evt.http['authorizer']).toEqual({ claims: [] });
   });
 
   it('passes through non-HTTP serverless extras for non-HTTP entries', () => {
