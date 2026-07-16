@@ -2,8 +2,15 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.16](https://github.com/karmaniverous/smoz/compare/0.2.15...0.2.16)
+
+- fix: apply context prefixes and auth config in serverless builder [`#10`](https://github.com/karmaniverous/smoz/pull/10)
+
 #### [0.2.15](https://github.com/karmaniverous/smoz/compare/0.2.14...0.2.15)
 
+> 16 July 2026
+
+- chore: release v0.2.15 [`29df277`](https://github.com/karmaniverous/smoz/commit/29df27764206212d1cf63069b4b67bc46a964519)
 - fix: emit CLI as ESM to resolve CJS/ESM export mismatch with get-dotenv [`613e37a`](https://github.com/karmaniverous/smoz/commit/613e37a4278bb5e1ce3b7c752d909947d7f8f31d)
 
 #### [0.2.14](https://github.com/karmaniverous/smoz/compare/0.2.13...0.2.14)
