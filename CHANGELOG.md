@@ -2,10 +2,17 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.15](https://github.com/karmaniverous/smoz/compare/0.2.14...0.2.15)
+
+- fix: emit CLI as ESM to resolve CJS/ESM export mismatch with get-dotenv [`613e37a`](https://github.com/karmaniverous/smoz/commit/613e37a4278bb5e1ce3b7c752d909947d7f8f31d)
+
 #### [0.2.14](https://github.com/karmaniverous/smoz/compare/0.2.13...0.2.14)
+
+> 16 July 2026
 
 - chore: update dependencies [`#9`](https://github.com/karmaniverous/smoz/pull/9)
 - ni [`c640f90`](https://github.com/karmaniverous/smoz/commit/c640f90527775133935f7d3b6876a84ca7ec2c9d)
+- chore: release v0.2.14 [`f3727f1`](https://github.com/karmaniverous/smoz/commit/f3727f111441bb9c68da6a22aa6513b2b163d204)
 
 #### [0.2.13](https://github.com/karmaniverous/smoz/compare/0.2.12...0.2.13)
 
