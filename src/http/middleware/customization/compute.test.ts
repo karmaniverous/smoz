@@ -94,7 +94,7 @@ describe('computeHttpMiddleware: transform insertion', () => {
     };
     const transform: HttpTransform = ({ before, after, onError }) => ({
       before,
-      after: insertAfter(after, 'shape', mw as never),
+      after: insertAfter(after, 'shape', mw),
       onError,
     });
     const fn: FunctionHttpConfig = { transform };
@@ -106,9 +106,9 @@ describe('computeHttpMiddleware: transform insertion', () => {
 
 describe('computeHttpMiddleware: invariants validation', () => {
   it("throws when 'error-handler' is moved into before", () => {
-    const bad = tagStep({} as never, 'error-handler');
+    const bad = tagStep({}, 'error-handler');
     const transform: HttpTransform = ({ before, after, onError }) => ({
-      before: [...before, bad as never],
+      before: [...before, bad],
       after,
       onError,
     });
@@ -127,7 +127,7 @@ describe('computeHttpMiddleware: Zod enforcement', () => {
     const responseSchema = z.object({ ok: z.boolean() });
     const transform: HttpTransform = ({ before, after, onError }) => ({
       before,
-      after: removeStep(after, 'zod-after') as never,
+      after: removeStep(after, 'zod-after'),
       onError,
     });
     expect(() =>
@@ -147,12 +147,12 @@ describe('computeHttpMiddleware: Zod enforcement', () => {
         after: () => {
           // no-op validator; tag is what matters for enforcement
         },
-      } as never,
+      },
       'zod-after',
     );
     const transform: HttpTransform = ({ before, after, onError }) => ({
       before,
-      after: replaceStep(after, 'zod-after', custom as never),
+      after: replaceStep(after, 'zod-after', custom),
       onError,
     });
 

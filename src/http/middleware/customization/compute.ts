@@ -124,8 +124,7 @@ export const computeHttpMiddleware = (args: {
     phases,
     (
       app?.defaults as
-        | { extend?: { before?: M[]; after?: M[]; onError?: M[] } }
-        | undefined
+        { extend?: { before?: M[]; after?: M[]; onError?: M[] } } | undefined
     )?.extend,
   );
   applyExtend(phases, profile?.extend);

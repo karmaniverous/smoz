@@ -76,7 +76,7 @@ export const stagesFactory = <
   // Build Serverless 'params' structure
   const stagesOut = entries.reduce(
     (acc, [name, params]) => {
-      acc[name] = { params } as { params: StageParams };
+      acc[name] = { params };
       return acc;
     },
     { default: { params: globalParams } } as {

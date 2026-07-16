@@ -81,7 +81,7 @@ export const launchInline = async (
         SMOZ_STAGE: opts.stage,
         SMOZ_PORT: String(opts.port),
         SMOZ_VERBOSE: opts.verbose ? '1' : '',
-      } as Record<string, string | undefined>);
+      });
       return spawn(cmd, args, {
         cwd: root,
         stdio: 'inherit',

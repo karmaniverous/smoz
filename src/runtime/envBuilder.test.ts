@@ -121,7 +121,7 @@ describe('envBuilder helpers (using test stages fixture)', () => {
         DOMAIN_NAME: 'api.dev.example.test',
       });
 
-    expect(run).toThrowError();
+    expect(run).toThrow();
   });
   it('isHead detects HEAD and ignores others', () => {
     expect(isHead('HEAD')).toBe(true);

@@ -48,7 +48,7 @@ export const buildAllServerlessFunctions = (
       .join('/');
     const handler = `${handlerFileRel}.${serverless.defaultHandlerFileExport}`;
 
-    let events: unknown = [];
+    let events: unknown;
     try {
       const { method, basePath, contexts } = resolveHttpFromFunctionConfig(
         {

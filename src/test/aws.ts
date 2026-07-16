@@ -67,18 +67,17 @@ export const createApiGatewayV2Event = (
     },
   }) as unknown as APIGatewayProxyEventV2;
 
-export const createLambdaContext = (): Context =>
-  ({
-    awsRequestId: 'test-req-id',
-    callbackWaitsForEmptyEventLoop: false,
-    functionName: 'fn',
-    functionVersion: '$LATEST',
-    invokedFunctionArn: 'arn',
-    logGroupName: 'lg',
-    logStreamName: 'ls',
-    memoryLimitInMB: '128',
-    getRemainingTimeInMillis: () => 1000,
-    done: () => undefined,
-    fail: () => undefined,
-    succeed: () => undefined,
-  }) as unknown as Context;
+export const createLambdaContext = (): Context => ({
+  awsRequestId: 'test-req-id',
+  callbackWaitsForEmptyEventLoop: false,
+  functionName: 'fn',
+  functionVersion: '$LATEST',
+  invokedFunctionArn: 'arn',
+  logGroupName: 'lg',
+  logStreamName: 'ls',
+  memoryLimitInMB: '128',
+  getRemainingTimeInMillis: () => 1000,
+  done: () => undefined,
+  fail: () => undefined,
+  succeed: () => undefined,
+});

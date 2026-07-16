@@ -58,7 +58,7 @@ describe('wrapHandler (non-HTTP)', () => {
     });
     const ctx: Context = createLambdaContext();
     // Provide any shape; non-HTTP bypass ignores HTTP middleware expectations
-    const result = (await handler({} as never, ctx)) as unknown;
+    const result = (await handler({}, ctx)) as unknown;
     expect(typeof result).toBe('string');
     expect(result).toBe('ok');
   });

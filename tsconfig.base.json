@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "rootDir": ".",
     "emitDeclarationOnly": false,
@@ -16,11 +17,17 @@
     "strict": true,
     "stripInternal": true,
     "target": "esnext",
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "verbatimModuleSyntax": true,
     "paths": {
-      "@/*": ["*"],
-      "@karmaniverous/smoz": ["dist/index.d.ts"]
+      "@/*": [
+        "*"
+      ],
+      "@karmaniverous/smoz": [
+        "dist/index.d.ts"
+      ]
     }
   }
 }

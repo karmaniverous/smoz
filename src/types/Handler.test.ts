@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { createApiGatewayV1Event, createLambdaContext } from '@/src/test/aws';
-import type { ConsoleLogger } from '@/src/types/Loggable';
 
 import type { Handler, HandlerOptions, ShapedEvent } from './Handler';
 
@@ -50,7 +49,7 @@ describe('Handler type', () => {
             info: vi.fn(),
             error: vi.fn(),
             log: vi.fn(),
-          } as unknown as ConsoleLogger,
+          },
         },
       ),
     ).toEqual({ ok: true });

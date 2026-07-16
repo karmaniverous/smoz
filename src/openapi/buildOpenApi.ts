@@ -37,12 +37,6 @@ export const buildAllOpenApiPaths = (
         ...(r.method ? { method: r.method } : {}),
         ...(r.basePath ? { basePath: r.basePath } : {}),
         ...(r.httpContexts ? { httpContexts: r.httpContexts } : {}),
-      } as unknown as {
-        functionName: string;
-        eventType: keyof BaseEventTypeMap;
-        method?: MethodKey;
-        basePath?: string;
-        httpContexts?: readonly HttpContext[];
       },
       r.callerModuleUrl,
       r.endpointsRootAbs,
