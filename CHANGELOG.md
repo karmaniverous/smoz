@@ -2,9 +2,17 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.17](https://github.com/karmaniverous/smoz/compare/0.2.16...0.2.17)
+
+- feat: drop CJS output — ESM-only package [`#11`](https://github.com/karmaniverous/smoz/pull/11)
+- feat: drop CJS output, ESM-only package [`97dadef`](https://github.com/karmaniverous/smoz/commit/97dadefee890a0793d8bb45cf45d0158d332a1a5)
+
 #### [0.2.16](https://github.com/karmaniverous/smoz/compare/0.2.15...0.2.16)
 
+> 16 July 2026
+
 - fix: apply context prefixes and auth config in serverless builder [`#10`](https://github.com/karmaniverous/smoz/pull/10)
+- chore: release v0.2.16 [`8ced054`](https://github.com/karmaniverous/smoz/commit/8ced0547e77b47faeead0722908b3c61ce5f631e)
 
 #### [0.2.15](https://github.com/karmaniverous/smoz/compare/0.2.14...0.2.15)
 
