@@ -94,7 +94,6 @@ const commonInputOptions = (tsconfigPath?: string): InputOptions => ({
 });
 const outCommon = (dest: string): OutputOptions[] => [
   { dir: `${dest}/mjs`, format: 'esm', sourcemap: false },
-  { dir: `${dest}/cjs`, format: 'cjs', sourcemap: false },
 ];
 
 export const buildLibrary = (
@@ -154,8 +153,8 @@ export const buildInlineServer = (
   ...commonInputOptions(tsconfigPath),
 });
 /**
- * CLI build (CJS bin with shebang).
- * - Output: dist/cli/index.cjs
+ * CLI build (ESM bin with shebang).
+ * - Output: dist/cli/index.mjs
  * - Externalization: reuse commonInputOptions to keep built-ins/deps external. */
 export const buildCli = (
   dest: string,

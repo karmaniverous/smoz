@@ -79,15 +79,10 @@
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/mjs/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/cjs/index.js"
       }
     },
     "./serverless-plugin": {
-      "import": "./dist/mjs/serverless-plugin.js",
-      "require": "./dist/cjs/serverless-plugin.js"
+      "import": "./dist/mjs/serverless-plugin.js"
     },
     "./package.json": "./package.json"
   },
@@ -119,7 +114,6 @@
     "toolkit"
   ],
   "license": "BSD-3-Clause",
-  "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
   "name": "@karmaniverous/smoz",
   "publishConfig": {
