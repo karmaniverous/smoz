@@ -176,7 +176,7 @@
     "templates:lint": "eslint --fix -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\""
   },
   "type": "module",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "volta": {
     "node": "22.19.0"
   }

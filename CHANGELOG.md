@@ -2,9 +2,17 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.18](https://github.com/karmaniverous/smoz/compare/0.2.17...0.2.18)
+
+- fix: flatten exports map for bundler compatibility [`#12`](https://github.com/karmaniverous/smoz/pull/12)
+- fix: flatten exports map to expose top-level default condition [`c854d1c`](https://github.com/karmaniverous/smoz/commit/c854d1cb073cfc9937e738c7233c699ad24b033f)
+
 #### [0.2.17](https://github.com/karmaniverous/smoz/compare/0.2.16...0.2.17)
 
+> 27 July 2026
+
 - feat: drop CJS output — ESM-only package [`#11`](https://github.com/karmaniverous/smoz/pull/11)
+- chore: release v0.2.17 [`7e51633`](https://github.com/karmaniverous/smoz/commit/7e5163361bcdf26c8c76533580569f126924c99f)
 - feat: drop CJS output, ESM-only package [`97dadef`](https://github.com/karmaniverous/smoz/commit/97dadefee890a0793d8bb45cf45d0158d332a1a5)
 
 #### [0.2.16](https://github.com/karmaniverous/smoz/compare/0.2.15...0.2.16)
