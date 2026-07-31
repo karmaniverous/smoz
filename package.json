@@ -14,14 +14,6 @@
   },
   "dependencies": {
     "@karmaniverous/get-dotenv": "^7.0.11",
-    "@middy/core": "^7.7.0",
-    "@middy/http-content-negotiation": "^7.7.0",
-    "@middy/http-cors": "^7.7.0",
-    "@middy/http-error-handler": "^7.7.0",
-    "@middy/http-event-normalizer": "^7.7.0",
-    "@middy/http-header-normalizer": "^7.7.0",
-    "@middy/http-json-body-parser": "^7.7.0",
-    "@middy/http-response-serializer": "^7.7.0",
     "aws-lambda": "^1.0.7",
     "chokidar": "^5.0.0",
     "http-errors": "^2.0.1",
@@ -78,6 +70,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/mjs/index.js"
+    },
+    "./http": {
+      "types": "./dist/http.d.ts",
+      "default": "./dist/mjs/http.js"
     },
     "./serverless-plugin": {
       "types": "./dist/serverless-plugin.d.ts",
@@ -179,5 +175,15 @@
   "version": "0.2.18",
   "volta": {
     "node": "22.19.0"
+  },
+  "peerDependencies": {
+    "@middy/core": "^7.7.0",
+    "@middy/http-content-negotiation": "^7.7.0",
+    "@middy/http-cors": "^7.7.0",
+    "@middy/http-error-handler": "^7.7.0",
+    "@middy/http-event-normalizer": "^7.7.0",
+    "@middy/http-header-normalizer": "^7.7.0",
+    "@middy/http-json-body-parser": "^7.7.0",
+    "@middy/http-response-serializer": "^7.7.0"
   }
 }
