@@ -76,13 +76,12 @@
   },
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/mjs/index.js"
-      }
+      "types": "./dist/index.d.ts",
+      "default": "./dist/mjs/index.js"
     },
     "./serverless-plugin": {
-      "import": "./dist/mjs/serverless-plugin.js"
+      "types": "./dist/serverless-plugin.d.ts",
+      "default": "./dist/mjs/serverless-plugin.js"
     },
     "./package.json": "./package.json"
   },
