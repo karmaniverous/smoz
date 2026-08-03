@@ -27,7 +27,7 @@ export { defineAppConfig } from './core/defineAppConfig';
 
 // Types
 export type { MethodKey } from './types/FunctionConfig';
-export type { Handler } from './types/Handler';
+export type { Handler, HandlerOptions, ShapedEvent } from './types/Handler';
 export { type HttpContext, httpContexts } from './types/HttpContext';
 export type { LambdaEvent } from './types/LambdaEvent';
 export type { ConsoleLogger } from './types/Loggable';

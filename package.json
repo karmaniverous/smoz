@@ -185,5 +185,15 @@
     "@middy/http-header-normalizer": "^7.7.0",
     "@middy/http-json-body-parser": "^7.7.0",
     "@middy/http-response-serializer": "^7.7.0"
+  },
+  "peerDependenciesMeta": {
+    "@middy/core": { "optional": true },
+    "@middy/http-content-negotiation": { "optional": true },
+    "@middy/http-cors": { "optional": true },
+    "@middy/http-error-handler": { "optional": true },
+    "@middy/http-event-normalizer": { "optional": true },
+    "@middy/http-header-normalizer": { "optional": true },
+    "@middy/http-json-body-parser": { "optional": true },
+    "@middy/http-response-serializer": { "optional": true }
   }
 }
