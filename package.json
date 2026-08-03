@@ -172,7 +172,7 @@
     "templates:lint": "eslint --fix -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\""
   },
   "type": "module",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "volta": {
     "node": "22.19.0"
   },
@@ -187,13 +187,29 @@
     "@middy/http-response-serializer": "^7.7.0"
   },
   "peerDependenciesMeta": {
-    "@middy/core": { "optional": true },
-    "@middy/http-content-negotiation": { "optional": true },
-    "@middy/http-cors": { "optional": true },
-    "@middy/http-error-handler": { "optional": true },
-    "@middy/http-event-normalizer": { "optional": true },
-    "@middy/http-header-normalizer": { "optional": true },
-    "@middy/http-json-body-parser": { "optional": true },
-    "@middy/http-response-serializer": { "optional": true }
+    "@middy/core": {
+      "optional": true
+    },
+    "@middy/http-content-negotiation": {
+      "optional": true
+    },
+    "@middy/http-cors": {
+      "optional": true
+    },
+    "@middy/http-error-handler": {
+      "optional": true
+    },
+    "@middy/http-event-normalizer": {
+      "optional": true
+    },
+    "@middy/http-header-normalizer": {
+      "optional": true
+    },
+    "@middy/http-json-body-parser": {
+      "optional": true
+    },
+    "@middy/http-response-serializer": {
+      "optional": true
+    }
   }
 }

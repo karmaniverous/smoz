@@ -2,9 +2,19 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.19](https://github.com/karmaniverous/smoz/compare/0.2.18...0.2.19)
+
+- fix: resolve knip issues from exports map split [`#14`](https://github.com/karmaniverous/smoz/pull/14)
+- fix: split config/runtime entry points, middy to peerDeps [`#13`](https://github.com/karmaniverous/smoz/pull/13)
+- fix: split barrel into config + http runtime to unblock SLS esbuild [`9a9d20d`](https://github.com/karmaniverous/smoz/commit/9a9d20d82bd1684fc7e5cf9265ccfb19281f674b)
+- fix: restore type-only exports, mark middy peers optional [`e14e495`](https://github.com/karmaniverous/smoz/commit/e14e495a16b4ee06338e069b97773633d4a85fee)
+
 #### [0.2.18](https://github.com/karmaniverous/smoz/compare/0.2.17...0.2.18)
 
+> 31 July 2026
+
 - fix: flatten exports map for bundler compatibility [`#12`](https://github.com/karmaniverous/smoz/pull/12)
+- chore: release v0.2.18 [`24c43bf`](https://github.com/karmaniverous/smoz/commit/24c43bff260f51e323a8ebd97825b16604131484)
 - fix: flatten exports map to expose top-level default condition [`c854d1c`](https://github.com/karmaniverous/smoz/commit/c854d1cb073cfc9937e738c7233c699ad24b033f)
 
 #### [0.2.17](https://github.com/karmaniverous/smoz/compare/0.2.16...0.2.17)
