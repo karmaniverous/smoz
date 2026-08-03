@@ -1,4 +1,5 @@
 {
+  "entry": ["src/index.ts", "src/http.ts"],
   "project": ["src/**", "app/**", "!**/generated/**", "!docs/**"],
   "ignore": [
     "app/config/openapi.ts",
@@ -9,5 +10,5 @@
   ],
   "ignoreBinaries": ["plantuml"],
   "ignoreDependencies": ["@types/fs-extra", "fs-extra"],
-  "rules": { "exports": "off", "types": "off" }
+  "rules": { "exports": "off", "types": "off", "optionalPeerDependencies": "off" }
 }
