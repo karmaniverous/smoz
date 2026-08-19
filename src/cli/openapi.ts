@@ -18,18 +18,28 @@ interface SpawnSpec {
 }
 
 const findTsxCli = (root: string): SpawnSpec => {
-  // Prefer invoking the JS entry to avoid shell .cmd quirks on Windows.
-  const js = path.resolve(root, 'node_modules', 'tsx', 'dist', 'cli.js');
-  if (existsSync(js)) {
+  const bin = path.resolve(
+    root,
+    'node_modules',
+    '.bin',
+    process.platform === 'win32' ? 'tsx.cmd' : 'tsx',
+  );
+
+  if (existsSync(bin)) {
     return {
-      cmd: process.execPath,
-      args: [js, 'app/config/openapi.ts'],
+      cmd: bin,
+      args: ['app/config/openapi.ts'],
       shell: false,
     };
   }
-  // Fallback to "tsx" on PATH (may rely on shell resolution).
+
   const cmd = process.platform === 'win32' ? 'tsx.cmd' : 'tsx';
-  return { cmd, args: ['app/config/openapi.ts'], shell: true };
+
+  return {
+    cmd,
+    args: ['app/config/openapi.ts'],
+    shell: true,
+  };
 };
 
 const findPrettierCli = (root: string): SpawnSpec => {
@@ -67,7 +77,10 @@ export const runOpenapi = async (
   }
 
   // Build a normalized child env via get-dotenv (static import).
-  const env = buildSpawnEnv({});
+  const env = {
+    ...process.env,
+    ...buildSpawnEnv({}),
+  };
 
   // Step 1: generate the OpenAPI spec.
   const tsx = findTsxCli(root);
