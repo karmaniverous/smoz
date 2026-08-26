@@ -7,6 +7,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import { buildSpawnEnv } from '@karmaniverous/get-dotenv';
@@ -18,28 +19,22 @@ interface SpawnSpec {
 }
 
 const findTsxCli = (root: string): SpawnSpec => {
-  const bin = path.resolve(
-    root,
-    'node_modules',
-    '.bin',
-    process.platform === 'win32' ? 'tsx.cmd' : 'tsx',
-  );
+  const requireFromRoot = createRequire(path.resolve(root, 'package.json'));
 
-  if (existsSync(bin)) {
+  try {
+    const cli = requireFromRoot.resolve('tsx/cli');
+
     return {
-      cmd: bin,
-      args: ['app/config/openapi.ts'],
+      cmd: process.execPath,
+      args: [cli, 'app/config/openapi.ts'],
       shell: false,
     };
+  } catch (cause) {
+    throw new Error(
+      'tsx is required to generate OpenAPI. Install it with "npm install --save-dev tsx".',
+      { cause },
+    );
   }
-
-  const cmd = process.platform === 'win32' ? 'tsx.cmd' : 'tsx';
-
-  return {
-    cmd,
-    args: ['app/config/openapi.ts'],
-    shell: true,
-  };
 };
 
 const findPrettierCli = (root: string): SpawnSpec => {
