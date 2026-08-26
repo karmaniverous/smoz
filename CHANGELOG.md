@@ -2,11 +2,20 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.2.20](https://github.com/karmaniverous/smoz/compare/0.2.19...0.2.20)
+
+- chore: install middy packages [`#17`](https://github.com/karmaniverous/smoz/pull/17)
+- fix(openapi): resolve tsx CLI for cross-platform execution [`#16`](https://github.com/karmaniverous/smoz/pull/16)
+- fix(openapi): use local tsx binary and preserve process env [`#15`](https://github.com/karmaniverous/smoz/pull/15)
+
 #### [0.2.19](https://github.com/karmaniverous/smoz/compare/0.2.18...0.2.19)
+
+> 2 August 2026
 
 - fix: resolve knip issues from exports map split [`#14`](https://github.com/karmaniverous/smoz/pull/14)
 - fix: split config/runtime entry points, middy to peerDeps [`#13`](https://github.com/karmaniverous/smoz/pull/13)
 - fix: split barrel into config + http runtime to unblock SLS esbuild [`9a9d20d`](https://github.com/karmaniverous/smoz/commit/9a9d20d82bd1684fc7e5cf9265ccfb19281f674b)
+- chore: release v0.2.19 [`fc88522`](https://github.com/karmaniverous/smoz/commit/fc885229c14c3e2a0e1668427722ae4e314fba7a)
 - fix: restore type-only exports, mark middy peers optional [`e14e495`](https://github.com/karmaniverous/smoz/commit/e14e495a16b4ee06338e069b97773633d4a85fee)
 
 #### [0.2.18](https://github.com/karmaniverous/smoz/compare/0.2.17...0.2.18)
