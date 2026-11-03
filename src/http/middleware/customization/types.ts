@@ -7,6 +7,7 @@ import type httpCors from '@middy/http-cors';
 import type httpErrorHandler from '@middy/http-error-handler';
 import type httpHeaderNormalizer from '@middy/http-header-normalizer';
 import type httpJsonBodyParser from '@middy/http-json-body-parser';
+import type httpMultipartBodyParser from '@middy/http-multipart-body-parser';
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import type { z } from 'zod';
 
@@ -28,6 +29,22 @@ export type HttpStackOptions = {
     json?: { label?: string; stringify?: (value: unknown) => string };
   };
   jsonBodyParser?: Parameters<typeof httpJsonBodyParser>[0];
+  /**
+   * Opt-in `multipart/form-data` request body parsing via
+   * `@middy/http-multipart-body-parser` (install it to use this option).
+   *
+   * - Omitted (default): no multipart parsing.
+   * - Options object (`{}` for parser defaults): enables the
+   *   `multipart-body-parser` step. Options pass through to the parser;
+   *   `disableContentTypeError` defaults to `true` so non-multipart requests
+   *   (e.g. JSON) reach the other parsers untouched.
+   * - `false`: disables it, e.g. to opt a function out of a profile or app
+   *   default that enables it.
+   *
+   * The parsed body is passed through unchanged; describe it in the
+   * function's `eventSchema`.
+   */
+  multipartBodyParser?: Parameters<typeof httpMultipartBodyParser>[0] | false;
   headerNormalizer?: Parameters<typeof httpHeaderNormalizer>[0];
 };
 
