@@ -32,6 +32,7 @@
     "@middy/http-event-normalizer": "^7.7.0",
     "@middy/http-header-normalizer": "^7.7.0",
     "@middy/http-json-body-parser": "^7.7.0",
+    "@middy/http-multipart-body-parser": "^7.9.2",
     "@middy/http-response-serializer": "^7.7.0",
     "@rollup/plugin-alias": "^6.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
@@ -192,6 +193,7 @@
     "@middy/http-event-normalizer": "^7.7.0",
     "@middy/http-header-normalizer": "^7.7.0",
     "@middy/http-json-body-parser": "^7.7.0",
+    "@middy/http-multipart-body-parser": "^7.9.2",
     "@middy/http-response-serializer": "^7.7.0"
   },
   "peerDependenciesMeta": {
@@ -214,6 +216,9 @@
       "optional": true
     },
     "@middy/http-json-body-parser": {
+      "optional": true
+    },
+    "@middy/http-multipart-body-parser": {
       "optional": true
     },
     "@middy/http-response-serializer": {

@@ -14,7 +14,7 @@ SMOZ builds a robust Middy stack around HTTP handlers. Non‑HTTP flows bypassMi
 2. Header normalization (canonical case)
 3. APIGW v1 event normalization
 4. Content negotiation (JSON, vendor +json)
-5. Safe JSON body parsing (no 415 surprises)
+5. Safe JSON body parsing (no 415 surprises); opt‑in multipart/form‑data parsing (see [below](#multipart-form-data-opt-in))
 6. Zod validation (event before handler, response after handler)
 7. Error exposure + validation→400 mapping
 8. http‑error‑handler with your logger
@@ -34,6 +34,55 @@ SMOZ builds a robust Middy stack around HTTP handlers. Non‑HTTP flows bypassMi
   - `http.extend`: append steps into phases
   - `http.transform`: insert/replace/remove steps by ID
   - `http.replace`: phased arrays or a single middleware (advanced)
+
+## Multipart form data (opt-in)
+
+SMOZ can parse `multipart/form-data` request bodies (file uploads) with [`@middy/http-multipart-body-parser`](https://middy.js.org/docs/middlewares/http-multipart-body-parser). It is off by default. To use it, install the parser in your app:
+
+```bash
+npm i @middy/http-multipart-body-parser
+```
+
+Then enable it with the `multipartBodyParser` option, wherever options are accepted (app defaults, a profile, or a single function). Pass `{}` for the parser's defaults, or parser options:
+
+```ts
+export const app = App.create({
+  // ...
+  http: {
+    profiles: {
+      uploads: { multipartBodyParser: {} },
+    },
+  },
+});
+
+app.defineFunction({
+  // ...
+  http: { profile: 'uploads' },
+});
+```
+
+Set `multipartBodyParser: false` on a function to opt it out of a profile or app default that enables it. Options merge shallowly, like every other stack option: a function's `multipartBodyParser: { ... }` replaces a profile's object entirely rather than merging into it.
+
+If you enable the option without installing the package, requests with a body fail with an error naming the missing package. Apps that never enable it don't need it installed, and bundling (e.g. the Serverless Framework's esbuild) still succeeds. The published type declarations reference the package for the option's type; with `skipLibCheck: true` (the SMOZ template default) that needs nothing installed.
+
+When enabled, the `multipart-body-parser` step runs right after `json-body-parser`:
+
+- Each parser only acts on its own content type, so an endpoint can accept both JSON and multipart. SMOZ sets the parser's `disableContentTypeError: true` (you can override it), so non‑multipart requests pass through instead of failing with 415.
+- GET/HEAD requests and empty bodies are skipped, as for JSON.
+- Base64‑encoded bodies from API Gateway are decoded.
+- The parser only recognises `multipart/form-data; boundary=<letters, digits, hyphens>` with an optional trailing `; charset=...`. Anything else (a quoted boundary, as .NET `HttpClient` sends; `charset` before `boundary`; other boundary characters) is treated as "not multipart" and the body reaches your handler as a raw string, usually failing your `eventSchema` with a 400. If your clients send such headers, set `disableContentTypeCheck: true` (the step then parses every request with a body, so don't combine it with JSON on the same function) or normalise the header upstream.
+- The parsed body is passed to your handler **unchanged**, in the parser's own shape (an object with a null prototype):
+  - A text field is a string. Sent again under the same name, the **last value wins**.
+  - A text field whose name ends in `[...]` (e.g. `tags[]`) is always an **array**, under the name with the brackets stripped (`tags`), even when sent once.
+  - A file is `{ filename, mimetype, encoding, truncated, content }`, with `content` a `Buffer`. The key is the field name as sent (brackets kept). Sent more than once, it becomes an **array, newest first**.
+
+  Describe this shape in the function's `eventSchema`; for example, use `z.preprocess` to coerce a file field that may arrive once or many times into an array.
+
+- SMOZ adds no size limits of its own. API Gateway and Lambda reject oversized requests. The parser's own defaults are `fieldNameSize: 100`, `fields: 1000` and `parts: 1000`; pass `busboy: { limits: { ... } }` to change these or set others. Limits behave differently:
+  - a file over `fileSize` fails the request with **413**;
+  - a field name over `fieldNameSize` fails with **422**;
+  - a text field over `fieldSize` (busboy default 1 MiB) is **silently truncated**;
+  - parts beyond `files`, `fields` or `parts` are **silently dropped**.
 
 ## Invariants
 

@@ -18,6 +18,7 @@ export type StepId =
   | 'event-normalizer'
   | 'content-negotiation'
   | 'json-body-parser'
+  | 'multipart-body-parser'
   | 'zod-before'
   | 'head-finalize'
   | 'zod-after'
