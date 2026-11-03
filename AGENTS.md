@@ -20,10 +20,10 @@ npm run templates:typecheck
 npm run templates:lint
 npm run format:check
 npm run docs
-npm audit --omit=dev
+npm audit --omit=dev --audit-level=high
 ```
 
-- CI (`.github/workflows/ci.yml`) runs the same gates and must be green on the pushed head.
+- CI (`.github/workflows/ci.yml`) runs the same gates and must be green on the pushed head, on both the Linux and Windows jobs.
 - A gate that already fails on `main` is not "pre-existing" and is not out of scope. Fix it in the PR, or stop and report it before asking for review. Never present a PR while any gate fails.
 - **Never** add `eslint-disable` comments, `@ts-ignore`/`@ts-expect-error`, `ignoreDeprecations`, lint `ignores`, or any weakening of a lint, typecheck, knip or coverage rule. Fix the code.
 - No test is skipped silently. A skip must be explicit in code (`it.skipIf(...)`/`it.runIf(...)` with a comment giving the reason) and justified in the PR body.

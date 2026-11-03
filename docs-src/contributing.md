@@ -55,7 +55,7 @@ This repo uses ESLint to drive Prettier formatting:
 
 ## Before a pull request
 
-Run every gate listed in [AGENTS.md](https://github.com/karmaniverous/smoz/blob/main/AGENTS.md) (lint, typecheck, tests, knip, build, template typecheck and lint, format check, docs, production audit). CI (`.github/workflows/ci.yml`) runs the same gates on every pull request.
+Run every gate listed in [AGENTS.md](https://github.com/karmaniverous/smoz/blob/main/AGENTS.md) (lint, typecheck, tests, knip, build, template typecheck and lint, format check, docs, production audit at high severity). CI (`.github/workflows/ci.yml`) runs the same gates on every pull request.
 
 ## Registers and OpenAPI
 
