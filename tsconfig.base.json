@@ -16,10 +16,6 @@
     "stripInternal": true,
     "target": "esnext",
     "types": ["node"],
-    "verbatimModuleSyntax": true,
-    "paths": {
-      "@/*": ["./*"],
-      "@karmaniverous/smoz": ["./dist/index.d.ts"]
-    }
+    "verbatimModuleSyntax": true
   }
 }
