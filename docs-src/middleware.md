@@ -61,15 +61,28 @@ app.defineFunction({
 });
 ```
 
-Set `multipartBodyParser: false` on a function to opt it out of a profile or app default that enables it.
+Set `multipartBodyParser: false` on a function to opt it out of a profile or app default that enables it. Options merge shallowly, like every other stack option: a function's `multipartBodyParser: { ... }` replaces a profile's object entirely rather than merging into it.
+
+If you enable the option without installing the package, requests with a body fail with an error naming the missing package. Apps that never enable it don't need it installed, and bundling (e.g. the Serverless Framework's esbuild) still succeeds. The published type declarations reference the package for the option's type; with `skipLibCheck: true` (the SMOZ template default) that needs nothing installed.
 
 When enabled, the `multipart-body-parser` step runs right after `json-body-parser`:
 
 - Each parser only acts on its own content type, so an endpoint can accept both JSON and multipart. SMOZ sets the parser's `disableContentTypeError: true` (you can override it), so non‑multipart requests pass through instead of failing with 415.
 - GET/HEAD requests and empty bodies are skipped, as for JSON.
 - Base64‑encoded bodies from API Gateway are decoded.
-- The parsed body is passed to your handler **unchanged**, in the parser's own shape: text fields are strings, files are `{ filename, mimetype, encoding, truncated, content }` with `content` a `Buffer`. A field sent more than once becomes an array (text fields only when the name ends in `[]`). Describe this shape in the function's `eventSchema`; for example, use `z.preprocess` to coerce a file field that may arrive once or many times into an array.
-- SMOZ adds no size limits of its own. API Gateway and Lambda reject oversized requests, and the parser applies its own defaults (field name size, field and part counts). To set your own, pass `busboy: { limits: { ... } }`; a file over `fileSize` fails with 413.
+- The parser only recognises `multipart/form-data; boundary=<letters, digits, hyphens>` with an optional trailing `; charset=...`. Anything else (a quoted boundary, as .NET `HttpClient` sends; `charset` before `boundary`; other boundary characters) is treated as "not multipart" and the body reaches your handler as a raw string, usually failing your `eventSchema` with a 400. If your clients send such headers, set `disableContentTypeCheck: true` (the step then parses every request with a body, so don't combine it with JSON on the same function) or normalise the header upstream.
+- The parsed body is passed to your handler **unchanged**, in the parser's own shape (an object with a null prototype):
+  - A text field is a string. Sent again under the same name, the **last value wins**.
+  - A text field whose name ends in `[...]` (e.g. `tags[]`) is always an **array**, under the name with the brackets stripped (`tags`), even when sent once.
+  - A file is `{ filename, mimetype, encoding, truncated, content }`, with `content` a `Buffer`. The key is the field name as sent (brackets kept). Sent more than once, it becomes an **array, newest first**.
+
+  Describe this shape in the function's `eventSchema`; for example, use `z.preprocess` to coerce a file field that may arrive once or many times into an array.
+
+- SMOZ adds no size limits of its own. API Gateway and Lambda reject oversized requests. The parser's own defaults are `fieldNameSize: 100`, `fields: 1000` and `parts: 1000`; pass `busboy: { limits: { ... } }` to change these or set others. Limits behave differently:
+  - a file over `fileSize` fails the request with **413**;
+  - a field name over `fieldNameSize` fails with **422**;
+  - a text field over `fieldSize` (busboy default 1 MiB) is **silently truncated**;
+  - parts beyond `files`, `fields` or `parts` are **silently dropped**.
 
 ## Invariants
 

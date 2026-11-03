@@ -102,21 +102,33 @@ export type MultipartBodyParserOptions = Exclude<
  * enable this step need not install it. The parsed body is passed through
  * unchanged (no reshaping); limits are left to the parser's own defaults and
  * any `busboy.limits` the caller supplies.
+ *
+ * The `.catch` is load-bearing: bundlers such as esbuild (used by the
+ * Serverless Framework) fail the build on an unresolvable bare `import()`,
+ * but leave it as a runtime import when the promise is handled. It also turns
+ * a missing package into an actionable error instead of a bare
+ * `ERR_MODULE_NOT_FOUND`.
  */
 export const makeMultipartBodyParser = (
   options: MultipartBodyParserOptions,
 ): M => {
   let inner: Promise<M> | undefined;
   const load = (): Promise<M> =>
-    (inner ??= import('@middy/http-multipart-body-parser').then(
-      ({ default: httpMultipartBodyParser }) =>
+    (inner ??= import('@middy/http-multipart-body-parser')
+      .then(({ default: httpMultipartBodyParser }) =>
         asApiMiddleware(
           httpMultipartBodyParser({
             disableContentTypeError: true,
             ...options,
           }),
         ),
-    ));
+      )
+      .catch((cause: unknown) => {
+        throw new Error(
+          "multipartBodyParser is enabled but '@middy/http-multipart-body-parser' could not be loaded. Install it in your app.",
+          { cause },
+        );
+      }));
   const mw: M = {};
   mw.before = async (request) => {
     if (!hasParsableBody(request)) return;
