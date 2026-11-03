@@ -62,7 +62,7 @@ SMOZ is a tiny, pragmatic toolkit that favors explicit design over magic:
   - `npm run package` lets Serverless package using the registry’s outputs.
 - HTTP defaults you don’t have to babysit:
   - HEAD short‑circuit, header/event normalization, content negotiation, safe
-    JSON body parsing, Zod validation before/after, error exposure with 400
+    JSON body parsing (multipart opt-in), Zod validation before/after, error exposure with 400
     mapping, CORS, shaping, and serialization.
 - Non‑HTTP stays lean:
   - Same handler signature, no Middy stack; just your business code.

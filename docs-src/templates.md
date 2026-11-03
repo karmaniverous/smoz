@@ -78,7 +78,8 @@ export const APP_ROOT_ABS = toPosixPath(
 
 - Lint (ESLint drives Prettier):
   ```bash
-  npm run templates:lint
+  npm run templates:lint      # check
+  npm run templates:lint:fix  # fix
   ```
   A single ESLint flat config discovers all templates (no per‑template wiring).
 - Typecheck:
