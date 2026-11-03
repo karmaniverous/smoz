@@ -2,11 +2,26 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.3.0](https://github.com/karmaniverous/smoz/compare/0.2.20...0.3.0)
+
+- chore: enforce quality gates in CI and fix failures on main [`#23`](https://github.com/karmaniverous/smoz/pull/23)
+- feat(http): opt-in multipart/form-data body parser [`#21`](https://github.com/karmaniverous/smoz/pull/21)
+- [22] chore: enforce quality gates in CI and fix failures on main [`6723f85`](https://github.com/karmaniverous/smoz/commit/6723f85dc1cd0cadd04ce35fa8d89bc72c293f35)
+- [20] feat(http): opt-in multipart/form-data body parser [`ea43041`](https://github.com/karmaniverous/smoz/commit/ea43041b7faf158e1c2084312405933d1d95c0c9)
+- [20] fix(http): keep multipart parser bundle-safe; correct docs [`ba5b452`](https://github.com/karmaniverous/smoz/commit/ba5b452fcf0276f0d026bf196c824c2439f9b0c8)
+- [22] test(http): cover error-expose and serializer steps [`175d5c8`](https://github.com/karmaniverous/smoz/commit/175d5c825cc259393f8ca58f445bc73a2297b037)
+- [22] docs: add AGENTS.md and sync contributor docs [`fdba512`](https://github.com/karmaniverous/smoz/commit/fdba512a497885cee816685188f915f4eb9f45e3)
+- [22] chore: address review on quality gates [`2927954`](https://github.com/karmaniverous/smoz/commit/2927954719cc8e1cf2346de554e3a26919a5a8b3)
+- [22] ci: run on Windows too; audit fails only on high severity [`4867399`](https://github.com/karmaniverous/smoz/commit/4867399b8533ce53d903c510000c4345a42c7f8d)
+
 #### [0.2.20](https://github.com/karmaniverous/smoz/compare/0.2.19...0.2.20)
+
+> 26 August 2026
 
 - chore: install middy packages [`#17`](https://github.com/karmaniverous/smoz/pull/17)
 - fix(openapi): resolve tsx CLI for cross-platform execution [`#16`](https://github.com/karmaniverous/smoz/pull/16)
 - fix(openapi): use local tsx binary and preserve process env [`#15`](https://github.com/karmaniverous/smoz/pull/15)
+- chore: release v0.2.20 [`078b4ff`](https://github.com/karmaniverous/smoz/commit/078b4ff9d17d0b8625e411f9efdb2532062e6b5c)
 
 #### [0.2.19](https://github.com/karmaniverous/smoz/compare/0.2.18...0.2.19)
 

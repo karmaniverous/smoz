@@ -187,7 +187,7 @@
     "format:check": "prettier --check ."
   },
   "type": "module",
-  "version": "0.2.20",
+  "version": "0.3.0",
   "volta": {
     "node": "22.19.0"
   },
