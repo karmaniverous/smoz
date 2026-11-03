@@ -126,8 +126,7 @@ export const buildTypes = (dest: string): RollupOptions => ({
       // Help the DTS bundler resolve our alias imports so it can inline types
       // instead of leaving unresolved "@/" references.
       compilerOptions: {
-        baseUrl: '.',
-        paths: { '@/*': ['*'] },
+        paths: { '@/*': ['./*'] },
       },
     }),
   ],
