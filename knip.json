@@ -10,5 +10,9 @@
   ],
   "ignoreBinaries": ["plantuml"],
   "ignoreDependencies": ["@types/fs-extra", "fs-extra"],
-  "rules": { "exports": "off", "types": "off", "optionalPeerDependencies": "off" }
+  "rules": {
+    "exports": "off",
+    "types": "off",
+    "optionalPeerDependencies": "off"
+  }
 }

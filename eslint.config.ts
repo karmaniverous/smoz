@@ -30,14 +30,7 @@ export default [
       parser: tseslint.parser,
       parserOptions: {
         // Be explicit so the CLI loads type info from the root project.
-        // Also include a small TS project for linting the unified templates
-        // ESLint config (templates/.check/eslint.templates.config.ts) during
-        // the second pass in `npm run templates:lint`, which uses the root
-        // ESLint config with --no-ignore.
-        project: [
-          './tsconfig.json',
-          './templates/.check/tsconfig.eslintconfig.json',
-        ],
+        project: ['./tsconfig.json'],
         tsconfigRootDir,
       },
     },

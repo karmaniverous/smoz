@@ -57,7 +57,7 @@ const config: AWS = {
       noPrependStageInUrl: true,
     },
   },
-  stages: app.stages as NonNullable<AWS['stages']>,
+  stages: app.stages,
   provider: {
     apiGateway: {
       apiKeys: ['${param:SERVICE_NAME}-${param:STAGE}'],
@@ -70,7 +70,7 @@ const config: AWS = {
     },
     deploymentMethod: 'direct',
     endpointType: 'edge',
-    environment: app.environment as NonNullable<AWS['provider']['environment']>,
+    environment: app.environment,
     iam: {
       role: {
         managedPolicies: [

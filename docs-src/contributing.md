@@ -23,7 +23,8 @@ npm run build
 npx smoz register
 npm run openapi
 npm run lint:fix
-npm run templates:lint
+npm run templates:lint:fix
+npm run format
 npm run typecheck
 npm run templates:typecheck
 npm test
@@ -39,9 +40,11 @@ This repo uses ESLint to drive Prettier formatting:
   ```
 - Use:
   ```bash
-  npm run lint:fix
-  npm run templates:lint
+  npm run lint:fix            # fix the library
+  npm run templates:lint:fix  # fix the templates
+  npm run format              # Prettier on everything else (docs, JSON)
   ```
+- `npm run lint`, `npm run templates:lint` and `npm run format:check` only check; CI runs them.
 - Import sorting is enforced via `eslint-plugin-simple-import-sort`.
 
 ## Templates
@@ -49,6 +52,10 @@ This repo uses ESLint to drive Prettier formatting:
 - A unified ESLint config covers all templates (no per‑template edits).
 - Typecheck is driven by a small script that finds `templates/*/tsconfig.json` and invokes `tsc -p --noEmit` per template.
 - Adding a new template requires only adding a directory with a `tsconfig.json`.
+
+## Before a pull request
+
+Run every gate listed in [AGENTS.md](https://github.com/karmaniverous/smoz/blob/main/AGENTS.md) (lint, typecheck, tests, knip, build, template typecheck and lint, format check, docs, production audit at high severity). CI (`.github/workflows/ci.yml`) runs the same gates on every pull request.
 
 ## Registers and OpenAPI
 

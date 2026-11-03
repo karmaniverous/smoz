@@ -14,10 +14,14 @@ npm i
 npm run build               # one-time: builds dist types so editors resolve path aliases
 npx smoz register          # (re)generate side-effect registers
 npm run openapi            # build app/generated/openapi.json
-npm run lint:fixnpm run templates:lint
+npm run lint:fix
+npm run templates:lint:fix
+npm run format
 npm run typecheck
 npm run templates:typecheck
 npm test
 ```
+
+Before opening a pull request, run every gate in [AGENTS.md](AGENTS.md); CI runs the same gates.
 
 Please open an issue for design discussions before large changes.

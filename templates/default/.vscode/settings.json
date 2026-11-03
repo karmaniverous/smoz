@@ -16,7 +16,8 @@
   "files.eol": "\n",
   "git.autofetch": true,
   "git.enableSmartCommit": true,
-  "javascript.preferences.importModuleSpecifierEnding": "minimal",  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.preferences.importModuleSpecifierEnding": "minimal",
+  "javascript.updateImportsOnFileMove.enabled": "always",
   "prettier.prettierPath": "./node_modules/prettier",
   "prettier.singleQuote": true,
   "yaml.format.singleQuote": true

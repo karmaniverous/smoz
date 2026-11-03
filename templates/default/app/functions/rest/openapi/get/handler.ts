@@ -18,5 +18,5 @@ export const handler = reg.handler(async () => {
   // Tip: run `npm run openapi` to regenerate this file.
   // Trivial await keeps parity with prior style.
   await Promise.resolve();
-  return openapiDoc as Response;
+  return openapiDoc;
 });

@@ -30,6 +30,7 @@ npx smoz add rest/foo/get
 ```
 
 ## Install
+
 ```bash
 npm i @karmaniverous/smoz zod zod-openapi
 ```
@@ -159,7 +160,7 @@ npm run openapi
 - Lint & format: ESLint drives Prettier (`prettier/prettier`: error). Use:
   ```bash
   npm run lint:fix
-  npm run templates:lint
+  npm run templates:lint:fix
   ```
 - Typecheck:
   ```bash

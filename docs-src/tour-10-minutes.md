@@ -15,6 +15,7 @@ npx smoz init --yes
 ```
 
 This scaffolds:
+
 - `app/config/app.config.ts` — schemas/config (params, env, http tokens)
 - `app/functions/**` — endpoints (rest/http and non‑HTTP)
 - `app/generated/**` — registers + OpenAPI placeholder
@@ -27,6 +28,7 @@ npx smoz add rest/foo/get
 ```
 
 This creates:
+
 - `app/functions/rest/hello/get/lambda.ts` — registration (method, basePath, schemas)
 - `app/functions/rest/hello/get/handler.ts` — business handler
 - `app/functions/rest/hello/get/openapi.ts` — OpenAPI operation

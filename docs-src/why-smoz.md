@@ -62,7 +62,7 @@ SMOZ is a tiny, pragmatic toolkit that favors explicit design over magic:
   - `npm run package` lets Serverless package using the registry’s outputs.
 - HTTP defaults you don’t have to babysit:
   - HEAD short‑circuit, header/event normalization, content negotiation, safe
-    JSON body parsing, Zod validation before/after, error exposure with 400
+    JSON body parsing (multipart opt-in), Zod validation before/after, error exposure with 400
     mapping, CORS, shaping, and serialization.
 - Non‑HTTP stays lean:
   - Same handler signature, no Middy stack; just your business code.
@@ -93,7 +93,9 @@ import type { z } from 'zod';
 import type { responseSchema } from './lambda';
 import { fn } from './lambda';
 type Response = z.infer<typeof responseSchema>;
-export const handler = fn.handler(async (): Promise<Response> => ({ ok: true }));
+export const handler = fn.handler(async (): Promise<Response> => ({
+  ok: true,
+}));
 ```
 
 ## Easy to try & adopt
@@ -132,10 +134,17 @@ Tiny customization example:
 import { insertAfter } from '@karmaniverous/smoz';
 const xHeader = { after: (r: any) => (r.response.headers['X-Trace'] = '1') };
 export const fn = app.defineFunction({
-  eventType: 'rest', method: 'get', basePath: 'hello', httpContexts: ['public'],
-  http: { transform: ({ before, after, onError }) => ({
-    before, after: insertAfter(after, 'shape', xHeader as never), onError,
-  })},
+  eventType: 'rest',
+  method: 'get',
+  basePath: 'hello',
+  httpContexts: ['public'],
+  http: {
+    transform: ({ before, after, onError }) => ({
+      before,
+      after: insertAfter(after, 'shape', xHeader as never),
+      onError,
+    }),
+  },
   // ...
 });
 ```

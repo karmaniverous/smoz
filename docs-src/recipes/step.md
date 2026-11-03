@@ -18,6 +18,7 @@ z.object({ Payload: z.unknown().optional() }).catchall(z.unknown());
 ```
 
 Notes:
+
 - Zod v4 deprecates `.passthrough()`. Use `.catchall(z.unknown())` to allow
   additional properties (e.g., `StatusCode`, `ExecutedVersion`) while keeping a
   typed `Payload` key.
@@ -56,8 +57,7 @@ import { fn } from './lambda';
 export const handler = fn.handler(async (event) => {
   // The wrapper event may include Payload; validate its structure as needed.
   const payload = (event as { Payload?: unknown }).Payload as
-    | { foo?: string }
-    | undefined;
+    { foo?: string } | undefined;
   // ... do work ...
 });
 ```

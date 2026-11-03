@@ -14,12 +14,12 @@
   },
   "dependencies": {
     "@karmaniverous/get-dotenv": "^7.0.11",
-    "aws-lambda": "^1.0.7",
+    "@types/aws-lambda": "^8.10.162",
     "chokidar": "^5.0.0",
     "http-errors": "^2.0.1",
     "package-directory": "^8.2.0",
     "radash": "^12.1.1",
-    "zod": "^4.4.3"
+    "zod": "^4.6.7"
   },
   "description": "John Galt Services back end.",
   "devDependencies": {
@@ -37,7 +37,6 @@
     "@rollup/plugin-alias": "^6.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
     "@serverless/typescript": "^4.30.0",
-    "@types/aws-lambda": "^8.10.162",
     "@types/fs-extra": "^11.0.4",
     "@types/http-errors": "^2.0.5",
     "@types/node": "^26",
@@ -135,9 +134,13 @@
     "hooks": {
       "after:init": [
         "npm run lint",
+        "npm run typecheck",
         "npm run test",
         "npm run knip",
-        "npm run build"
+        "npm run build",
+        "npm run templates:typecheck",
+        "npm run templates:lint",
+        "npm run format:check"
       ],
       "after:release": [
         "git switch -c release/${version}",
@@ -178,7 +181,10 @@
     "test": "vitest run",
     "typecheck": "tsx src/cli/index.ts register && tsc -p tsconfig.json --noEmit",
     "templates:typecheck": "tsx scripts/templates-typecheck.ts",
-    "templates:lint": "eslint --fix -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\""
+    "templates:lint": "eslint -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\"",
+    "templates:lint:fix": "eslint --fix -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "type": "module",
   "version": "0.2.20",
