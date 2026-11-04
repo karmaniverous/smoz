@@ -8,7 +8,7 @@ sidebar_label: Custom middleware
 Add a header after the response is shaped:
 
 ```ts
-import { insertAfter } from '@karmaniverous/smoz';
+import { insertAfter } from '@karmaniverous/smoz/http';
 
 const addHeader = {
   after: (req: unknown) => {
@@ -23,9 +23,7 @@ const addHeader = {
 
 export const fn = app.defineFunction({
   eventType: 'rest',
-  method: 'get',
-  basePath: 'hello',
-  httpContexts: ['public'],
+  callerModuleUrl: import.meta.url,
   http: {
     transform: ({ before, after, onError }) => ({
       before,
@@ -33,7 +31,6 @@ export const fn = app.defineFunction({
       onError,
     }),
   },
-  // ...
 });
 ```
 

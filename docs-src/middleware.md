@@ -34,6 +34,9 @@ SMOZ builds a robust Middy stack around HTTP handlers. Non‑HTTP flows bypassMi
   - `http.extend`: append steps into phases
   - `http.transform`: insert/replace/remove steps by ID
   - `http.replace`: phased arrays or a single middleware (advanced)
+- App-wide function defaults (optional; `functionDefaults.http` in `App.create`): the same shape as a function's `http`, applied to every function. A function's own `http` keys win and `options` merge key by key (see "App-wide defaults" in the [Overview](./overview.md)).
+
+Options resolve in this order, later layers winning: built-in defaults, `http.defaults`, the selected profile, then the function-level options (`functionDefaults.http.options` merged with the function's `http.options`).
 
 ## Multipart form data (opt-in)
 
@@ -55,8 +58,10 @@ export const app = App.create({
   },
 });
 
-app.defineFunction({
-  // ...
+// app/functions/rest/user/logo/post/lambda.ts
+export const fn = app.defineFunction({
+  eventType: 'rest',
+  callerModuleUrl: import.meta.url,
   http: { profile: 'uploads' },
 });
 ```
@@ -97,10 +102,11 @@ When enabled, the `multipart-body-parser` step runs right after `json-body-parse
 Choose a profile and override content type:
 
 ```ts
-app.defineFunction({
-  // ...
+export const fn = app.defineFunction({
+  eventType: 'rest',
+  callerModuleUrl: import.meta.url,
   http: {
-    profile: 'publicJson',
+    profile: 'publicJson', // defined in App.create({ http: { profiles } })
     options: { contentType: 'application/vnd.my+json' },
   },
 });
@@ -109,14 +115,15 @@ app.defineFunction({
 Insert a header after the response shaper:
 
 ```ts
-import { insertAfter } from '@karmaniverous/smoz';
+import { insertAfter } from '@karmaniverous/smoz/http';
 const mw = {
   after: (req: any) => {
     req.response.headers['X-My'] = 'yes';
   },
 };
-app.defineFunction({
-  // ...
+export const fn = app.defineFunction({
+  eventType: 'rest',
+  callerModuleUrl: import.meta.url,
   http: {
     transform: ({ before, after, onError }) => ({
       before,
@@ -130,8 +137,9 @@ app.defineFunction({
 Replace (advanced):
 
 ```ts
-app.defineFunction({
-  // ...
+export const fn = app.defineFunction({
+  eventType: 'rest',
+  callerModuleUrl: import.meta.url,
   http: {
     replace: {
       stack: {

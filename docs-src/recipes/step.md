@@ -31,8 +31,7 @@ Notes:
 ```ts
 // app/functions/step/exampleTask/lambda.ts
 import { z } from 'zod';
-import { app, APP_ROOT_ABS } from '@/app/config/app.config';
-import { join } from 'node:path';
+import { app } from '@/app/config/app.config';
 
 // Validate only the part you use; here we expect an object payload.
 export const eventSchema = z.object({
@@ -46,7 +45,6 @@ export const fn = app.defineFunction({
   eventSchema,
   responseSchema,
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: join(APP_ROOT_ABS, 'functions', 'step').replace(/\\/g, '/'),
 });
 ```
 

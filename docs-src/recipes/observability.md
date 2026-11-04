@@ -8,7 +8,7 @@ sidebar_label: Observability
 Propagate a request id from API Gateway into responses for traceability.
 
 ```ts
-import { insertAfter } from '@karmaniverous/smoz';
+import { insertAfter } from '@karmaniverous/smoz/http';
 
 const echoRequestId = {
   after: (req: unknown) => {
@@ -28,9 +28,7 @@ const echoRequestId = {
 
 export const fn = app.defineFunction({
   eventType: 'rest',
-  method: 'get',
-  basePath: 'hello',
-  httpContexts: ['public'],
+  callerModuleUrl: import.meta.url,
   http: {
     transform: ({ before, after, onError }) => ({
       before,
@@ -38,7 +36,6 @@ export const fn = app.defineFunction({
       onError,
     }),
   },
-  // ...
 });
 ```
 

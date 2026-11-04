@@ -45,9 +45,10 @@ export const fn = app.defineFunction({
   eventSchema: z.object({}).optional(),
   responseSchema: z.object({ ok: z.boolean() }),
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: /* app/functions/rest root */,
 });
 ```
+
+`method`, `basePath`, `httpContexts` and `contentType` here equal what SMOZ derives from the folder and its defaults, so you can delete them; see "What `defineFunction` derives from the path" in the [Overview](./overview.md).
 
 ## 3) Register endpoints (side‑effects)
 
@@ -125,7 +126,6 @@ export const fn = app.defineFunction({
   eventSchema: z.any(),
   responseSchema: z.any().optional(),
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: /* app/functions/sqs root */,
 });
 ```
 
