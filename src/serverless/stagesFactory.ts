@@ -22,6 +22,11 @@ export type StagesFactoryInput<
   stages: Dict<StageParams>;
 };
 
+/**
+ * Stage artifacts built from the app config: the Serverless params object,
+ * the provider-level environment and a per-function environment builder.
+ * Exposed as App.stages, App.environment and App.buildFnEnv.
+ */
 export type StagesFactoryOutput<
   GlobalParams extends Record<string, unknown>,
   StageParams extends Record<string, unknown>,

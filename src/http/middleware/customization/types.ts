@@ -8,16 +8,16 @@ import type httpErrorHandler from '@middy/http-error-handler';
 import type httpHeaderNormalizer from '@middy/http-header-normalizer';
 import type httpJsonBodyParser from '@middy/http-json-body-parser';
 import type httpMultipartBodyParser from '@middy/http-multipart-body-parser';
-import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import type { z } from 'zod';
 
 import type {
+  ApiMiddleware,
   HttpTransform,
   PhasedArrays,
 } from '@/src/http/middleware/transformUtils';
 import type { ConsoleLogger } from '@/src/types/Loggable';
 
-export type ApiMiddleware = MiddlewareObj<APIGatewayProxyEvent, Context>;
+export type { ApiMiddleware };
 
 export type HttpStackOptions = {
   contentType?: string; // default 'application/json'

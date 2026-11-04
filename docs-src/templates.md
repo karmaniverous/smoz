@@ -42,11 +42,10 @@ Templates do not commit generated files under `app/generated/` (including `regis
 
 For the default template this file is: `templates/default/types/registers.d.ts`.
 
-When a template needs to ensure register side effects are evaluated at runtime (e.g., in `serverless.ts` or the OpenAPI builder), import the register module as a namespace and reference it via `void`. This satisfies TypeScript’s `noUncheckedSideEffectImports` while still executing module side effects:
+When a template needs to ensure register side effects are evaluated at runtime (e.g., in `serverless.ts` or the OpenAPI builder), use a plain side-effect import. The ambient declaration lets it resolve under TypeScript’s `noUncheckedSideEffectImports` while still executing module side effects:
 
 ```ts
-import * as __register_functions from '@/app/generated/register.functions';
-void __register_functions;
+import '@/app/generated/register.functions';
 ```
 
 In real apps, `smoz init` seeds empty placeholders in `app/generated/` and `smoz register` keeps them up to date. Teams often commit the generated `register.*.ts` files so CI typecheck remains stable.

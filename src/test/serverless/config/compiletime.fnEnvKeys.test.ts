@@ -29,7 +29,7 @@ const app = App.create({
 });
 
 // Valid: PROFILE (global, not globally exposed) + DOMAIN_NAME (stage)
-const ok = app.defineFunction({
+app.defineFunction({
   functionName: 'ct_ok',
   eventType: 'rest',
   httpContexts: ['public'] as const,
@@ -40,7 +40,6 @@ const ok = app.defineFunction({
   callerModuleUrl: import.meta.url,
   endpointsRootAbs: process.cwd().replace(/\\/g, '/'),
 });
-void ok;
 
 // Expect compile-time failure: NOT_A_KEY not in global ∪ stage schema keys
 app.defineFunction({
@@ -56,10 +55,14 @@ app.defineFunction({
   endpointsRootAbs: process.cwd().replace(/\\/g, '/'),
 });
 
-// Minimal runtime suite so Vitest considers this a test file
+// The invalid case above only enforces a compile-time constraint via the
+// expect-error directive; the valid function is checked at runtime below.
 describe('compiletime.fnEnvKeys', () => {
-  it('compiles with expected @ts-expect-error markers', () => {
-    expect(true).toBe(true);
+  it('exposes the fnEnvKeys of a valid function', () => {
+    expect(app.buildAllServerlessFunctions()?.ct_ok?.environment).toEqual({
+      PROFILE: '${param:PROFILE}',
+      DOMAIN_NAME: '${param:DOMAIN_NAME}',
+    });
   });
 });
 

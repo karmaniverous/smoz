@@ -8,7 +8,7 @@ sidebar_position: 6
 
 ## Environment
 
-- Node 22.x (Lambda parity). Local tests on Vitest 4.x.
+- Node 22.x (Lambda parity). Local tests on Vitest 5.x.
 - Install with your preferred PM; scripts assume npm.
 - One‑time: build local types so editors resolve path aliases across templates:
   ```bash

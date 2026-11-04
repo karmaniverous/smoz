@@ -26,19 +26,14 @@ const runRegister = (): void => {
 };
 
 // Minimal Serverless v4 plugin: register hooks that run before package/deploy.
+// Serverless constructs plugins with (serverless, options); this plugin needs
+// neither, so the constructor takes no parameters.
 export default class SmozRegisterPlugin {
-  hooks: Record<string, () => void>;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(_serverless?: any, _options?: any) {
-    void _serverless;
-    void _options;
-    this.hooks = {
-      // Package lifecycle
-      'before:package:initialize': runRegister,
-      // Deploy lifecycles where functions/artifacts can be (re)built
-      'before:deploy:function:initialize': runRegister,
-      'before:deploy:deploy': runRegister,
-    };
-  }
+  hooks: Record<string, () => void> = {
+    // Package lifecycle
+    'before:package:initialize': runRegister,
+    // Deploy lifecycles where functions/artifacts can be (re)built
+    'before:deploy:function:initialize': runRegister,
+    'before:deploy:deploy': runRegister,
+  };
 }

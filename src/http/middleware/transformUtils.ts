@@ -10,6 +10,10 @@ import type { MiddlewareObj } from '@middy/core';
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 
 const ID_PROP = '__id' as const;
+/**
+ * A middy middleware typed for API Gateway v1 events: the unit of the SMOZ
+ * HTTP stack that transforms insert, replace and remove.
+ */
 export type ApiMiddleware = MiddlewareObj<APIGatewayProxyEvent, Context>;
 
 export type StepId =

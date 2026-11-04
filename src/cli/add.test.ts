@@ -75,8 +75,8 @@ describe('CLI: add', () => {
       expect(http2.skipped.length).toBeGreaterThanOrEqual(1);
 
       // Path parameter example (accepts :id form; writes [id] dir; emits {id} in code/docs)
-      const pp = await runAdd(root, 'rest/users/:id/get');
-      void pp; // created/skipped counts not asserted here; we assert artifacts
+      // Created/skipped counts are not asserted here; the artifacts are.
+      await runAdd(root, 'rest/users/:id/get');
       const ppBase = join(
         root,
         'app',

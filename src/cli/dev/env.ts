@@ -2,8 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-export const inferDefaultStage = (root: string, verbose: boolean): string => {
-  void root;
+export const inferDefaultStage = (verbose: boolean): string => {
   // Prefer “dev”; explicit --stage overrides remain available.
   if (verbose)
     console.log('[dev] inferring stage: dev (explicit --stage overrides)');
@@ -58,7 +57,7 @@ export const resolveStage = async (
     return envStage.trim();
   }
 
-  return inferDefaultStage(root, verbose);
+  return inferDefaultStage(verbose);
 };
 
 export const seedEnvForStage = async (

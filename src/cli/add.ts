@@ -171,8 +171,7 @@ import { fn } from './lambda';
 
 type Response = z.infer<typeof responseSchema>;
 
-export const handler = fn.handler(async (_event): Promise<Response> => {
-  void _event;
+export const handler = fn.handler(async (): Promise<Response> => {
   return {} as Response;
 });
 `;

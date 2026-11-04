@@ -226,11 +226,10 @@ export const makePreferredMedia = (contentType: string): M =>
     'preferred-media',
   );
 
-export const makeErrorExpose = (logger: ConsoleLogger): M =>
+export const makeErrorExpose = (): M =>
   tagStep(
     {
       onError: (request) => {
-        void logger;
         const maybe = (request as { error?: unknown }).error;
         if (!(maybe instanceof Error)) return;
         const msg = typeof maybe.message === 'string' ? maybe.message : '';
@@ -364,14 +363,14 @@ export const buildDefaultPhases = (args: {
   const after: M[] = [
     makeHeadFinalize(contentType),
     makeZodAfter(logger, responseSchema),
-    makeErrorExpose(logger),
+    makeErrorExpose(),
     makeCors(opts),
     makePreferredMedia(contentType),
     makeShapeAndContentType(contentType),
     makeSerializer(contentType, opts),
   ];
   const onError: M[] = [
-    makeErrorExpose(logger),
+    makeErrorExpose(),
     makeErrorHandler(opts),
     // Post-error-handler processing: middy v6+ does not re-run the after
     // chain after onError, so CORS and response shaping must happen here.

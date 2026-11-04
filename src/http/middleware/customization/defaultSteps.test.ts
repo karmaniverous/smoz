@@ -12,7 +12,7 @@ type Req = Parameters<
 
 /** Run the error-expose step on an error; returns the (mutated) error. */
 const expose = async <E>(error: E): Promise<E> => {
-  await makeErrorExpose(console).onError?.({ error } as unknown as Req);
+  await makeErrorExpose().onError?.({ error } as unknown as Req);
   return error;
 };
 
