@@ -35,6 +35,8 @@ npx smoz add rest/foo/get
 npm i @karmaniverous/smoz zod zod-openapi
 ```
 
+`zod-openapi` (^6) and `@serverless/typescript` (^4.30) are optional peer dependencies: SMOZ's type declarations import their types. Install `@serverless/typescript` as a dev dependency when you type `serverless.ts` or a function's `serverless` config (the template does).
+
 Dev tooling (recommended):
 
 ```bash
