@@ -2,7 +2,39 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.4.0](https://github.com/karmaniverous/smoz/compare/0.3.0...0.4.0)
+
+- chore: update dependencies (chokidar stays on v5) [`#28`](https://github.com/karmaniverous/smoz/pull/28)
+- feat: derive defineFunction config from path and app defaults; per-function http [`#26`](https://github.com/karmaniverous/smoz/pull/26)
+- [25] feat: derive defineFunction config from path and app defaults; per-function http [`#24`](https://github.com/karmaniverous/smoz/issues/24) [`#24`](https://github.com/karmaniverous/smoz/issues/24)
+- [27] chore(deps): update minor and patch versions [`cc54c2b`](https://github.com/karmaniverous/smoz/commit/cc54c2bf95222dc38c78a15223445fe43778a999)
+- [25] fix(core): review fixes - explicit contentType wins, unknown profile throws, extend.after before shape, route check, path containment, image merge [`bce350b`](https://github.com/karmaniverous/smoz/commit/bce350b71f96bebda171f6476071a4c805173dab)
+- [27] chore(deps): update vitest and @vitest/coverage-v8 to 5.1 [`2aeceb2`](https://github.com/karmaniverous/smoz/commit/2aeceb2f5fd7c321a5ec87376af96d304fae6172)
+- [25] fix(cli): smoz dev encodes binaryMediaTypes request bodies as base64, as API Gateway does [`e35ef95`](https://github.com/karmaniverous/smoz/commit/e35ef95a20b5e7a85a0270a830a7e23fde19e706)
+- [27] chore(deps): release-it 21; pin dev Node to 22.23.4 [`d623bb2`](https://github.com/karmaniverous/smoz/commit/d623bb2c78738b2fab58f8bfddce9e86fcb457ca)
+- [25] feat: per-function serverless config passthrough (memorySize, timeout, tenancy, image) [`0ab3e1f`](https://github.com/karmaniverous/smoz/commit/0ab3e1f3a38f8d903a5d823cd1db16d1e873dc78)
+- [25] fix(cli): spawn PATH binaries without args+shell (DEP0190); resolve tsx via tsx/cli [`67d89df`](https://github.com/karmaniverous/smoz/commit/67d89df0926f74fc678fac9f8371a7b4ed84c3d6)
+- [25] fix: functionDefaults.http never overrides the function's own profile choice [`228f3ae`](https://github.com/karmaniverous/smoz/commit/228f3ae9c5e5c003d933d0c6994b44decf34e09c)
+- [25] feat(cli): smoz add writes only real overrides; template lambdas slimmed; typecheck add output [`70db24f`](https://github.com/karmaniverous/smoz/commit/70db24f1fc46b15a23c1da2cf11aac59f2050597)
+- [27] refactor: address review of the dependency update [`5fb3b95`](https://github.com/karmaniverous/smoz/commit/5fb3b95dc6ab366fc0ad13acb3b40043fe4375bd)
+- [25] docs: show minimal defineFunction, derived fields and functionDefaults [`bb6cdd9`](https://github.com/karmaniverous/smoz/commit/bb6cdd964236d2884ac9824081b03cb68ee746a1)
+- [25] test: cover add param forms and errors, phased replace, inline route skips [`8ca8e6e`](https://github.com/karmaniverous/smoz/commit/8ca8e6e58e5317c529609ce4434508ea5f9f20e3)
+- [25] fix(template): middy dependencies satisfy smoz peer ranges [`c749c61`](https://github.com/karmaniverous/smoz/commit/c749c61ca105d2b189bffefe4942c8dd770d1383)
+- [25] fix(deps): zod-openapi and @serverless/typescript as optional peers; template matches SMOZ engines and peers [`5a48971`](https://github.com/karmaniverous/smoz/commit/5a4897193b1ad400bca7f75f99ed2f4abcb92499)
+- [25] fix(cli): reject % and a quoted trailing backslash on Windows; templates:typecheck cleans up before exiting [`3e5fea6`](https://github.com/karmaniverous/smoz/commit/3e5fea6f73c1960c417059467ed95df55df2d863)
+- [27] chore(template): update default template dependencies [`55718a0`](https://github.com/karmaniverous/smoz/commit/55718a0a5ace29df6ed2205c84d6f54675e013f2)
+- [25] fix(cli): dev decodes base64 responses; await async serverless.ts; knip and docs [`c2df21b`](https://github.com/karmaniverous/smoz/commit/c2df21bb8e531bf693c842de0e3f92d4623f3f96)
+- [25] docs: minimal defineFunction in every example; tour shows smoz add output [`c899184`](https://github.com/karmaniverous/smoz/commit/c8991847451c03f4d486921aa3c456120523fff8)
+- [27] chore(deps): update @types/aws-lambda to 8.10.164 [`63dc824`](https://github.com/karmaniverous/smoz/commit/63dc824bbd2b985a6ec19219d5ea4b83b1b1a00a)
+- [27] chore(deps): update eslint-plugin-simple-import-sort to 14 [`b5d0387`](https://github.com/karmaniverous/smoz/commit/b5d0387f556b39bf89c19f16bd28ed1b018e37e7)
+- [25] feat: export defineFunction option and functionDefaults types [`a85d1ce`](https://github.com/karmaniverous/smoz/commit/a85d1ce45515ccef80b380a29e643e432367b0b9)
+- [25] ci: actions/checkout and actions/setup-node v7 (Node 24 runtime) [`5cfe861`](https://github.com/karmaniverous/smoz/commit/5cfe8618652d96dc45f3cee799b437e4cfebde9a)
+- [27] fix(release): release:pre marks GitHub pre-releases (github.preRelease) [`039bdc6`](https://github.com/karmaniverous/smoz/commit/039bdc6ec336aa7b694ba8de0a2be17b44475faa)
+- [27] docs(contributing): local tests run on Vitest 5 [`21a34b5`](https://github.com/karmaniverous/smoz/commit/21a34b56b3cafb33e66b007e5e168aff3e920b58)
+
 #### [0.3.0](https://github.com/karmaniverous/smoz/compare/0.2.20...0.3.0)
+
+> 3 November 2026
 
 - chore: enforce quality gates in CI and fix failures on main [`#23`](https://github.com/karmaniverous/smoz/pull/23)
 - feat(http): opt-in multipart/form-data body parser [`#21`](https://github.com/karmaniverous/smoz/pull/21)
@@ -12,6 +44,7 @@ All notable changes to this project will be documented in this file. Dates are d
 - [22] test(http): cover error-expose and serializer steps [`175d5c8`](https://github.com/karmaniverous/smoz/commit/175d5c825cc259393f8ca58f445bc73a2297b037)
 - [22] docs: add AGENTS.md and sync contributor docs [`fdba512`](https://github.com/karmaniverous/smoz/commit/fdba512a497885cee816685188f915f4eb9f45e3)
 - [22] chore: address review on quality gates [`2927954`](https://github.com/karmaniverous/smoz/commit/2927954719cc8e1cf2346de554e3a26919a5a8b3)
+- chore: release v0.3.0 [`3931300`](https://github.com/karmaniverous/smoz/commit/3931300e669617a19fddaa6ad59872ec6f54d1e1)
 - [22] ci: run on Windows too; audit fails only on high severity [`4867399`](https://github.com/karmaniverous/smoz/commit/4867399b8533ce53d903c510000c4345a42c7f8d)
 
 #### [0.2.20](https://github.com/karmaniverous/smoz/compare/0.2.19...0.2.20)
