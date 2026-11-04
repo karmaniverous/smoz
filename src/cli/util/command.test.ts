@@ -31,6 +31,28 @@ describe('cli/util/command.pathCommand', () => {
   it('rejects a double quote on Windows instead of passing it unescaped', () => {
     expect(() => pathCommand('npm', ['a"b'], 'win32')).toThrow(/double quote/);
   });
+
+  it('rejects a percent sign on Windows, quoted or not (cmd.exe expands %VAR%)', () => {
+    expect(() => pathCommand('npm', ['%PATH%'], 'win32')).toThrow(
+      'a percent sign through the Windows shell: %PATH%',
+    );
+    expect(() => pathCommand('npm', ['a %b'], 'win32')).toThrow(/percent sign/);
+    // POSIX has no shell, so both pass through untouched.
+    expect(pathCommand('npm', ['%PATH%', 'a\\'], 'linux').args).toEqual([
+      '%PATH%',
+      'a\\',
+    ]);
+  });
+
+  it('rejects a trailing backslash only where it would escape the closing quote', () => {
+    expect(() => pathCommand('tsx', ['C:\\My Apps\\'], 'win32')).toThrow(
+      'a trailing backslash through the Windows shell: C:\\My Apps\\',
+    );
+    // Unquoted, a trailing backslash is harmless.
+    expect(pathCommand('tsx', ['C:\\apps\\'], 'win32').cmd).toBe(
+      'tsx C:\\apps\\',
+    );
+  });
 });
 
 describe('cli/util/command.localTsxCli', () => {

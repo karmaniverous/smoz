@@ -14,14 +14,23 @@ export interface SpawnSpec {
   shell: boolean;
 }
 
-/** Quote one token for a cmd.exe command line. */
+/**
+ * Quote one token for a cmd.exe command line.
+ *
+ * Rejects what quoting can't make safe: `"` (ends the quotes), `%` (cmd.exe
+ * expands `%VAR%` even inside quotes) and, in a token that needs quotes, a
+ * trailing `\` (it would escape the closing quote).
+ */
 const quoteForCmd = (token: string): string => {
-  if (token.includes('"')) {
-    throw new Error(
-      `Cannot pass an argument containing a double quote through the Windows shell: ${token}`,
+  const reject = (what: string) =>
+    new Error(
+      `Cannot pass an argument containing ${what} through the Windows shell: ${token}`,
     );
-  }
-  return /^[\w./\\:=@+-]+$/.test(token) ? token : `"${token}"`;
+  if (token.includes('"')) throw reject('a double quote');
+  if (token.includes('%')) throw reject('a percent sign');
+  if (/^[\w./\\:=@+-]+$/.test(token)) return token;
+  if (token.endsWith('\\')) throw reject('a trailing backslash');
+  return `"${token}"`;
 };
 
 /**
@@ -32,10 +41,10 @@ const quoteForCmd = (token: string): string => {
  * line with no args array.
  *
  * @param bin - binary name without extension
- * @param args - arguments (must not contain double quotes on Windows)
+ * @param args - arguments (on Windows: no `"` or `%`, and no trailing `\` in an argument that needs quotes)
  * @param platform - target platform (defaults to the current one)
  * @returns spawn arguments
- * @throws Error on Windows when an argument contains a double quote
+ * @throws Error on Windows when an argument contains `"` or `%`, or needs quotes and ends with `\`
  */
 export const pathCommand = (
   bin: string,

@@ -3,8 +3,9 @@
 //    "tsc -p --noEmit" for each.
 // 2. Prove `smoz add` output compiles: scaffold functions into a temporary
 //    copy of templates/default and typecheck the copy.
-// Fails fast with a readable template name; prints stdout and stderr on
-// failure (to stdout) for complete diagnostics.
+// Runs every check, removes the scratch copy, then exits non-zero if any
+// check failed. Prints stdout and stderr of a failed check (to stdout) with
+// a readable label for complete diagnostics.
 import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -40,8 +41,8 @@ const findTemplateConfigs = (): Array<{ name: string; tsconfig: string }> => {
   return out;
 };
 
-/** Typecheck one tsconfig with the repo's TypeScript; exit on failure. */
-const typecheck = (label: string, tsconfig: string) => {
+/** Typecheck one tsconfig with the repo's TypeScript; true when it passes. */
+const typecheck = (label: string, tsconfig: string): boolean => {
   console.log(`Typechecking ${label}`);
   const args = [tscJs, '-p', tsconfig, '--noEmit', '--pretty', 'false'];
   const res = spawnSync(process.execPath, args, {
@@ -57,15 +58,17 @@ const typecheck = (label: string, tsconfig: string) => {
     if (out.length) console.log(`--- tsc stdout ---\n${out}`);
     if (err.length) console.log(`--- tsc stderr ---\n${err}`);
     console.log(`--- invoked ---\n${[process.execPath, ...args].join(' ')}`);
-    process.exit(res.status ?? 1);
+    return false;
   }
   if (out.length) console.log(out);
+  return true;
 };
 
 /** Specs scaffolded into the default template copy (HTTP, path param, non-HTTP). */
 const addSpecs = ['rest/widgets/post', 'rest/widgets/:id/get', 'sqs/jobs/run'];
 
-const typecheckAddOutput = async () => {
+/** Typecheck `smoz add` output in a scratch copy, removed pass or fail. */
+const typecheckAddOutput = async (): Promise<boolean> => {
   // A sibling of templates/default, so the copy's relative paths
   // (../../dist, ../../node_modules) still resolve.
   const copy = path.join(templatesDir, '.add-check');
@@ -78,7 +81,7 @@ const typecheckAddOutput = async () => {
         { recursive: true },
       );
     for (const spec of addSpecs) await runAdd(copy, spec);
-    typecheck(
+    return typecheck(
       `smoz add output (${addSpecs.join(', ')})`,
       path.join(copy, 'tsconfig.json'),
     );
@@ -87,15 +90,20 @@ const typecheckAddOutput = async () => {
   }
 };
 
-const run = async () => {
+/** Run every check; true when all pass. */
+const run = async (): Promise<boolean> => {
   const targets = findTemplateConfigs();
   if (targets.length === 0) {
     console.log('No template tsconfig.json files found under templates/*.');
-    return;
+    return true;
   }
-  for (const t of targets) typecheck(`template: ${t.name}`, t.tsconfig);
-  await typecheckAddOutput();
-  console.log('All templates typecheck OK.');
+  const results = targets.map((t) =>
+    typecheck(`template: ${t.name}`, t.tsconfig),
+  );
+  results.push(await typecheckAddOutput());
+  return results.every(Boolean);
 };
 
-await run();
+// Exit only after every check (and its cleanup) has finished.
+if (await run()) console.log('All templates typecheck OK.');
+else process.exitCode = 1;
