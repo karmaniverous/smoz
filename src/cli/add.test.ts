@@ -15,6 +15,44 @@ const derivable =
   /eventType|method:|basePath|contentType|httpContexts|endpointsRootAbs|functionName|APP_ROOT_ABS|node:path/;
 
 describe('CLI: add', () => {
+  it('accepts :id, {id} and [id] as the same path parameter', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'smoz-add-params-'));
+    try {
+      const created = await Promise.all(
+        ['rest/a/:id/get', 'rest/b/{id}/get', 'rest/c/[id]/get'].map(
+          async (spec) => (await runAdd(root, spec)).created.length,
+        ),
+      );
+      expect(created).toEqual([3, 3, 3]);
+      for (const seg of ['a', 'b', 'c']) {
+        const body = readFileSync(
+          join(
+            root,
+            'app',
+            'functions',
+            'rest',
+            seg,
+            '[id]',
+            'get',
+            'lambda.ts',
+          ),
+          'utf8',
+        );
+        // Prettier may pick either quote style in a bare temp root.
+        expect(body).toMatch(new RegExp(`basePath: (['"])${seg}/\\{id\\}\\1`));
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects a spec without a path segment', async () => {
+    await expect(runAdd(tmpdir(), 'rest')).rejects.toThrow(/Invalid spec/);
+    await expect(runAdd(tmpdir(), 'rest/get')).rejects.toThrow(
+      /at least one path segment/,
+    );
+  });
+
   it('scaffolds HTTP and non-HTTP trees and is idempotent', async () => {
     const root = mkdtempSync(join(tmpdir(), 'smoz-add-'));
     try {

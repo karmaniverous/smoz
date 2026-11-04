@@ -84,6 +84,22 @@ describe('inline.server/routes.loadHandlers', () => {
     );
   });
 
+  it('skips missing exports and non-HTTP events; defaults the export to handler', async () => {
+    const { routes } = await load({
+      missingExport: {
+        handler: 'fns/hello/handler.nope',
+        events: events('/x'),
+      },
+      noDot: {
+        handler: 'fns/hello/handler',
+        events: [{ sqs: { arn: 'arn:q' } }, ...events('/nodot')],
+      },
+    });
+    expect(
+      routes.map((r) => `${r.method} ${r.pattern} ${r.handlerRef}`),
+    ).toEqual(['GET /nodot fns/hello/handler.handler']);
+  });
+
   it('silently skips non-image functions without a handler or events', async () => {
     const { routes, warnings } = await load({
       noHandler: { events: events('/x') },

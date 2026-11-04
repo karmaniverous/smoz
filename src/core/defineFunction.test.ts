@@ -518,6 +518,8 @@ describe('defineFunction: per-function http (#24)', () => {
       })
       .handler(sawParsedBody);
     expect(await postForm(handler)).toEqual({ parsed: true });
+    // Warm invocation reuses the built stack, options included.
+    expect(await postForm(handler)).toEqual({ parsed: true });
   });
 
   it('leaves a function without http unchanged', async () => {

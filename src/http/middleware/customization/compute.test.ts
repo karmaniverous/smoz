@@ -293,6 +293,87 @@ describe('computeHttpMiddleware: Zod enforcement', () => {
   });
 });
 
+describe('computeHttpMiddleware: phased replace', () => {
+  /** The default phases, captured with an identity transform. */
+  const defaultPhases = () => {
+    let captured: Parameters<HttpTransform>[0] | undefined;
+    computeHttpMiddleware({
+      functionName: 'captureFn',
+      eventSchema: z.object({}),
+      responseSchema: z.object({ ok: z.boolean() }),
+      fn: {
+        transform: (phases) => {
+          captured = phases;
+          return phases;
+        },
+      },
+    });
+    return captured!;
+  };
+  const schemas = {
+    eventSchema: z.object({}),
+    responseSchema: z.object({ ok: z.boolean() }),
+  };
+
+  it('runs a full phased replacement', async () => {
+    const res = await run(async () => ({ ok: true }), {
+      ...schemas,
+      fn: { replace: { stack: defaultPhases() } },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(res.body)).toEqual({ ok: true });
+  });
+
+  it('defaults missing phases to empty and still enforces Zod', () => {
+    const { before, after } = defaultPhases();
+    // No onError phase: accepted (defaults to []).
+    expect(() =>
+      computeHttpMiddleware({
+        functionName: 'phasedFn',
+        ...schemas,
+        fn: { replace: { stack: { before, after } } },
+      }),
+    ).not.toThrow();
+    expect(() =>
+      computeHttpMiddleware({
+        functionName: 'phasedFn',
+        ...schemas,
+        fn: {
+          replace: {
+            stack: { before, after: removeStep(after, 'zod-after') },
+          },
+        },
+      }),
+    ).toThrow(/Zod validation is required.*phasedFn/);
+  });
+});
+
+describe('computeHttpMiddleware: extend and partial transforms', () => {
+  it('appends extend.onError steps', async () => {
+    const seen: string[] = [];
+    const onErrorStep = {
+      onError: () => {
+        seen.push('onError');
+      },
+    };
+    await run(
+      async () => {
+        throw new Error('boom');
+      },
+      { fn: { extend: { onError: [onErrorStep] } } },
+    );
+    expect(seen).toEqual(['onError']);
+  });
+
+  it('keeps phases a transform does not return', async () => {
+    const res = await run(async () => ({ ok: true }), {
+      fn: { transform: () => ({}) },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(JSON.parse(res.body)).toEqual({ ok: true });
+  });
+});
+
 describe('computeHttpMiddleware: replace behavior', () => {
   it('throws when replace.stack is a single middleware and schemas are present', () => {
     const eventSchema = z.object({});
