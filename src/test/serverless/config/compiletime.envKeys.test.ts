@@ -20,24 +20,19 @@ const ok = defineAppConfig(G, S, {
 type GKeys = readonly (keyof z.infer<typeof G>)[];
 // Expect compile-time failure: 'Z' not in G.shape; error on this line.
 // @ts-expect-error 'Z' is not a key of G
-const badGlobalEnvKeys: GKeys = ['Z'] as const;
+['Z'] as const satisfies GKeys;
 
 type SKeys = readonly (keyof z.infer<typeof S>)[];
 // Expect compile-time failure: 'A' belongs to G, not S; error on this line.
 // @ts-expect-error 'A' is not a key of S
-const badStageEnvKeys: SKeys = ['A'] as const;
+['A'] as const satisfies SKeys;
 
-// Note: The two invalid cases above are intentionally NOT executed at runtime.
-// They exist only to enforce compile-time constraints via @ts-expect-error.
-
-void ok;
-void badGlobalEnvKeys;
-void badStageEnvKeys;
-
-// Minimal runtime suite so Vitest considers this a test file
+// The two invalid cases above only enforce compile-time constraints via the
+// expect-error directive; the valid config is checked at runtime below.
 describe('compiletime.envKeys', () => {
-  it('compiles with expected @ts-expect-error markers', () => {
-    expect(true).toBe(true);
+  it('keeps the env keys of a valid config', () => {
+    expect(ok.global.envKeys).toEqual(['A']);
+    expect(ok.stage.envKeys).toEqual(['B']);
   });
 });
 export {};

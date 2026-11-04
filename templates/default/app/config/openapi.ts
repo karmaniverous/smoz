@@ -1,21 +1,21 @@
+/**
+ * Template note:
+ * - Templates do NOT commit generated register files under app/generated; they
+ *   are declared via ambient types (templates/default/types/registers.d.ts) so
+ *   TypeScript can typecheck without artifacts.
+ * - The side-effect import runs endpoint registration; the ambient declaration
+ *   lets it resolve under noUncheckedSideEffectImports.
+ * - In real apps, `smoz init` seeds placeholders and `smoz register` rewrites
+ *   app/generated/register.*.ts at author time.
+ */
+import '@/app/generated/register.openapi';
+
 import fs from 'fs-extra';
 import { packageDirectorySync } from 'package-directory';
 import path from 'path';
 import { createDocument } from 'zod-openapi';
 
 import { app } from '@/app/config/app.config';
-/**
- * Template note:
- * - Templates do NOT commit generated register files under app/generated; they
- *   are declared via ambient types (templates/default/types/registers.d.ts) so
- *   TypeScript can typecheck without artifacts.
- * - To ensure side effects still run (endpoint registration) and to satisfy
- *   noUncheckedSideEffectImports, import the register module as a namespace and
- *   reference it via `void`. * - In real apps, `smoz init` seeds placeholders and `smoz register` rewrites
- *   app/generated/register.*.ts at author time.
- */
-import * as __register_openapi from '@/app/generated/register.openapi';
-void __register_openapi;
 console.log('Generating OpenAPI document...');
 
 const paths = app.buildAllOpenApiPaths();

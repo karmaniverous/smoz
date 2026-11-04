@@ -24,6 +24,7 @@ export type {
   HttpStackOptions,
 } from './http/middleware/httpStackCustomization';
 export { buildSafeDefaults } from './http/middleware/httpStackCustomization';
+export type { ApiMiddleware } from './http/middleware/transformUtils';
 export {
   findIndex,
   getId,

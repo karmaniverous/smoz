@@ -1,21 +1,19 @@
-import type { AWS } from '@serverless/typescript';
-
-import { app } from '@/app/config/app.config';
 /**
  * Template note:
  * - Templates do NOT commit generated register files under app/generated; they
  *   are declared via ambient types (templates/default/types/registers.d.ts) so
  *   TypeScript can typecheck without artifacts.
- * - To ensure side effects still run (endpoint/serverless registration) and to
- *   satisfy noUncheckedSideEffectImports, import register modules as namespaces
- *   and reference them via `void`.
+ * - The side-effect imports run endpoint/serverless registration; the ambient
+ *   declarations let them resolve under noUncheckedSideEffectImports.
  * - In real apps, `smoz init` seeds placeholders and `smoz register` rewrites
  *   app/generated/register.*.ts at author time.
  */
-import * as __register_functions from '@/app/generated/register.functions';
-import * as __register_serverless from '@/app/generated/register.serverless';
-void __register_functions;
-void __register_serverless;
+import '@/app/generated/register.functions';
+import '@/app/generated/register.serverless';
+
+import type { AWS } from '@serverless/typescript';
+
+import { app } from '@/app/config/app.config';
 const config: AWS = {
   service: '${param:SERVICE_NAME}',
   frameworkVersion: '4',

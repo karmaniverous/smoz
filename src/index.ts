@@ -20,7 +20,10 @@ export type {
   FunctionServerlessConfig,
 } from './core/functionOptions';
 /** Base event map schema (rest/http/sqs). Extend it in your App. */
-export { baseEventTypeMapSchema } from './core/baseEventTypeMapSchema';
+export {
+  type BaseEventTypeMap,
+  baseEventTypeMapSchema,
+} from './core/baseEventTypeMapSchema';
 export type {
   DefineAppConfigInput,
   DefineAppConfigOutput,
@@ -31,9 +34,10 @@ export type {
   StageParamsNode,
 } from './core/defineAppConfig';
 export { defineAppConfig } from './core/defineAppConfig';
+export type { StagesFactoryOutput } from './serverless/stagesFactory';
 
 // Types
-export type { MethodKey } from './types/FunctionConfig';
+export type { FunctionConfig, MethodKey } from './types/FunctionConfig';
 export type { Handler, HandlerOptions, ShapedEvent } from './types/Handler';
 export { type HttpContext, httpContexts } from './types/HttpContext';
 export type { LambdaEvent } from './types/LambdaEvent';

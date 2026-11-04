@@ -4,6 +4,8 @@ import type {
   Context,
 } from 'aws-lambda';
 
+import { createStubLambdaContext } from '@/src/cli/local/inline.server/lambdaContext';
+
 export const createApiGatewayV1Event = (
   method: string,
   headers?: Record<string, string>,
@@ -67,17 +69,11 @@ export const createApiGatewayV2Event = (
     },
   }) as unknown as APIGatewayProxyEventV2;
 
-export const createLambdaContext = (): Context => ({
-  awsRequestId: 'test-req-id',
-  callbackWaitsForEmptyEventLoop: false,
-  functionName: 'fn',
-  functionVersion: '$LATEST',
-  invokedFunctionArn: 'arn',
-  logGroupName: 'lg',
-  logStreamName: 'ls',
-  memoryLimitInMB: '128',
-  getRemainingTimeInMillis: () => 1000,
-  done: () => undefined,
-  fail: () => undefined,
-  succeed: () => undefined,
-});
+export const createLambdaContext = (): Context =>
+  createStubLambdaContext({
+    awsRequestId: 'test-req-id',
+    functionName: 'fn',
+    invokedFunctionArn: 'arn',
+    memoryLimitInMB: '128',
+    remainingTimeInMillis: 1000,
+  });

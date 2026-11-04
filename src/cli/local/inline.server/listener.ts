@@ -4,23 +4,18 @@ import { URL } from 'node:url';
 import type { Context } from 'aws-lambda';
 
 import { match, toEvent, writeResult } from './http';
+import { createStubLambdaContext } from './lambdaContext';
 import type { Route } from './routes';
 
 /** Lambda context stub passed to every inline handler. */
-const lambdaContext = (): Context => ({
-  awsRequestId: String(Date.now()),
-  callbackWaitsForEmptyEventLoop: false,
-  functionName: 'inline',
-  functionVersion: '$LATEST',
-  invokedFunctionArn: 'arn:inline',
-  logGroupName: 'lg',
-  logStreamName: 'ls',
-  memoryLimitInMB: '256',
-  getRemainingTimeInMillis: () => 30000,
-  done: () => undefined,
-  fail: () => undefined,
-  succeed: () => undefined,
-});
+const lambdaContext = (): Context =>
+  createStubLambdaContext({
+    awsRequestId: String(Date.now()),
+    functionName: 'inline',
+    invokedFunctionArn: 'arn:inline',
+    memoryLimitInMB: '256',
+    remainingTimeInMillis: 30000,
+  });
 
 /** Write a JSON error response. */
 const sendError = (
