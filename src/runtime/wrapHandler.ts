@@ -10,6 +10,7 @@ import type { z, ZodObject, ZodRawShape } from 'zod';
 import type { BaseEventTypeMap } from '@/src/core/baseEventTypeMapSchema';
 import type { EnvAttached } from '@/src/core/defineFunctionConfig';
 import { getEnvFromFunctionConfig } from '@/src/core/defineFunctionConfig';
+import type { FunctionDefaults } from '@/src/core/functionOptions';
 import { defaultHttpEventTypeTokens } from '@/src/core/httpTokens';
 import {
   type AppHttpConfig,
@@ -62,8 +63,12 @@ export function wrapHandler<
   opts?: {
     httpEventTypeTokens?: readonly string[];
     httpConfig?: AppHttpConfig;
-    /** App-wide per-function HTTP default (`functionDefaults.http`). */
-    functionHttpDefaults?: FunctionHttpConfig;
+    /**
+     * The app's HTTP-related function defaults: `http` (a layer of the
+     * middleware stack) and `contentType` (the base content type). The
+     * function's own `contentType` and `http` beat both.
+     */
+    functionDefaults?: Pick<FunctionDefaults, 'http' | 'contentType'>;
   },
 ) {
   const assertKeysSubset = (
@@ -129,14 +134,16 @@ export function wrapHandler<
     }
     // HTTP: build middleware stack
     const fnHttp = (functionConfig as { http?: FunctionHttpConfig }).http;
-    const maybeContentType = (functionConfig as { contentType?: string })
+    const fnContentType = (functionConfig as { contentType?: string })
       .contentType;
+    const defaults = opts?.functionDefaults;
     const args: {
       functionName: string;
       logger: Console;
       eventSchema?: z.ZodType;
       responseSchema?: z.ZodType;
       contentType?: string;
+      fnContentType?: string;
       app?: AppHttpConfig;
       fnDefaults?: FunctionHttpConfig;
       fn?: FunctionHttpConfig;
@@ -149,13 +156,10 @@ export function wrapHandler<
       ...(functionConfig.responseSchema
         ? { responseSchema: functionConfig.responseSchema }
         : {}),
-      ...(typeof maybeContentType === 'string' && maybeContentType.length > 0
-        ? { contentType: maybeContentType }
-        : {}),
+      ...(defaults?.contentType ? { contentType: defaults.contentType } : {}),
+      ...(fnContentType ? { fnContentType } : {}),
       ...(opts?.httpConfig ? { app: opts.httpConfig } : {}),
-      ...(opts?.functionHttpDefaults
-        ? { fnDefaults: opts.functionHttpDefaults }
-        : {}),
+      ...(defaults?.http ? { fnDefaults: defaults.http } : {}),
       ...(fnHttp ? { fn: fnHttp } : {}),
     };
     const http = computeHttpMiddleware(args);

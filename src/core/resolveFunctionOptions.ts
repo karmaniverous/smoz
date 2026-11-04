@@ -3,20 +3,25 @@
  * location and apply app-level function defaults.
  *
  * Precedence for every field: explicit value \> `functionDefaults` \>
- * built-in default. `functionDefaults.http` is not applied here: it is a
- * separate layer of the HTTP middleware stack (see `computeHttpMiddleware`).
+ * built-in default. `functionDefaults.http` and `functionDefaults.contentType`
+ * are not applied here: they are layers of the HTTP middleware stack (see
+ * `computeHttpMiddleware`), so the stored `contentType` is only the
+ * function's own and beats every HTTP default there.
  */
-import { dirname, isAbsolute, posix, relative, sep } from 'node:path';
+import { dirname, posix, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import type { BaseEventTypeMap } from '@/src/core/baseEventTypeMapSchema';
 import type {
   DefineFunctionOptions,
   FunctionDefaults,
   FunctionNameContext,
   FunctionNameStyle,
+  FunctionServerlessConfig,
   ResolvedFunctionOptions,
 } from '@/src/core/functionOptions';
-import { toPosixPath } from '@/src/util/path';
+import { resolveHttpFromFunctionConfig } from '@/src/http/resolveHttpFromFunctionConfig';
+import { segmentsUnder, toPosixPath } from '@/src/util/path';
 
 /** App-level inputs to resolution. */
 export interface ResolveFunctionContext {
@@ -24,18 +29,10 @@ export interface ResolveFunctionContext {
   appRootAbs: string;
   /** Keys of the app's eventTypeMapSchema. */
   eventTypeKeys: readonly string[];
+  /** Event tokens treated as HTTP. */
+  httpEventTypeTokens: readonly string[];
   functionDefaults?: FunctionDefaults | undefined;
 }
-
-/**
- * Path segments of `to` relative to `from`, or undefined when `to` isn't
- * inside `from` (or on another drive).
- */
-const segmentsUnder = (from: string, to: string): string[] | undefined => {
-  const rel = relative(from, to);
-  if (rel.startsWith('..') || isAbsolute(rel)) return undefined;
-  return rel.split(sep).filter(Boolean);
-};
 
 const deriveEventType = (
   callerDir: string,
@@ -92,6 +89,55 @@ const applyNameStyle = (
   return style === 'kebab' ? segments.map(kebab).join('-') : style(nameCtx);
 };
 
+/**
+ * Check that an HTTP function whose eventType came from its folder has a
+ * derivable route, so a misplaced file fails at definition time instead of
+ * silently getting no HTTP event and no OpenAPI path.
+ */
+const assertDerivableRoute = (
+  options: DefineFunctionOptions,
+  eventType: string,
+  endpointsRootAbs: string,
+  callerDir: string,
+): void => {
+  try {
+    resolveHttpFromFunctionConfig(
+      {
+        functionName: '',
+        eventType: eventType as keyof BaseEventTypeMap,
+        ...(options.method ? { method: options.method } : {}),
+        ...(options.basePath ? { basePath: options.basePath } : {}),
+      },
+      options.callerModuleUrl,
+      endpointsRootAbs,
+    );
+  } catch (error) {
+    throw new Error(
+      `defineFunction: cannot derive the HTTP route for ${callerDir} (eventType "${eventType}" from its folder): ` +
+        `${(error as Error).message} ` +
+        `Put the file in functions/${eventType}/<path>/<method>/ (e.g. functions/${eventType}/users/get/lambda.ts) ` +
+        'or pass method and basePath explicitly.',
+      { cause: error },
+    );
+  }
+};
+
+/**
+ * `functionDefaults.serverless` with the function's `serverless` over it,
+ * key by key. `image` merges one level deeper when both are objects (e.g. a
+ * default `uri` with a per-function `command`).
+ */
+const mergeServerless = (
+  defaults: FunctionServerlessConfig | undefined,
+  fn: FunctionServerlessConfig | undefined,
+): FunctionServerlessConfig | undefined => {
+  if (!defaults && !fn) return undefined;
+  const merged = { ...defaults, ...fn };
+  if (typeof defaults?.image === 'object' && typeof fn?.image === 'object')
+    merged.image = { ...defaults.image, ...fn.image };
+  return merged;
+};
+
 /** Unique union of default and per-function env keys, defaults first. */
 const mergeFnEnvKeys = (
   defaults: readonly PropertyKey[] | undefined,
@@ -107,7 +153,7 @@ const mergeFnEnvKeys = (
  * @param options - options as passed to `defineFunction`
  * @param ctx - app root, event token keys and function defaults
  * @returns options with `functionName`, `eventType` and `endpointsRootAbs` set and defaults applied
- * @throws Error when `eventType` must be derived but the caller isn't under `functions/<eventType>/` of a known event type, or a name style needs segments the caller can't provide
+ * @throws Error when `eventType` must be derived but the caller isn't under `functions/<eventType>/` of a known event type; when a derived HTTP `eventType`'s method or base path can't be derived; or when a name style needs segments the caller can't provide
  */
 export const resolveFunctionOptions = (
   options: DefineFunctionOptions,
@@ -122,6 +168,12 @@ export const resolveFunctionOptions = (
   const endpointsRootAbs =
     options.endpointsRootAbs ??
     posix.join(ctx.appRootAbs, 'functions', eventType);
+  // An explicit eventType keeps the old behaviour (no route check).
+  if (
+    options.eventType === undefined &&
+    ctx.httpEventTypeTokens.includes(eventType)
+  )
+    assertDerivableRoute(options, eventType, endpointsRootAbs, callerDir);
 
   const defaultName = builtInFunctionName(callerDir, ctx.appRootAbs);
   const functionName =
@@ -139,11 +191,7 @@ export const resolveFunctionOptions = (
   const fnEnvKeys = mergeFnEnvKeys(defaults.fnEnvKeys, options.fnEnvKeys);
 
   const httpContexts = options.httpContexts ?? defaults.httpContexts;
-  const contentType = options.contentType ?? defaults.contentType;
-  const serverless =
-    defaults.serverless || options.serverless
-      ? { ...defaults.serverless, ...options.serverless }
-      : undefined;
+  const serverless = mergeServerless(defaults.serverless, options.serverless);
 
   return {
     ...options,
@@ -152,7 +200,6 @@ export const resolveFunctionOptions = (
     endpointsRootAbs,
     ...(fnEnvKeys.length ? { fnEnvKeys } : {}),
     ...(httpContexts ? { httpContexts } : {}),
-    ...(contentType ? { contentType } : {}),
     ...(serverless ? { serverless } : {}),
   };
 };

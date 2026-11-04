@@ -21,8 +21,10 @@ import type { HttpContext } from '@/src/types/HttpContext';
  * config or `fn.serverless(extras)`, and the environment from `fnEnvKeys`.
  *
  * With `image` set, SMOZ omits `handler` (Serverless rejects both). An
- * `image` object without `command` gets `command: [<derived handler>]`; with
- * a string `image`, the container's CMD must name the handler.
+ * `image` object without `command` gets `command: [<derived handler>]`, the
+ * handler's path in the source tree, which only works if the container
+ * keeps the project layout; with a string `image`, the container's CMD must
+ * name the handler.
  */
 export type FunctionServerlessConfig = Omit<
   NonNullable<AWS['functions']>[string],
@@ -76,7 +78,12 @@ export interface DefineFunctionOptions<
   basePath?: string;
   /** Security contexts to expose. Defaults to `functionDefaults.httpContexts`, else `['public']`. */
   httpContexts?: readonly HttpContext[];
-  /** Response content type. Defaults to `functionDefaults.contentType`, else `application/json`. */
+  /**
+   * Response content type. Beats every default (`functionDefaults.contentType`,
+   * app `http.defaults`, `functionDefaults.http.options` and the selected
+   * profile); only this function's own `http.options.contentType` beats it.
+   * Defaults to the highest of those that is set, else `application/json`.
+   */
   contentType?: string;
   /**
    * HTTP middleware customization for this function: profile selection,
@@ -92,8 +99,9 @@ export interface DefineFunctionOptions<
   fnEnvKeys?: readonly EnvKey[];
   /**
    * Serverless Framework properties for this function (`memorySize`,
-   * `timeout`, `tenancy`, `image`, ...), shallow-merged over
-   * `functionDefaults.serverless`. See {@link FunctionServerlessConfig}.
+   * `timeout`, `tenancy`, `image`, ...), merged key by key over
+   * `functionDefaults.serverless` (`image` one level deeper when both are
+   * objects). See {@link FunctionServerlessConfig}.
    */
   serverless?: FunctionServerlessConfig;
   /** `import.meta.url` of the registering module (required). */
@@ -142,7 +150,12 @@ export interface FunctionDefaults {
   fnEnvKeys?: readonly string[];
   /** Default security contexts for HTTP functions (built-in default `['public']`). */
   httpContexts?: readonly HttpContext[];
-  /** Default response content type for HTTP functions (built-in default `application/json`). */
+  /**
+   * Default response content type for HTTP functions (built-in default
+   * `application/json`). The lowest HTTP layer: app `http.defaults`,
+   * `functionDefaults.http.options`, the selected profile and the function's
+   * own `contentType` all beat it.
+   */
   contentType?: string;
   /**
    * Default per-function HTTP customization. A default never overrides what
@@ -150,15 +163,17 @@ export interface FunctionDefaults {
    *
    * Options resolve, lowest to highest: app `http.defaults` \<
    * `functionDefaults.http.options` \< the selected profile \< the function's
-   * own `http.options`. `profile` is used only when the function sets none;
+   * own `contentType` \< its own `http.options`. `profile` is used only when
+   * the function sets none (an unknown profile name throws at definition);
    * `extend`, `transform` and `replace` only when the function sets no value
    * for that key (`extend` and `transform` run before the profile's).
    */
   http?: FunctionHttpConfig;
   /**
    * Default Serverless Framework properties for every function, e.g.
-   * `{ memorySize: 512 }`. A function's own `serverless` is shallow-merged
-   * over it, key by key.
+   * `{ memorySize: 512 }`. A function's own `serverless` is merged over it
+   * key by key; `image` merges one level deeper when both are objects (a
+   * default `uri` with a per-function `command`).
    */
   serverless?: FunctionServerlessConfig;
   /**

@@ -73,7 +73,8 @@ export interface AppInit<
   /**
    * Optional defaults applied to every function registered with
    * `defineFunction` (env keys, HTTP contexts, content type, per-function
-   * HTTP customization, name style). Explicit per-function values win.
+   * HTTP customization, Serverless properties, name style). Explicit
+   * per-function values win.
    */
   functionDefaults?: FunctionDefaults;
 }
@@ -226,8 +227,8 @@ export interface AppInit<
    * Only `callerModuleUrl` is required. `eventType`, `endpointsRootAbs`,
    * `functionName`, `method` and `basePath` derive from the file's location
    * under `<appRootAbs>/functions/<eventType>/`; `httpContexts`,
-   * `contentType`, `http`, `fnEnvKeys` and the name style come from the app's
-   * `functionDefaults`. Explicit values always win. See
+   * `contentType`, `http`, `serverless`, `fnEnvKeys` and the name style come
+   * from the app's `functionDefaults`. Explicit values always win. See
    * {@link DefineFunctionOptions} for each field's default.
    *
    * @typeParam EventType      - A key from your eventTypeMapSchema (e.g., 'rest' | 'http' | 'sqs' | 'step'). Inferred as a literal when `eventType` is passed; when omitted it widens to all keys of the map (the runtime value is still derived from the path), so pass `eventType` when the handler needs the narrowed event type.
@@ -235,7 +236,7 @@ export interface AppInit<
    * @typeParam ResponseSchema - Optional Zod schema validated AFTER the handler (refines response shape)
    * @param options - per‑function configuration
    * @returns a per‑function API: { handler(business), openapi(baseOperation), serverless(extras) }
-   * @throws Error when `eventType` is omitted and the caller isn't under `<appRootAbs>/functions/<eventType>/` for a key of eventTypeMapSchema, or when `functionName` duplicates another function's
+   * @throws Error when `eventType` is omitted and the caller isn't under `<appRootAbs>/functions/<eventType>/` for a key of eventTypeMapSchema, or it is an HTTP token and the method or base path can't be derived; when `functionName` duplicates another function's; or when an HTTP function selects (or `functionDefaults.http` selects) a profile that isn't in `http.profiles`
    */
   public defineFunction<
     EventType extends Extract<keyof z.infer<EventTypeMapSchema>, string>,

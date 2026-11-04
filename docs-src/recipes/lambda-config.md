@@ -36,6 +36,8 @@ export const fn = app.defineFunction({
 });
 ```
 
+The merge is one level deep: a function's `tenancy` or `layers` replaces the default's whole value. `image` is the exception: when both the default and the function give an object, they merge key by key too, so a default `uri` combines with a per-function `command`. A string `image` on either side replaces the other.
+
 ## Tenant isolation
 
 ```ts
@@ -62,6 +64,8 @@ export const fn = app.defineFunction({
   callerModuleUrl: import.meta.url,
 });
 ```
+
+That default `command` is the handler's path in your source tree, so it only works if the container keeps the project layout: the Lambda runtime in the image must find a JavaScript module at that path, relative to the image's working directory (e.g. `app/functions/rest/render/post/handler.js` when you compile the project in place). If your image bundles or moves the code, set `image.command` to the handler as it exists in the image (e.g. `['dist/render.handler']`).
 
 Set `image.command` yourself to override it. With a string `image` (a URI or the name of an image in `provider.ecr.images`), SMOZ changes nothing, so the image's `CMD` must point at the handler.
 

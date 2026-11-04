@@ -9,11 +9,15 @@
 */
 import { pathToFileURL } from 'node:url';
 
+import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { z } from 'zod';
 
 import { App, type AppInit } from '@/src/core/App';
-import { baseEventTypeMapSchema } from '@/src/core/baseEventTypeMapSchema';
+import {
+  type BaseEventTypeMap,
+  baseEventTypeMapSchema,
+} from '@/src/core/baseEventTypeMapSchema';
 import type {
   DefineFunctionOptions,
   FunctionDefaults,
@@ -154,6 +158,31 @@ describe('defineFunction: eventType and endpointsRootAbs from the path', () => {
     });
   });
 
+  it('types the event from a literal eventType and widens it when derived', async () => {
+    const app = makeApp();
+    const literal = app.defineFunction({
+      eventType: 'sqs',
+      callerModuleUrl: at('functions/sqs/a'),
+    });
+    const derived = app.defineFunction({
+      callerModuleUrl: at('functions/sqs/b'),
+    });
+    type EventOf<F extends { handler: (business: never) => unknown }> =
+      Parameters<Parameters<F['handler']>[0]>[0];
+    type EventMap = z.infer<typeof eventTypeMapSchema>;
+
+    expectTypeOf<EventOf<typeof literal>>().toEqualTypeOf<SQSEvent>();
+    expectTypeOf<EventOf<typeof derived>>().toEqualTypeOf<
+      (EventMap & BaseEventTypeMap)[keyof EventMap]
+    >();
+
+    // At runtime both are SQS functions: the event reaches the handler as is.
+    const evt = { Records: [] };
+    const echo = async (e: unknown) => e;
+    expect(await literal.handler(echo)(evt, createLambdaContext())).toBe(evt);
+    expect(await derived.handler(echo)(evt, createLambdaContext())).toBe(evt);
+  });
+
   it('accepts a folder that is a custom key of eventTypeMapSchema', () => {
     const app = makeApp();
     app.defineFunction({ callerModuleUrl: at('functions/custom/job') });
@@ -215,6 +244,94 @@ describe('defineFunction: eventType and endpointsRootAbs from the path', () => {
     ).toThrow(
       /folder "cognito" .* is not an event type of this app \(known: rest, http, .*custom\)/,
     );
+  });
+
+  describe('HTTP route of a derived eventType', () => {
+    it.each([
+      ['directly in functions/rest', 'functions/rest', /cannot infer method/],
+      [
+        'in a folder that is not a method',
+        'functions/rest/users',
+        /cannot infer method/,
+      ],
+    ])('throws at definition when the file is %s', (_, rel, cause) => {
+      const app = makeApp();
+      const define = () => app.defineFunction({ callerModuleUrl: at(rel) });
+      expect(define).toThrow(
+        /defineFunction: cannot derive the HTTP route for .* \(eventType "rest" from its folder\)/,
+      );
+      expect(define).toThrow(cause);
+      expect(define).toThrow(
+        /Put the file in functions\/rest\/<path>\/<method>\/ .* or pass method and basePath explicitly\./,
+      );
+    });
+
+    it('throws when only the method is given and the base path is empty', () => {
+      const app = makeApp();
+      expect(() =>
+        app.defineFunction({
+          method: 'get',
+          callerModuleUrl: at('functions/rest'),
+        }),
+      ).toThrow(/cannot derive the HTTP route.*derived basePath is empty/);
+    });
+
+    it('accepts an explicit basePath where the derived one is empty', () => {
+      const app = makeApp();
+      app.defineFunction({
+        basePath: 'status',
+        callerModuleUrl: at('functions/rest/get'),
+      });
+      expect(httpEvents(fnsOf(app).functions_rest_get)).toEqual([
+        'get /status',
+      ]);
+    });
+
+    it('throws when the caller is outside an explicit endpointsRootAbs', () => {
+      const app = makeApp();
+      expect(() =>
+        app.defineFunction({
+          method: 'get',
+          callerModuleUrl: at('functions/rest/users'),
+          endpointsRootAbs: `${appRoot}/functions/other`,
+        }),
+      ).toThrow(
+        /cannot derive the HTTP route.*basePath missing and caller is not under endpoints root/,
+      );
+    });
+
+    it('accepts an explicit method for a folder that is not a method', () => {
+      const app = makeApp();
+      app.defineFunction({
+        method: 'get',
+        callerModuleUrl: at('functions/rest/users'),
+      });
+      expect(httpEvents(fnsOf(app).functions_rest_users)).toEqual([
+        'get /users',
+      ]);
+    });
+
+    it('keeps the old fallback when eventType is explicit', () => {
+      const app = makeApp();
+      app.defineFunction({
+        eventType: 'rest',
+        callerModuleUrl: at('functions/rest/users'),
+      });
+      expect(fnsOf(app).functions_rest_users?.events).toEqual([]);
+    });
+
+    it('does not check non-HTTP functions', () => {
+      const app = makeApp();
+      // No method folder, no route: fine for an SQS function.
+      app.defineFunction({ callerModuleUrl: at('functions/sqs') });
+      expect(fnsOf(app).functions_sqs?.events).toEqual([]);
+    });
+
+    it("derives a route under a folder whose name starts with '..'", () => {
+      const app = makeApp({ functionDefaults: { functionName: 'kebab' } });
+      app.defineFunction({ callerModuleUrl: at('functions/rest/..foo/get') });
+      expect(httpEvents(fnsOf(app)['..foo-get'])).toEqual(['get /..foo']);
+    });
   });
 
   it('lets an explicit eventType win over the folder', async () => {
@@ -334,6 +451,83 @@ describe('functionDefaults', () => {
     expect(res.headers['Content-Type']).toBe(vendor);
     const res2 = await call(explicit, {});
     expect(res2.headers['Content-Type']).toBe('application/json');
+  });
+
+  describe('contentType precedence', () => {
+    const ct = (s: string) => `application/vnd.${s}+json`;
+    // Accept every candidate so the response reports the resolved type.
+    const accept = ['fd', 'app', 'fdopt', 'prof', 'own', 'ownopt']
+      .map(ct)
+      .join(', ');
+    const typeOf = async (
+      handler: (e: unknown, c: unknown) => Promise<unknown>,
+    ) =>
+      (await call(handler, { headers: { Accept: accept } })).headers[
+        'Content-Type'
+      ];
+    const layered = () =>
+      makeApp({
+        http: {
+          defaults: { contentType: ct('app') },
+          profiles: { p: { contentType: ct('prof') } },
+        },
+        functionDefaults: {
+          contentType: ct('fd'),
+          http: { profile: 'p', options: { contentType: ct('fdopt') } },
+        },
+      });
+    const ok = async () => ({ ok: true });
+
+    it('the selected profile wins when the function sets nothing', async () => {
+      const handler = layered()
+        .defineFunction({ callerModuleUrl: at('functions/rest/a/get') })
+        .handler(ok);
+      expect(await typeOf(handler)).toBe(ct('prof'));
+    });
+
+    it("the function's own contentType beats the profile and every default", async () => {
+      const handler = layered()
+        .defineFunction({
+          contentType: ct('own'),
+          callerModuleUrl: at('functions/rest/a/get'),
+        })
+        .handler(ok);
+      expect(await typeOf(handler)).toBe(ct('own'));
+    });
+
+    it("the function's own contentType beats app http.defaults", async () => {
+      const handler = makeApp({
+        http: { defaults: { contentType: ct('app') } },
+      })
+        .defineFunction({
+          contentType: ct('own'),
+          callerModuleUrl: at('functions/rest/a/get'),
+        })
+        .handler(ok);
+      expect(await typeOf(handler)).toBe(ct('own'));
+    });
+
+    it("the function's http.options.contentType beats its own contentType", async () => {
+      const handler = layered()
+        .defineFunction({
+          contentType: ct('own'),
+          http: { options: { contentType: ct('ownopt') } },
+          callerModuleUrl: at('functions/rest/a/get'),
+        })
+        .handler(ok);
+      expect(await typeOf(handler)).toBe(ct('ownopt'));
+    });
+
+    it('functionDefaults.contentType is below app http.defaults', async () => {
+      const app = makeApp({
+        http: { defaults: { contentType: ct('app') } },
+        functionDefaults: { contentType: ct('fd') },
+      });
+      const handler = app
+        .defineFunction({ callerModuleUrl: at('functions/rest/a/get') })
+        .handler(ok);
+      expect(await typeOf(handler)).toBe(ct('app'));
+    });
   });
 
   it('merges fnEnvKeys with the function keys', () => {
@@ -492,10 +686,63 @@ describe('functionDefaults', () => {
       expect(await postForm(defaulted)).toEqual({ parsed: false });
       expect(await postForm(chosen)).toEqual({ parsed: true });
     });
+
+    it('throws at definition for an unknown functionDefaults.http.profile', () => {
+      const app = makeApp({
+        http: uploads,
+        functionDefaults: { http: { profile: 'upload' } },
+      });
+      expect(() =>
+        app.defineFunction({ callerModuleUrl: at('functions/rest/a/post') }),
+      ).toThrow(
+        `Unknown HTTP profile "upload" (functionDefaults.http.profile) on function 'functions_rest_a_post'. Known profiles: uploads, plain.`,
+      );
+    });
+
+    it('is ignored by non-HTTP functions', async () => {
+      // Every part of this default would break an HTTP function.
+      const stack = {
+        before: () => {
+          throw new Error('HTTP stack ran');
+        },
+      };
+      const app = makeApp({
+        functionDefaults: {
+          http: { profile: 'missing', replace: { stack } },
+          contentType: 'text/plain',
+        },
+      });
+      const handler = app
+        .defineFunction({ callerModuleUrl: at('functions/sqs/tick') })
+        .handler(async () => 'raw');
+      expect(await handler({ Records: [] }, createLambdaContext())).toBe('raw');
+      expect(() =>
+        app.defineFunction({ callerModuleUrl: at('functions/rest/a/get') }),
+      ).toThrow(/Unknown HTTP profile "missing"/);
+    });
   });
 });
 
 describe('defineFunction: per-function http (#24)', () => {
+  it('throws at definition for an unknown profile, naming the known ones', () => {
+    const app = makeApp({ http: { profiles: { uploads: {} } } });
+    expect(() =>
+      app.defineFunction({
+        http: { profile: 'upload' },
+        callerModuleUrl: at('functions/rest/form/post'),
+      }),
+    ).toThrow(
+      `Unknown HTTP profile "upload" (http.profile) on function 'functions_rest_form_post'. Known profiles: uploads. ` +
+        'Define it in App.create({ http: { profiles } }) or fix the name.',
+    );
+    expect(() =>
+      makeApp().defineFunction({
+        http: { profile: 'upload' },
+        callerModuleUrl: at('functions/rest/form/post'),
+      }),
+    ).toThrow('Known profiles: (none).');
+  });
+
   it('selects an app profile', async () => {
     const app = makeApp({
       http: { profiles: { uploads: { multipartBodyParser: {} } } },
@@ -685,5 +932,46 @@ describe('defineFunction: serverless (#19)', () => {
       timeout: 10,
       tracing: 'Active',
     });
+  });
+
+  it('merges image objects one level deep, function keys winning', () => {
+    const uri = 'acct.dkr.ecr/repo:tag';
+    const app = makeApp({
+      functionDefaults: {
+        serverless: { image: { uri, workingDirectory: '/var/task' } },
+      },
+    });
+    app.defineFunction({
+      serverless: {
+        image: { command: ['dist/a.handler'], workingDirectory: '/app' },
+      },
+      callerModuleUrl: at(users),
+    });
+    app.defineFunction({
+      serverless: { image: 'other:tag' },
+      callerModuleUrl: at('functions/rest/users/post'),
+    });
+    app.defineFunction({ callerModuleUrl: at('functions/rest/users/put') });
+    const defs = defsOf(app);
+    expect(defs[usersName]!.image).toEqual({
+      uri,
+      command: ['dist/a.handler'],
+      workingDirectory: '/app',
+    });
+    // A string replaces the default object; no own image keeps the default.
+    expect(defs.functions_rest_users_post!.image).toBe('other:tag');
+    expect(defs.functions_rest_users_put!.image).toEqual({
+      uri,
+      workingDirectory: '/var/task',
+      command: [derivedHandler().replace('/get/', '/put/')],
+    });
+
+    // An object never merges into a default string.
+    const app2 = makeApp({
+      functionDefaults: { serverless: { image: 'default:tag' } },
+    });
+    const image = { uri, command: ['dist/a.handler'] };
+    app2.defineFunction({ serverless: { image }, callerModuleUrl: at(users) });
+    expect(defsOf(app2)[usersName]!.image).toEqual(image);
   });
 });

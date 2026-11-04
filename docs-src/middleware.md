@@ -29,22 +29,26 @@ SMOZ builds a robust Middy stack around HTTP handlers. Non‑HTTP flows bypassMi
   - `http.defaults`: base options (e.g., contentType, logger)
   - `http.profiles`: named profiles (options + extend/transform)
 - Function level (optional; in `app.defineFunction`):
-  - `http.profile`: choose one profile by name
+  - `http.profile`: choose one profile by name (an unknown name throws when the function is defined, listing the known profiles)
   - `http.options`: shallow overrides
-  - `http.extend`: append steps into phases
+  - `http.extend`: add steps to phases. `before` and `onError` steps are appended; `after` steps go just before `shape`, so they see the handler's response before it is shaped and serialized (and `serializer` stays last)
   - `http.transform`: insert/replace/remove steps by ID
   - `http.replace`: phased arrays or a single middleware (advanced)
 - App-wide function defaults (optional; `functionDefaults.http` in `App.create`): the same shape as a function's `http`, applied to every function. A default never overrides what the function chose (see "App-wide defaults" in the [Overview](./overview.md)).
 
 Options resolve in this order, later layers winning:
 
-1. built-in defaults
-2. `http.defaults`
-3. `functionDefaults.http.options`
-4. the selected profile: the function's `http.profile`, else `functionDefaults.http.profile`
-5. the function's own `http.options`
+1. built-in defaults (content type `application/json`)
+2. `functionDefaults.contentType` (content type only)
+3. `http.defaults`
+4. `functionDefaults.http.options`
+5. the selected profile: the function's `http.profile`, else `functionDefaults.http.profile`
+6. the function's own top-level `contentType` (content type only)
+7. the function's own `http.options`
 
-`extend` and `transform` run in the same layer order (`http.defaults`, `functionDefaults.http`, profile, function). `functionDefaults.http.extend`, `.transform` and `.replace` apply only to functions that set no value for that key.
+So a function's explicit `contentType` beats every default and the profile.
+
+`extend` and `transform` run in the same layer order (`http.defaults`, `functionDefaults.http`, profile, function). With `extend.after`, each layer's steps run after the earlier layers' steps and before `shape`. `functionDefaults.http.extend`, `.transform` and `.replace` apply only to functions that set no value for that key.
 
 ```ts
 export const app = App.create({

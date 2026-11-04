@@ -9,6 +9,8 @@ import {
   type FunctionHttpConfig,
 } from '@/src/http/middleware/httpStackCustomization';
 import {
+  type ApiMiddleware,
+  getId,
   type HttpTransform,
   insertAfter,
   removeStep,
@@ -32,6 +34,7 @@ const run = async (
     eventSchema?: z.ZodType;
     responseSchema?: z.ZodType;
     contentType?: string;
+    fnContentType?: string;
   },
   accept?: string,
 ): Promise<HttpResponse> => {
@@ -43,6 +46,7 @@ const run = async (
       ? { responseSchema: options.responseSchema }
       : {}),
     ...(options.contentType ? { contentType: options.contentType } : {}),
+    ...(options.fnContentType ? { fnContentType: options.fnContentType } : {}),
     ...(options.app ? { app: options.app } : {}),
     ...(options.fnDefaults ? { fnDefaults: options.fnDefaults } : {}),
     ...(options.fn ? { fn: options.fn } : {}),
@@ -91,15 +95,20 @@ describe('computeHttpMiddleware: fnDefaults layer', () => {
     defaults: { contentType: defCT },
     profiles: { p: { contentType: profCT }, q: {} },
   };
+  const baseCT = 'application/vnd.base+json';
+  const ownCT = 'application/vnd.own+json';
   const ctFor = async (opts: {
+    app?: AppHttpConfig;
     fnDefaults?: FunctionHttpConfig;
     fn?: FunctionHttpConfig;
+    contentType?: string;
+    fnContentType?: string;
   }) => {
     // Accept every candidate so the response reports the resolved type.
     const res = await run(
       async () => ({ ok: true }),
       { app, ...opts },
-      [defCT, fdCT, profCT, fnCT].join(', '),
+      [baseCT, defCT, fdCT, profCT, ownCT, fnCT].join(', '),
     );
     return res.headers['Content-Type'];
   };
@@ -140,6 +149,61 @@ describe('computeHttpMiddleware: fnDefaults layer', () => {
         fn: { options: { contentType: fnCT } },
       }),
     ).toBe(fnCT);
+  });
+
+  it('the base contentType is below app defaults', async () => {
+    expect(await ctFor({ contentType: baseCT })).toBe(defCT);
+    expect(await ctFor({ app: {}, contentType: baseCT })).toBe(baseCT);
+  });
+
+  it("the function's own contentType beats every default and the profile", async () => {
+    expect(
+      await ctFor({
+        contentType: baseCT,
+        fnDefaults: { profile: 'p', options: { contentType: fdCT } },
+        fnContentType: ownCT,
+      }),
+    ).toBe(ownCT);
+    expect(await ctFor({ fn: { profile: 'p' }, fnContentType: ownCT })).toBe(
+      ownCT,
+    );
+  });
+
+  it("function options beat the function's own contentType", async () => {
+    expect(
+      await ctFor({
+        fnContentType: ownCT,
+        fn: { profile: 'p', options: { contentType: fnCT } },
+      }),
+    ).toBe(fnCT);
+  });
+
+  it('throws for an unknown profile, naming where it was set and the known ones', () => {
+    const build =
+      (args: {
+        fnDefaults?: FunctionHttpConfig;
+        fn?: FunctionHttpConfig;
+        app?: AppHttpConfig;
+      }) =>
+      () =>
+        computeHttpMiddleware({ functionName: 'profileFn', app, ...args });
+    expect(build({ fn: { profile: 'nope' } })).toThrow(
+      `Unknown HTTP profile "nope" (http.profile) on function 'profileFn'. Known profiles: p, q.`,
+    );
+    expect(build({ fnDefaults: { profile: 'nope' } })).toThrow(
+      '"nope" (functionDefaults.http.profile)',
+    );
+    // The function's valid profile replaces an unknown default one.
+    expect(
+      build({ fnDefaults: { profile: 'nope' }, fn: { profile: 'q' } }),
+    ).not.toThrow();
+    expect(build({ app: {}, fn: { profile: 'p' } })).toThrow(
+      'Known profiles: (none).',
+    );
+    // A key inherited from Object.prototype is not a profile.
+    expect(build({ fn: { profile: 'toString' } })).toThrow(
+      'Unknown HTTP profile "toString"',
+    );
   });
 
   it('applies fnDefaults.extend only when the function sets no extend', async () => {
@@ -345,6 +409,85 @@ describe('computeHttpMiddleware: phased replace', () => {
         },
       }),
     ).toThrow(/Zod validation is required.*phasedFn/);
+  });
+});
+
+describe('computeHttpMiddleware: extend.after', () => {
+  /**
+   * An after step recording, in the response body, its label and what it
+   * saw: the body's type (an object until `serializer`) and the
+   * Content-Type header (unset until `shape`).
+   */
+  const step = (label: string) => ({
+    after: (request: unknown) => {
+      const res = (
+        request as {
+          response: {
+            body: Record<string, unknown>;
+            headers: Record<string, string>;
+          };
+        }
+      ).response;
+      const seen = `${label}:${typeof res.body}:${res.headers['Content-Type'] ?? 'none'}`;
+      res.body.layers = [
+        ...((res.body.layers as string[] | undefined) ?? []),
+        seen,
+      ];
+    },
+  });
+  const appWith = (): AppHttpConfig => ({
+    defaults: { extend: { after: [step('app')] } },
+    profiles: { p: { extend: { after: [step('profile')] } } },
+  });
+  const layersOf = async (res: HttpResponse) =>
+    (JSON.parse(res.body) as { layers: string[] }).layers;
+
+  it('runs every layer before shape, in layer order (app, fnDefaults, profile)', async () => {
+    const res = await run(async () => ({ ok: true }), {
+      app: appWith(),
+      fnDefaults: { profile: 'p', extend: { after: [step('fnDefaults')] } },
+    });
+    expect(res.statusCode).toBe(200);
+    // Each step saw an object body and no Content-Type: neither shape nor
+    // serializer had run, and what they added reached the response.
+    expect(await layersOf(res)).toEqual([
+      'app:object:none',
+      'fnDefaults:object:none',
+      'profile:object:none',
+    ]);
+  });
+
+  it('runs the function layer last, keeping several steps in order', async () => {
+    const res = await run(async () => ({ ok: true }), {
+      app: appWith(),
+      fn: {
+        profile: 'p',
+        extend: { after: [step('fn1'), step('fn2')] },
+      },
+    });
+    expect(await layersOf(res)).toEqual([
+      'app:object:none',
+      'profile:object:none',
+      'fn1:object:none',
+      'fn2:object:none',
+    ]);
+  });
+
+  it("keeps the invariants: steps sit just before 'shape', 'serializer' last", () => {
+    const mine = step('mine');
+    let after: ApiMiddleware[] = [];
+    computeHttpMiddleware({
+      functionName: 'afterFn',
+      app: { defaults: { extend: { after: [mine] } } },
+      fn: {
+        transform: (phases) => {
+          after = phases.after;
+          return phases;
+        },
+      },
+    });
+    const ids = after.map((m) => (m === mine ? 'mine' : getId(m)));
+    expect(ids.slice(-3)).toEqual(['mine', 'shape', 'serializer']);
   });
 });
 

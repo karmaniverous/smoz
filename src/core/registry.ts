@@ -21,6 +21,7 @@ import type {
 import { handlerFactory } from '@/src/core/handlerFactory';
 import { resolveFunctionOptions } from '@/src/core/resolveFunctionOptions';
 import type { ZodObj } from '@/src/core/types';
+import { selectHttpProfile } from '@/src/http/middleware/customization/profile';
 import type { AppHttpConfig } from '@/src/http/middleware/httpStackCustomization';
 import type { BaseOperation } from '@/src/openapi/types';
 import type { FunctionConfig } from '@/src/types/FunctionConfig';
@@ -64,6 +65,14 @@ export const createRegistry = <
     ) {
       const resolved = resolveFunctionOptions(options, deps);
       const key = resolved.functionName;
+      // Fail at definition time, not on the first request.
+      if (deps.httpEventTypeTokens.includes(resolved.eventType))
+        selectHttpProfile({
+          functionName: key,
+          app: deps.http,
+          fnDefaults: deps.functionDefaults?.http,
+          fn: resolved.http,
+        });
       const other = map.get(key);
       if (other) {
         throw new Error(
@@ -109,7 +118,7 @@ export const createRegistry = <
             EventType,
             EventSchema,
             ResponseSchema
-          >(deps.httpEventTypeTokens, deps.http, deps.functionDefaults?.http);
+          >(deps.httpEventTypeTokens, deps.http, deps.functionDefaults);
           return make(fnConfig, business);
         },
         openapi: (baseOperation: BaseOperation) => {
