@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@karmaniverous/get-dotenv": "^7.0.11",
-    "@types/aws-lambda": "^8.10.162",
+    "@types/aws-lambda": "^8.10.164",
     "chokidar": "^5.0.0",
     "http-errors": "^2.0.1",
     "package-directory": "^8.2.0",
