@@ -91,6 +91,18 @@ export const fn = app.defineFunction({
 });
 ```
 
+Deployed, API Gateway must pass upload bodies through as binary. List `multipart/form-data`, and any other binary types you accept (e.g. `image/*` for raw image bodies), in `provider.apiGateway.binaryMediaTypes` in `serverless.ts` (the template lists `multipart/form-data`):
+
+```ts
+provider: {
+  apiGateway: {
+    binaryMediaTypes: ['multipart/form-data'],
+  },
+},
+```
+
+API Gateway then base64-encodes those bodies and sets `isBase64Encoded`, which the parser decodes. Without it, API Gateway passes the body to Lambda as UTF-8 text, and file bytes that aren't valid UTF-8 (any JPEG or PNG) are corrupted: each one becomes `ef bf bd` (U+FFFD). `smoz dev` (inline) reads the same list from `serverless.ts` and encodes request bodies the same way, so uploads behave in dev as they will deployed; it prints the list it applies at startup. If `serverless.ts` is missing or fails to load, it uses `multipart/form-data`, `image/*` and `application/octet-stream`.
+
 Set `multipartBodyParser: false` on a function to opt it out of a profile or app default that enables it. Options merge shallowly, like every other stack option: a function's `multipartBodyParser: { ... }` replaces a profile's object entirely rather than merging into it.
 
 If you enable the option without installing the package, requests with a body fail with an error naming the missing package. Apps that never enable it don't need it installed, and bundling (e.g. the Serverless Framework's esbuild) still succeeds. The published type declarations reference the package for the option's type; with `skipLibCheck: true` (the SMOZ template default) that needs nothing installed.
