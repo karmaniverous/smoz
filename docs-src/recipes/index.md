@@ -9,6 +9,7 @@ children:
   - ./custom-middleware.md
   - ./per-function-env.md
   - ./observability.md
+  - ./lambda-config.md
   - ./troubleshooting.md
 ---
 
@@ -22,6 +23,7 @@ Concrete patterns you can lift into your app. Each recipe links to a focusedpage
 - [Custom middleware (insertAfter 'shape')](./custom-middleware.md)
 - [Per‑function env (fnEnvKeys)](./per-function-env.md)
 - [Observability (requestId header)](./observability.md)
+- [Per-function Lambda config (memory, timeout, tenancy, container images)](./lambda-config.md)
 - [Troubleshooting](./troubleshooting.md)
   Examples (in repository)
 

@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -43,8 +44,28 @@ export const splitPattern = (p: string): Segment[] =>
         : { literal: s },
     );
 
+type FunctionDef = {
+  handler?: string;
+  image?: string | { command?: unknown[] };
+  events?: Array<{ http?: { method?: string; path?: string } }>;
+};
+
+/**
+ * Handler string of a function definition: `handler`, else (container image
+ * functions) the `image.command` SMOZ defaults to the derived handler.
+ */
+const handlerOf = (def: FunctionDef): string | undefined => {
+  if (typeof def.handler === 'string') return def.handler;
+  const cmd =
+    typeof def.image === 'object' ? def.image.command?.[0] : undefined;
+  return typeof cmd === 'string' ? cmd : undefined;
+};
+
 /**
  * Build route table from the downstream app's aggregated serverless functions.
+ *
+ * Container image functions are served from `image.command[0]` when it names
+ * a handler module in the project; otherwise they are skipped with a notice.
  */
 export const loadHandlers = async (
   root: string,
@@ -56,20 +77,26 @@ export const loadHandlers = async (
   >;
   const routes: Route[] = [];
 
-  for (const [, defUnknown] of Object.entries(fns)) {
-    const def = defUnknown as {
-      handler?: string;
-      events?: Array<{ http?: { method?: string; path?: string } }>;
-    };
-
-    if (typeof def.handler !== 'string' || !Array.isArray(def.events)) continue;
+  for (const [name, defUnknown] of Object.entries(fns)) {
+    const def = defUnknown as FunctionDef;
+    if (!Array.isArray(def.events)) continue;
+    const handlerRef = handlerOf(def);
+    const isImage = def.image !== undefined;
+    if (handlerRef === undefined) {
+      if (isImage)
+        console.warn(
+          `[inline] Skipping "${name}": its container image doesn't name a handler module. ` +
+            'Set serverless.image as an object without command (SMOZ then sets command to the handler) to serve it inline.',
+        );
+      continue;
+    }
 
     const [moduleRel, exportName] = (() => {
-      const lastDot = def.handler.lastIndexOf('.');
-      if (lastDot < 0) return [def.handler, 'handler'] as const;
+      const lastDot = handlerRef.lastIndexOf('.');
+      if (lastDot < 0) return [handlerRef, 'handler'] as const;
       return [
-        def.handler.slice(0, lastDot),
-        def.handler.slice(lastDot + 1),
+        handlerRef.slice(0, lastDot),
+        handlerRef.slice(lastDot + 1),
       ] as const;
     })();
 
@@ -80,6 +107,13 @@ export const loadHandlers = async (
       path.resolve(root, `${moduleRel}.js`),
       path.resolve(root, `${moduleRel}.mjs`),
     ];
+    // A custom image command may not name a module in the project.
+    if (isImage && !existsSync(candidates[0]!)) {
+      console.warn(
+        `[inline] Skipping "${name}": image.command "${handlerRef}" is not a handler module in this project.`,
+      );
+      continue;
+    }
     // Always try the first candidate (TS is expected in authoring).
     const modUrl = pathToFileURL(candidates[0]!).href;
     const mod = (await import(modUrl)) as Record<string, unknown>;

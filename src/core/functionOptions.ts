@@ -4,12 +4,30 @@
  * Defined once so a field added here reaches the stored registry entry and
  * the branded runtime config without being listed again anywhere else.
  */
+import type { AWS } from '@serverless/typescript';
 import type { z } from 'zod';
 
 import type { FunctionHttpConfig } from '@/src/http/middleware/customization/types';
 import type { BaseOperation } from '@/src/openapi/types';
 import type { MethodKey } from '@/src/types/FunctionConfig';
 import type { HttpContext } from '@/src/types/HttpContext';
+
+/**
+ * Serverless Framework function properties SMOZ passes through unchanged
+ * (e.g. `memorySize`, `timeout`, `tenancy`, `image`, `layers`).
+ *
+ * `handler`, `events` and `environment` are owned by SMOZ and excluded:
+ * the handler derives from the file location, events from the HTTP
+ * config or `fn.serverless(extras)`, and the environment from `fnEnvKeys`.
+ *
+ * With `image` set, SMOZ omits `handler` (Serverless rejects both). An
+ * `image` object without `command` gets `command: [<derived handler>]`; with
+ * a string `image`, the container's CMD must name the handler.
+ */
+export type FunctionServerlessConfig = Omit<
+  NonNullable<AWS['functions']>[string],
+  'handler' | 'events' | 'environment'
+>;
 
 /**
  * Options accepted by `app.defineFunction(...)`.
@@ -72,6 +90,12 @@ export interface DefineFunctionOptions<
   responseSchema?: ResponseSchema;
   /** Extra env keys exposed to this function (merged with `functionDefaults.fnEnvKeys`). */
   fnEnvKeys?: readonly EnvKey[];
+  /**
+   * Serverless Framework properties for this function (`memorySize`,
+   * `timeout`, `tenancy`, `image`, ...), shallow-merged over
+   * `functionDefaults.serverless`. See {@link FunctionServerlessConfig}.
+   */
+  serverless?: FunctionServerlessConfig;
   /** `import.meta.url` of the registering module (required). */
   callerModuleUrl: string;
   /**
@@ -131,6 +155,12 @@ export interface FunctionDefaults {
    * for that key (`extend` and `transform` run before the profile's).
    */
   http?: FunctionHttpConfig;
+  /**
+   * Default Serverless Framework properties for every function, e.g.
+   * `{ memorySize: 512 }`. A function's own `serverless` is shallow-merged
+   * over it, key by key.
+   */
+  serverless?: FunctionServerlessConfig;
   /**
    * Name style used when a function sets no `functionName`. Without it the
    * built-in name applies. Changing names renames deployed functions.

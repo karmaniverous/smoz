@@ -140,6 +140,10 @@ export const resolveFunctionOptions = (
 
   const httpContexts = options.httpContexts ?? defaults.httpContexts;
   const contentType = options.contentType ?? defaults.contentType;
+  const serverless =
+    defaults.serverless || options.serverless
+      ? { ...defaults.serverless, ...options.serverless }
+      : undefined;
 
   return {
     ...options,
@@ -149,5 +153,6 @@ export const resolveFunctionOptions = (
     ...(fnEnvKeys.length ? { fnEnvKeys } : {}),
     ...(httpContexts ? { httpContexts } : {}),
     ...(contentType ? { contentType } : {}),
+    ...(serverless ? { serverless } : {}),
   };
 };

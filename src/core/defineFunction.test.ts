@@ -9,12 +9,16 @@
 */
 import { pathToFileURL } from 'node:url';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 import { z } from 'zod';
 
 import { App, type AppInit } from '@/src/core/App';
 import { baseEventTypeMapSchema } from '@/src/core/baseEventTypeMapSchema';
-import type { FunctionDefaults } from '@/src/core/functionOptions';
+import type {
+  DefineFunctionOptions,
+  FunctionDefaults,
+  FunctionServerlessConfig,
+} from '@/src/core/functionOptions';
 import type { AppHttpConfig } from '@/src/http/middleware/httpStackCustomization';
 import type { BaseOperation } from '@/src/openapi/types';
 import { createApiGatewayV1Event, createLambdaContext } from '@/src/test/aws';
@@ -524,5 +528,160 @@ describe('defineFunction: per-function http (#24)', () => {
       .defineFunction({ callerModuleUrl: at('functions/rest/form/post') })
       .handler(sawParsedBody);
     expect(await postForm(handler)).toEqual({ parsed: false });
+  });
+});
+
+describe('defineFunction: serverless (#19)', () => {
+  type Def = Record<string, unknown> & { image?: unknown };
+  const defsOf = (app: ReturnType<typeof makeApp>) =>
+    app.buildAllServerlessFunctions() as unknown as Record<string, Def>;
+  const users = 'functions/rest/users/get';
+  const usersName = 'functions_rest_users_get';
+
+  /** The handler SMOZ derives for `users` (from an app with no serverless config). */
+  const derivedHandler = () => {
+    const app = makeApp();
+    app.defineFunction({ callerModuleUrl: at(users) });
+    return defsOf(app)[usersName]!.handler as string;
+  };
+
+  it('passes Lambda properties through next to the SMOZ-owned keys', () => {
+    const app = makeApp();
+    app.defineFunction({
+      serverless: {
+        memorySize: 1024,
+        timeout: 60,
+        tenancy: { mode: 'PER_TENANT' },
+      },
+      fnEnvKeys: ['REGION'],
+      callerModuleUrl: at(users),
+    });
+    const def = defsOf(app)[usersName]!;
+    expect(def).toMatchObject({
+      memorySize: 1024,
+      timeout: 60,
+      tenancy: { mode: 'PER_TENANT' },
+      handler: derivedHandler(),
+      environment: { REGION: '${param:REGION}' },
+    });
+    expect(httpEvents(def as unknown as FnOut)).toEqual(['get /users']);
+  });
+
+  it('leaves a function without serverless config unchanged', () => {
+    const app = makeApp();
+    app.defineFunction({ callerModuleUrl: at(users) });
+    expect(Object.keys(defsOf(app)[usersName]!).sort()).toEqual([
+      'environment',
+      'events',
+      'handler',
+    ]);
+  });
+
+  it('keeps handler, events and environment SMOZ-owned', () => {
+    // Excluded from the type...
+    expectTypeOf<FunctionServerlessConfig>().not.toHaveProperty('handler');
+    expectTypeOf<FunctionServerlessConfig>().not.toHaveProperty('events');
+    expectTypeOf<FunctionServerlessConfig>().not.toHaveProperty('environment');
+    expectTypeOf<FunctionServerlessConfig>().toHaveProperty('memorySize');
+    expectTypeOf<DefineFunctionOptions['serverless']>().toEqualTypeOf<
+      FunctionServerlessConfig | undefined
+    >();
+
+    // ...and ignored at runtime if a cast smuggles them in.
+    const app = makeApp();
+    const fn = app.defineFunction({
+      serverless: {
+        handler: 'evil.handler',
+        events: [{ sqs: { arn: 'arn:evil' } }],
+        environment: { EVIL: '1' },
+        timeout: 5,
+      } as FunctionServerlessConfig,
+      callerModuleUrl: at('functions/sqs/tick'),
+    });
+    fn.serverless([{ sqs: { arn: 'arn:queue' } }]);
+    const app2 = makeApp();
+    app2.defineFunction({ callerModuleUrl: at('functions/sqs/tick') });
+
+    expect(defsOf(app).functions_sqs_tick).toEqual({
+      ...defsOf(app2).functions_sqs_tick,
+      events: [{ sqs: { arn: 'arn:queue' } }],
+      timeout: 5,
+    });
+
+    // An image function never emits a handler, smuggled or not.
+    const app3 = makeApp();
+    app3.defineFunction({
+      serverless: {
+        handler: 'evil.handler',
+        image: 'repo:tag',
+      } as FunctionServerlessConfig,
+      callerModuleUrl: at(users),
+    });
+    expect(defsOf(app3)[usersName]).not.toHaveProperty('handler');
+  });
+
+  describe('container image', () => {
+    it('omits handler and defaults image.command to the derived handler', () => {
+      const app = makeApp();
+      app.defineFunction({
+        serverless: { image: { uri: 'acct.dkr.ecr/repo:tag' } },
+        callerModuleUrl: at(users),
+      });
+      const def = defsOf(app)[usersName]!;
+      expect(def).not.toHaveProperty('handler');
+      expect(def.image).toEqual({
+        uri: 'acct.dkr.ecr/repo:tag',
+        command: [derivedHandler()],
+      });
+      expect(httpEvents(def as unknown as FnOut)).toEqual(['get /users']);
+    });
+
+    it('keeps an explicit image.command', () => {
+      const app = makeApp();
+      const image = { name: 'app', command: ['dist/main.handler'] };
+      app.defineFunction({
+        serverless: { image },
+        callerModuleUrl: at(users),
+      });
+      const def = defsOf(app)[usersName]!;
+      expect(def).not.toHaveProperty('handler');
+      expect(def.image).toEqual(image);
+    });
+
+    it('leaves a string image as is', () => {
+      const app = makeApp();
+      app.defineFunction({
+        serverless: { image: 'acct.dkr.ecr/repo@sha256:abc' },
+        callerModuleUrl: at(users),
+      });
+      const def = defsOf(app)[usersName]!;
+      expect(def).not.toHaveProperty('handler');
+      expect(def.image).toBe('acct.dkr.ecr/repo@sha256:abc');
+    });
+  });
+
+  it('shallow-merges functionDefaults.serverless under the function value', () => {
+    const app = makeApp({
+      functionDefaults: {
+        serverless: { memorySize: 512, timeout: 10, tracing: 'Active' },
+      },
+    });
+    app.defineFunction({
+      serverless: { timeout: 30, tenancy: { mode: 'PER_TENANT' } },
+      callerModuleUrl: at(users),
+    });
+    app.defineFunction({ callerModuleUrl: at('functions/sqs/tick') });
+    const defs = defsOf(app);
+    expect(defs[usersName]).toMatchObject({
+      memorySize: 512,
+      timeout: 30,
+      tracing: 'Active',
+      tenancy: { mode: 'PER_TENANT' },
+    });
+    expect(defs.functions_sqs_tick).toMatchObject({
+      memorySize: 512,
+      timeout: 10,
+      tracing: 'Active',
+    });
   });
 });

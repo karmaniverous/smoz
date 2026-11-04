@@ -17,6 +17,7 @@ export type {
   FunctionDefaults,
   FunctionNameContext,
   FunctionNameStyle,
+  FunctionServerlessConfig,
 } from './core/functionOptions';
 /** Base event map schema (rest/http/sqs). Extend it in your App. */
 export { baseEventTypeMapSchema } from './core/baseEventTypeMapSchema';
