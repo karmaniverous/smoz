@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
+import { baseEventTypeMapSchema } from '@/src/core/baseEventTypeMapSchema';
 import type { EnvSchemaNode } from '@/src/core/defineAppConfig';
 import { createRegistry } from '@/src/core/registry';
 
@@ -16,6 +17,9 @@ const env: {
 };
 
 const deps = {
+  appRootAbs:
+    process.platform === 'win32' ? 'C:/tmp/sandbox/app' : '/tmp/sandbox/app',
+  eventTypeKeys: Object.keys(baseEventTypeMapSchema.shape),
   httpEventTypeTokens: ['rest', 'http'] as const,
   env,
   http: {},

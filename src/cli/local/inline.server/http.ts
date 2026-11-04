@@ -5,6 +5,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 import type { HttpContext } from '@/src/types/HttpContext';
 
+import { isBinaryMediaType } from './binaryMediaTypes';
 import type { Route, Segment } from './routes';
 
 const firstVal = (v: string | string[] | undefined): string | undefined =>
@@ -26,17 +27,18 @@ const toHeaders = (
   return { single, multi };
 };
 
-const readBody = (req: http.IncomingMessage): Promise<string> =>
+/** Read the raw request body bytes (empty on a stream error). */
+const readBody = (req: http.IncomingMessage): Promise<Buffer> =>
   new Promise((resolve) => {
     const chunks: Buffer[] = [];
     req.on('data', (c) =>
       chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(String(c))),
     );
     req.on('end', () => {
-      resolve(Buffer.concat(chunks).toString('utf8'));
+      resolve(Buffer.concat(chunks));
     });
     req.on('error', () => {
-      resolve('');
+      resolve(Buffer.alloc(0));
     });
   });
 
@@ -104,10 +106,17 @@ const buildLocalAuthorizer = (
   return undefined;
 };
 
+/**
+ * Map a Node request to an API Gateway v1 event.
+ *
+ * As API Gateway does, a body whose Content-Type matches `binaryMediaTypes`
+ * is base64-encoded with `isBase64Encoded: true`; any other body is UTF-8 text.
+ */
 export const toEvent = async (
   req: http.IncomingMessage,
   route: Route,
   params: Record<string, string>,
+  binaryMediaTypes: readonly string[] = [],
 ): Promise<APIGatewayProxyEvent> => {
   const url = new URL(
     req.url ?? '/',
@@ -127,17 +136,22 @@ export const toEvent = async (
     }
   }
 
-  let body = '';
-  if (method !== 'GET' && method !== 'HEAD') {
-    body = await readBody(req);
-  }
+  const raw =
+    method === 'GET' || method === 'HEAD'
+      ? Buffer.alloc(0)
+      : await readBody(req);
+  // An empty body is never flagged, as API Gateway sends it without encoding.
+  const isBase64Encoded =
+    raw.length > 0 &&
+    isBinaryMediaType(single['content-type'], binaryMediaTypes);
+  const body = raw.toString(isBase64Encoded ? 'base64' : 'utf8');
 
   return {
     httpMethod: method,
     headers: single,
     multiValueHeaders: multi,
     body,
-    isBase64Encoded: false,
+    isBase64Encoded,
     path: url.pathname,
     queryStringParameters: Object.keys(query).length ? query : {},
     multiValueQueryStringParameters: Object.keys(mquery).length ? mquery : {},
@@ -168,7 +182,9 @@ export const writeResult = (
   const status =
     typeof result.statusCode === 'number' ? result.statusCode : 200;
   const headers = result.headers ?? {};
-  const body = typeof result.body === 'string' ? result.body : '';
+  const text = typeof result.body === 'string' ? result.body : '';
+  // API Gateway decodes base64 bodies flagged by the handler (binary responses).
+  const body = result.isBase64Encoded ? Buffer.from(text, 'base64') : text;
   for (const [k, v] of Object.entries(headers)) {
     if (typeof v === 'string') res.setHeader(k, v);
   }

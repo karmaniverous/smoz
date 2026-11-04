@@ -12,6 +12,13 @@
 
 export type { AppInit } from './core/App';
 export { App } from './core/App';
+export type {
+  DefineFunctionOptions,
+  FunctionDefaults,
+  FunctionNameContext,
+  FunctionNameStyle,
+  FunctionServerlessConfig,
+} from './core/functionOptions';
 /** Base event map schema (rest/http/sqs). Extend it in your App. */
 export { baseEventTypeMapSchema } from './core/baseEventTypeMapSchema';
 export type {

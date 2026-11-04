@@ -99,12 +99,14 @@ Scaffold:
 
 Paths must follow the convention under `app/functions/<eventType>/...`.
 
+The generated `lambda.ts` sets only the schemas and `callerModuleUrl`. The event type, method, base path, function name, contexts and content type derive from the folder and the app's `functionDefaults` (see "What `defineFunction` derives from the path" in the [Overview](./overview.md)); add a field to override it.
+
 Path parameters
 
 - You can write params as `:id`, `{id}`, or `[id]`:
   - Accepted spec forms (equivalent): `rest/users/:id/get`, `rest/users/{id}/get`, `rest/users/[id]/get`.
   - On disk, folders are Windows‑safe: `app/functions/rest/users/[id]/get/*`.
-  - In code, lambda.ts uses a native API path: `basePath: 'users/{id}'`.
+  - In code, lambda.ts uses a native API path: `basePath: 'users/{id}'`. This is the one field `add` writes explicitly, because the folder path (`users/[id]`) isn't the API path.
   - The scaffolded `openapi.ts` includes a path parameters array and a short “Path template” hint (e.g., `/users/{id}`).
 
 Consuming path parameters (eventSchema & handler)
@@ -166,7 +168,7 @@ Root version flag:
 
 Notes:
 
-- Inline backend maps Node HTTP → API Gateway v1 event → wrapped handler → response. It prints a route table and the selected port at startup.
+- Inline backend maps Node HTTP → API Gateway v1 event → wrapped handler → response. It prints a route table and the selected port at startup. Request bodies whose Content-Type matches `provider.apiGateway.binaryMediaTypes` in `serverless.ts` arrive base64-encoded with `isBase64Encoded: true`, as API Gateway sends them; other bodies arrive as UTF-8 text. Response bodies a handler returns with `isBase64Encoded: true` are decoded to bytes. The list is read once at startup, and the startup output prints it: restart after changing it. Without a loadable `serverless.ts`, dev uses a fallback list (see [Multipart form data](./middleware.md#multipart-form-data-opt-in)).
 - Offline backend runs `serverless offline` in a child process; when the route surface changes (register writes), the child is restarted automatically.
 - The loop seeds basic env (e.g., `STAGE`) and prints “Updated” vs “No changes” per task run; bursts are debounced.
 - Env seeding:

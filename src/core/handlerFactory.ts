@@ -2,6 +2,7 @@ import type { z } from 'zod';
 
 import type { BaseEventTypeMap } from '@/src/core/baseEventTypeMapSchema';
 import type { EnvAttached } from '@/src/core/defineFunctionConfig';
+import type { FunctionDefaults } from '@/src/core/functionOptions';
 import type { ZodObj } from '@/src/core/types';
 import type { AppHttpConfig } from '@/src/http/middleware/httpStackCustomization';
 import type { FunctionConfig } from '@/src/types/FunctionConfig';
@@ -13,6 +14,8 @@ import type { Handler } from '@/src/types/Handler';
  * - Fully typed; no any; no dynamic import() types.
  *
  * @param httpEventTypeTokens - runtime widening of HTTP event tokens
+ * @param httpConfig - app-level HTTP customization (defaults and profiles)
+ * @param functionDefaults - the app's HTTP-related function defaults (`functionDefaults.http` and `.contentType`)
  * @returns a function that binds a branded FunctionConfig and a business handler, producing a Lambda handler
  */
 export const handlerFactory = <
@@ -25,6 +28,7 @@ export const handlerFactory = <
 >(
   httpEventTypeTokens: readonly string[],
   httpConfig: AppHttpConfig,
+  functionDefaults?: Pick<FunctionDefaults, 'http' | 'contentType'>,
 ) => {
   return (
     functionConfig: FunctionConfig<
@@ -54,6 +58,7 @@ export const handlerFactory = <
         cached = wrapHandler(functionConfig, business, {
           httpEventTypeTokens,
           httpConfig,
+          ...(functionDefaults ? { functionDefaults } : {}),
         }) as (event: unknown, context: unknown) => Promise<unknown>;
       }
       return cached(event, context);

@@ -1,4 +1,4 @@
-import { dirname, relative, sep } from 'node:path';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { unique } from 'radash';
@@ -9,6 +9,7 @@ import { sanitizeBasePath } from '@/src/http/buildPath';
 import type { MethodKey } from '@/src/types/FunctionConfig';
 import type { FunctionConfig } from '@/src/types/FunctionConfig';
 import type { HttpContext } from '@/src/types/HttpContext';
+import { segmentsUnder } from '@/src/util/path';
 
 export const HTTP_METHODS: ReadonlySet<MethodKey> = new Set<MethodKey>([
   'get',
@@ -69,26 +70,22 @@ export const resolveHttpFromFunctionConfig = <
     httpContexts?: readonly HttpContext[];
   };
 
-  // Compute relative path from endpoints root to the caller directory
-  const relPath = relative(
+  // Folders from the endpoints root to the caller (undefined when outside)
+  const relSegs = segmentsUnder(
     endpointsRootAbs,
     dirname(fileURLToPath(callerModuleUrl)),
-  )
-    .split(sep)
-    .join('/');
-  const underEndpointsRoot = !relPath.startsWith('..');
+  );
 
   let method: MethodKey;
   if (maybeMethod && HTTP_METHODS.has(maybeMethod)) {
     method = maybeMethod;
   } else {
-    if (!underEndpointsRoot) {
+    if (!relSegs) {
       throw new Error(
         'resolveHttpFromFunctionConfig: method missing and caller is not under endpoints root; provide method explicitly.',
       );
     }
-    const segs = relPath.split('/').filter(Boolean);
-    const tail = segs[segs.length - 1]?.toLowerCase();
+    const tail = relSegs[relSegs.length - 1]?.toLowerCase();
     if (HTTP_METHODS.has(tail as MethodKey)) method = tail as MethodKey;
     else
       throw new Error(
@@ -98,12 +95,12 @@ export const resolveHttpFromFunctionConfig = <
 
   let basePath = sanitizeBasePath(maybeBase ?? '');
   if (!basePath) {
-    if (!underEndpointsRoot) {
+    if (!relSegs) {
       throw new Error(
         'resolveHttpFromFunctionConfig: basePath missing and caller is not under endpoints root; provide basePath explicitly.',
       );
     }
-    const segs = relPath.split('/').filter(Boolean);
+    const segs = relSegs.slice();
     if (segs.length && segs[segs.length - 1]?.toLowerCase() === method)
       segs.pop();
     basePath = segs.join('/');

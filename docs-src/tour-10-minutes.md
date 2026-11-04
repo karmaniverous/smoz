@@ -29,25 +29,24 @@ npx smoz add rest/foo/get
 
 This creates:
 
-- `app/functions/rest/hello/get/lambda.ts` — registration (method, basePath, schemas)
-- `app/functions/rest/hello/get/handler.ts` — business handler
-- `app/functions/rest/hello/get/openapi.ts` — OpenAPI operation
+- `app/functions/rest/foo/get/lambda.ts` — registration (schemas)
+- `app/functions/rest/foo/get/handler.ts` — business handler
+- `app/functions/rest/foo/get/openapi.ts` — OpenAPI operation
 
 Open lambda.ts:
 
 ```ts
+export const eventSchema = z.unknown();
+export const responseSchema = z.unknown();
+
 export const fn = app.defineFunction({
-  eventType: 'rest',
-  httpContexts: ['public'],
-  method: 'get',
-  basePath: 'hello',
-  contentType: 'application/json',
-  eventSchema: z.object({}).optional(),
-  responseSchema: z.object({ ok: z.boolean() }),
+  eventSchema,
+  responseSchema,
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: /* app/functions/rest root */,
 });
 ```
+
+Everything else derives from the folder and the app's defaults: event type `rest`, method `get`, base path `foo`, the function name, the `public` context and `application/json`. Set a field explicitly only to override it; see "What `defineFunction` derives from the path" in the [Overview](./overview.md).
 
 ## 3) Register endpoints (side‑effects)
 
@@ -125,7 +124,6 @@ export const fn = app.defineFunction({
   eventSchema: z.any(),
   responseSchema: z.any().optional(),
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: /* app/functions/sqs root */,
 });
 ```
 

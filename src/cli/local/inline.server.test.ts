@@ -1,8 +1,9 @@
 import { type ChildProcess, spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+
+import { resolveTsxCommand } from '@/src/cli/dev/inline';
 
 /**
  * Wait for the inline server to print its listening port.
@@ -36,23 +37,14 @@ const waitForListening = async (
   });
 };
 
-/**
- * Launch the inline server via tsx.
- * - Prefer the project-local JS entry (node node_modules/tsx/dist/cli.js <entry>)
- * - Fallback to PATH resolution of "tsx" (or "tsx.cmd" on Windows)
- */
+/** Launch the inline server via tsx, resolved the way `smoz dev` does. */
 const startInline = async (): Promise<{
   port: number;
+  /** Everything the server has printed to stdout so far. */
+  stdout: () => string;
   close: () => Promise<void>;
 }> => {
   const repoRoot = process.cwd();
-  const tsxCli = path.resolve(
-    repoRoot,
-    'node_modules',
-    'tsx',
-    'dist',
-    'cli.js',
-  );
   const entry = path.resolve(
     repoRoot,
     'src',
@@ -62,18 +54,7 @@ const startInline = async (): Promise<{
     'index.ts',
   );
 
-  const args: string[] = [];
-  let cmd: string;
-  let shell = false;
-  if (existsSync(tsxCli)) {
-    // Prefer Node + JS CLI to avoid .cmd quirks on Windows
-    cmd = process.execPath;
-    args.push(tsxCli, entry);
-  } else {
-    cmd = process.platform === 'win32' ? 'tsx.cmd' : 'tsx';
-    args.push(entry);
-    shell = true;
-  }
+  const { cmd, args, shell } = resolveTsxCommand(repoRoot, entry);
 
   const child: ChildProcess = spawn(cmd, args, {
     cwd: repoRoot,
@@ -96,6 +77,10 @@ const startInline = async (): Promise<{
     process.stderr.write(`[inline.test] ${t}`);
   });
 
+  let out = '';
+  child.stdout?.on('data', (d: Buffer) => {
+    out += d.toString('utf8');
+  });
   const port = await waitForListening(child);
 
   const close = async () => {
@@ -115,11 +100,12 @@ const startInline = async (): Promise<{
     });
   };
 
-  return { port, close };
+  return { port, stdout: () => out, close };
 };
 
 describe('inline server (integration)', () => {
   let port = 0;
+  let stdout: () => string = () => '';
   let shutdown: (() => Promise<void>) | undefined;
 
   beforeAll(async () => {
@@ -129,7 +115,8 @@ describe('inline server (integration)', () => {
     if (!process.env.REGION) process.env.REGION = 'us-east-1';
     if (!process.env.STAGE) process.env.STAGE = 'dev';
 
-    const { port: p, close } = await startInline();
+    const { port: p, stdout: s, close } = await startInline();
+    stdout = s;
     port = p;
     shutdown = close;
   }, 20000);
@@ -169,5 +156,13 @@ describe('inline server (integration)', () => {
     expect(ct.toLowerCase()).toContain('application/json');
     const body = (await res.json()) as { error?: string };
     expect(body.error).toBe('Not Found');
+  });
+
+  it("applies the app's serverless.ts binaryMediaTypes", async () => {
+    await vi.waitFor(() => {
+      expect(stdout()).toMatch(
+        /\[inline\] binaryMediaTypes: multipart\/form-data from serverless\.ts/,
+      );
+    });
   });
 });

@@ -76,14 +76,8 @@ import { app } from '@/app/config/app.config';
 
 export const responseSchema = z.object({ ok: z.boolean() });
 export const fn = app.defineFunction({
-  eventType: 'rest',
-  httpContexts: ['public'],
-  method: 'get',
-  basePath: 'hello',
-  contentType: 'application/json',
   responseSchema,
-  callerModuleUrl: import.meta.url,
-  endpointsRootAbs: /* app/functions/rest root */,
+  callerModuleUrl: import.meta.url, // method, path and name derive from the folder
 });
 ```
 
@@ -131,13 +125,10 @@ npx smoz dev -p 3000
 Tiny customization example:
 
 ```ts
-import { insertAfter } from '@karmaniverous/smoz';
+import { insertAfter } from '@karmaniverous/smoz/http';
 const xHeader = { after: (r: any) => (r.response.headers['X-Trace'] = '1') };
 export const fn = app.defineFunction({
-  eventType: 'rest',
-  method: 'get',
-  basePath: 'hello',
-  httpContexts: ['public'],
+  callerModuleUrl: import.meta.url,
   http: {
     transform: ({ before, after, onError }) => ({
       before,
@@ -145,7 +136,6 @@ export const fn = app.defineFunction({
       onError,
     }),
   },
-  // ...
 });
 ```
 

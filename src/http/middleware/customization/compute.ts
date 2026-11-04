@@ -4,10 +4,15 @@ import type { z } from 'zod';
 
 import { combine } from '@/src/http/middleware/combine';
 import type { HttpTransform } from '@/src/http/middleware/transformUtils';
-import { assertInvariants, getId } from '@/src/http/middleware/transformUtils';
+import {
+  assertInvariants,
+  findIndex,
+  getId,
+} from '@/src/http/middleware/transformUtils';
 import type { ConsoleLogger } from '@/src/types/Loggable';
 
 import { buildDefaultPhases } from './defaultSteps';
+import { selectHttpProfile } from './profile';
 import type {
   ApiMiddleware,
   AppHttpConfig,
@@ -23,14 +28,27 @@ const mergeOptions = (
   b?: Partial<HttpStackOptions>,
 ): HttpStackOptions => ({ ...(a ?? {}), ...(b ?? {}) });
 
-/** Apply extend lists (append in order) */
+/**
+ * Apply one layer's extend lists. `before` and `onError` steps are appended.
+ * `after` steps go just before `shape`, after any earlier layer's `after`
+ * steps, so they see the handler's response before it is shaped and
+ * serialized and `serializer` stays last. Extend runs on the default phases,
+ * which always contain `shape`.
+ */
 const applyExtend = (
   phases: { before: M[]; after: M[]; onError: M[] },
   ext?: { before?: M[]; after?: M[]; onError?: M[] },
 ) => {
   if (!ext) return;
   if (ext.before?.length) phases.before = [...phases.before, ...ext.before];
-  if (ext.after?.length) phases.after = [...phases.after, ...ext.after];
+  if (ext.after?.length) {
+    const at = findIndex(phases.after, 'shape');
+    phases.after = [
+      ...phases.after.slice(0, at),
+      ...ext.after,
+      ...phases.after.slice(at),
+    ];
+  }
   if (ext.onError?.length) phases.onError = [...phases.onError, ...ext.onError];
 };
 
@@ -71,14 +89,41 @@ const enforceZod = (
   }
 };
 
-/** Compute final stack given app-level and function-level customization. */
+/**
+ * Compute the final stack from app-level, app-wide function default and
+ * function-level customization.
+ *
+ * Layers, lowest to highest: `contentType` \< `app.defaults` \< `fnDefaults`
+ * \< the selected profile \< `fnContentType` \< `fn`. A default never
+ * overrides what the function chose:
+ * - the profile is `fn.profile`, else `fnDefaults.profile`; an unknown
+ *   profile name throws;
+ * - options merge key by key in layer order, so a profile's option beats a
+ *   `fnDefaults` option and the function's own option beats both;
+ * - the function's own top-level content type (`fnContentType`) beats every
+ *   default and the profile; only `fn.options.contentType` beats it;
+ * - `fnDefaults.extend`, `.transform` and `.replace` apply only when the
+ *   function sets no value for that key; `extend` and `transform` run in the
+ *   `fnDefaults` layer (after `app.defaults`, before the profile).
+ */
 export const computeHttpMiddleware = (args: {
   functionName: string;
   eventSchema?: z.ZodType | undefined;
   responseSchema?: z.ZodType | undefined;
   logger?: ConsoleLogger;
+  /**
+   * Base content type, below every other layer (e.g.
+   * `functionDefaults.contentType`). Built-in default `application/json`.
+   */
   contentType?: string;
+  /**
+   * The function's own top-level `contentType`. Beats `app.defaults`,
+   * `fnDefaults` and the profile; only `fn.options.contentType` beats it.
+   */
+  fnContentType?: string;
   app?: AppHttpConfig;
+  /** App-wide per-function default (`functionDefaults.http`). */
+  fnDefaults?: FunctionHttpConfig;
   fn?: FunctionHttpConfig;
 }): MiddlewareObj<APIGatewayProxyEvent, Context> => {
   const {
@@ -87,9 +132,18 @@ export const computeHttpMiddleware = (args: {
     responseSchema,
     logger: maybeLogger,
     contentType: maybeContentType,
+    fnContentType,
     app,
-    fn,
+    fnDefaults,
   } = args;
+  // The function's own keys win over the app-wide default's.
+  const fn: FunctionHttpConfig = {
+    ...(fnDefaults?.replace ? { replace: fnDefaults.replace } : {}),
+    ...args.fn,
+  };
+  const profile = selectHttpProfile({ functionName, app, fnDefaults, fn });
+  const defaultsExtend = fn.extend ? undefined : fnDefaults?.extend;
+  const defaultsTransform = fn.transform ? undefined : fnDefaults?.transform;
 
   const baseContentType = (
     maybeContentType ?? 'application/json'
@@ -99,13 +153,12 @@ export const computeHttpMiddleware = (args: {
     logger: maybeLogger ?? console,
   };
 
-  // Layer A: app.defaults.options
+  // Layer A: options (app.defaults → fnDefaults → profile → function)
   effective = mergeOptions(effective, app?.defaults);
-  // Apply profile (options)
-  const profile = fn?.profile ? app?.profiles?.[fn.profile] : undefined;
+  effective = mergeOptions(effective, fnDefaults?.options);
   effective = mergeOptions(effective, profile);
-  // Function-level options
-  effective = mergeOptions(effective, fn?.options);
+  if (fnContentType) effective = { ...effective, contentType: fnContentType };
+  effective = mergeOptions(effective, fn.options);
 
   const contentType = (effective.contentType ?? baseContentType).toLowerCase();
   const logger = effective.logger ?? console;
@@ -119,7 +172,7 @@ export const computeHttpMiddleware = (args: {
     responseSchema,
   });
 
-  // Layer B: extend (app.defaults → profile → function)
+  // Layer B: extend (app.defaults → fnDefaults → profile → function)
   applyExtend(
     phases,
     (
@@ -127,16 +180,18 @@ export const computeHttpMiddleware = (args: {
         { extend?: { before?: M[]; after?: M[]; onError?: M[] } } | undefined
     )?.extend,
   );
+  applyExtend(phases, defaultsExtend);
   applyExtend(phases, profile?.extend);
-  applyExtend(phases, fn?.extend);
+  applyExtend(phases, fn.extend);
 
-  // Layer C: transform (app.defaults → profile → function)
+  // Layer C: transform (app.defaults → fnDefaults → profile → function)
   phases = applyTransform(
     phases,
     (app?.defaults as { transform?: HttpTransform } | undefined)?.transform,
   );
+  phases = applyTransform(phases, defaultsTransform);
   phases = applyTransform(phases, profile?.transform);
-  phases = applyTransform(phases, fn?.transform);
+  phases = applyTransform(phases, fn.transform);
 
   // Invariants (pre-replace)
   assertInvariants(phases);
@@ -145,7 +200,7 @@ export const computeHttpMiddleware = (args: {
   enforceZod(phases, !!(eventSchema || responseSchema), functionName);
 
   // Layer D: replace (full override)
-  if (fn?.replace?.stack) {
+  if (fn.replace?.stack) {
     const rep = fn.replace.stack;
     if (
       typeof rep === 'object' &&

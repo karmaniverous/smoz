@@ -13,15 +13,14 @@ Author a non‑HTTP function and attach an SQS event via a sibling `serverless.t
 import { z } from 'zod';
 import { app } from '@/app/config/app.config';
 
-export const eventSchema = z.any();          // validate as needed
-export const responseSchema = z.void();      // or z.any().optional()
+export const eventSchema = z.any(); // validate as needed
+export const responseSchema = z.void(); // or z.any().optional()
 
 export const fn = app.defineFunction({
   eventType: 'sqs',
   eventSchema,
   responseSchema,
-  callerModuleUrl: import.meta.url,
-  endpointsRootAbs: /* app/functions/sqs root */,
+  callerModuleUrl: import.meta.url, // e.g. app/functions/sqs/ingest/lambda.ts
 });
 ```
 

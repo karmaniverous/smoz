@@ -35,6 +35,8 @@ npx smoz add rest/foo/get
 npm i @karmaniverous/smoz zod zod-openapi
 ```
 
+`zod-openapi` (^6) and `@serverless/typescript` (^4.30) are optional peer dependencies: SMOZ's type declarations import their types. Install `@serverless/typescript` as a dev dependency when you type `serverless.ts` or a function's `serverless` config (the template does).
+
 Dev tooling (recommended):
 
 ```bash
@@ -101,24 +103,18 @@ Serverless picks up:
 
 ```ts
 // app/functions/rest/hello/get/lambda.ts
-import { dirname, join } from 'node:path'; // example for path helpers
 import { z } from 'zod';
 import { app } from '@/app/config/app.config';
 
 export const responseSchema = z.object({ ok: z.boolean() });
 
 export const fn = app.defineFunction({
-  functionName: 'hello_get',
-  eventType: 'rest',
-  httpContexts: ['public'],
-  method: 'get',
-  basePath: 'hello',
-  contentType: 'application/json',
   responseSchema,
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: dirname(new URL('../..', import.meta.url).pathname),
 });
 ```
+
+The method (`get`), base path (`hello`), function name, security context (`public`) and content type (`application/json`) all derive from the folder and built-in defaults; set any of them explicitly to override. See "What `defineFunction` derives from the path" in the [Overview](./overview.md).
 
 ```ts
 // app/functions/rest/hello/get/handler.ts

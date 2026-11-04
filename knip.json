@@ -5,8 +5,7 @@
     "app/config/openapi.ts",
     "app/functions/**/lambda.ts",
     "app/functions/**/openapi.ts",
-    "src/serverless/intrinsic.ts",
-    "src/cli/local/inline.server/**"
+    "src/serverless/intrinsic.ts"
   ],
   "ignoreBinaries": ["plantuml"],
   "ignoreDependencies": ["@types/fs-extra", "fs-extra"],

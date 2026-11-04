@@ -29,11 +29,40 @@ SMOZ builds a robust Middy stack around HTTP handlers. Non‑HTTP flows bypassMi
   - `http.defaults`: base options (e.g., contentType, logger)
   - `http.profiles`: named profiles (options + extend/transform)
 - Function level (optional; in `app.defineFunction`):
-  - `http.profile`: choose one profile by name
+  - `http.profile`: choose one profile by name (an unknown name throws when the function is defined, listing the known profiles)
   - `http.options`: shallow overrides
-  - `http.extend`: append steps into phases
+  - `http.extend`: add steps to phases. `before` and `onError` steps are appended; `after` steps go just before `shape`, so they see the handler's response before it is shaped and serialized (and `serializer` stays last). They run after response validation (`zod-after`), CORS and preferred-media, so any change they make to the body is not validated against `responseSchema`
   - `http.transform`: insert/replace/remove steps by ID
   - `http.replace`: phased arrays or a single middleware (advanced)
+- App-wide function defaults (optional; `functionDefaults.http` in `App.create`): the same shape as a function's `http`, applied to every function. A default never overrides what the function chose (see "App-wide defaults" in the [Overview](./overview.md)).
+
+Options resolve in this order, later layers winning:
+
+1. built-in defaults (content type `application/json`)
+2. `functionDefaults.contentType` (content type only)
+3. `http.defaults`
+4. `functionDefaults.http.options`
+5. the selected profile: the function's `http.profile`, else `functionDefaults.http.profile`
+6. the function's own top-level `contentType` (content type only)
+7. the function's own `http.options`
+
+So a function's explicit `contentType` beats every default and the profile.
+
+`extend` and `transform` run in the same layer order (`http.defaults`, `functionDefaults.http`, profile, function). With `extend.after`, each layer's steps run after the earlier layers' steps and before `shape`. `functionDefaults.http.extend`, `.transform` and `.replace` apply only to functions that set no value for that key.
+
+```ts
+export const app = App.create({
+  // ...
+  http: { profiles: { uploads: { multipartBodyParser: {} } } },
+  functionDefaults: { http: { options: { multipartBodyParser: false } } },
+});
+
+// Parses multipart: the profile the function selects beats the default.
+app.defineFunction({
+  http: { profile: 'uploads' },
+  callerModuleUrl: import.meta.url,
+});
+```
 
 ## Multipart form data (opt-in)
 
@@ -55,11 +84,24 @@ export const app = App.create({
   },
 });
 
-app.defineFunction({
-  // ...
+// app/functions/rest/user/logo/post/lambda.ts
+export const fn = app.defineFunction({
+  callerModuleUrl: import.meta.url,
   http: { profile: 'uploads' },
 });
 ```
+
+Deployed, API Gateway must pass upload bodies through as binary. List `multipart/form-data`, and any other binary types you accept (e.g. `image/*` for raw image bodies), in `provider.apiGateway.binaryMediaTypes` in `serverless.ts` (the template lists `multipart/form-data`):
+
+```ts
+provider: {
+  apiGateway: {
+    binaryMediaTypes: ['multipart/form-data'],
+  },
+},
+```
+
+API Gateway then base64-encodes those bodies and sets `isBase64Encoded`, which the parser decodes. Without it, API Gateway passes the body to Lambda as UTF-8 text, and file bytes that aren't valid UTF-8 (any JPEG or PNG) are corrupted: each one becomes `ef bf bd` (U+FFFD). `smoz dev` (inline) reads the same list from `serverless.ts` and encodes request bodies the same way, so uploads behave in dev as they will deployed. It also decodes response bodies that a handler flags with `isBase64Encoded: true`, as API Gateway does. The list is read once, at startup (which prints it): restart `smoz dev` after changing it. If `serverless.ts` is missing or fails to load (and in projects that use `serverless.yml` or `serverless.js`), dev uses `multipart/form-data`, `image/*` and `application/octet-stream`, which may differ from what you deploy.
 
 Set `multipartBodyParser: false` on a function to opt it out of a profile or app default that enables it. Options merge shallowly, like every other stack option: a function's `multipartBodyParser: { ... }` replaces a profile's object entirely rather than merging into it.
 
@@ -97,10 +139,10 @@ When enabled, the `multipart-body-parser` step runs right after `json-body-parse
 Choose a profile and override content type:
 
 ```ts
-app.defineFunction({
-  // ...
+export const fn = app.defineFunction({
+  callerModuleUrl: import.meta.url,
   http: {
-    profile: 'publicJson',
+    profile: 'publicJson', // defined in App.create({ http: { profiles } })
     options: { contentType: 'application/vnd.my+json' },
   },
 });
@@ -109,14 +151,14 @@ app.defineFunction({
 Insert a header after the response shaper:
 
 ```ts
-import { insertAfter } from '@karmaniverous/smoz';
+import { insertAfter } from '@karmaniverous/smoz/http';
 const mw = {
   after: (req: any) => {
     req.response.headers['X-My'] = 'yes';
   },
 };
-app.defineFunction({
-  // ...
+export const fn = app.defineFunction({
+  callerModuleUrl: import.meta.url,
   http: {
     transform: ({ before, after, onError }) => ({
       before,
@@ -130,8 +172,8 @@ app.defineFunction({
 Replace (advanced):
 
 ```ts
-app.defineFunction({
-  // ...
+export const fn = app.defineFunction({
+  callerModuleUrl: import.meta.url,
   http: {
     replace: {
       stack: {

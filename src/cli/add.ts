@@ -14,7 +14,7 @@
  */
 import { existsSync } from 'node:fs';
 import { promises as fs } from 'node:fs';
-import { dirname, join, posix, sep } from 'node:path';
+import { dirname, join, posix } from 'node:path';
 
 const HTTP_METHODS = new Set([
   'get',
@@ -26,8 +26,6 @@ const HTTP_METHODS = new Set([
   'options',
   'trace',
 ]);
-
-const toPosix = (p: string): string => p.split(sep).join('/');
 
 const formatMaybe = async (root: string, filePath: string, source: string) => {
   try {
@@ -75,36 +73,32 @@ const toDirSeg = (s: string): string =>
 const toPathSeg = (s: string): string =>
   isParamSeg(s) ? `{${getParamName(s)}}` : s;
 
-const lambdaHttpTemplate = ({
-  token,
-  basePath,
-  method,
-}: {
-  token: string;
-  basePath: string;
-  method: string;
-}) => `/**
- * Registration: ${method.toUpperCase()} /${basePath} (public)
+/**
+ * `lambda.ts` for a new function. `eventType`, `method`, `basePath`,
+ * `functionName`, `httpContexts` and `contentType` derive from the folder
+ * and the app's `functionDefaults`, so only real overrides are written:
+ * `basePath` when a path parameter folder (`[id]`) maps to `{id}`.
  */
-import { join } from 'node:path';
-
+const lambdaTemplate = ({
+  heading,
+  basePath,
+}: {
+  heading: string;
+  basePath?: string | undefined;
+}) => `/**
+ * Registration: ${heading}
+ */
 import { z } from 'zod';
 
-import { app, APP_ROOT_ABS } from '@/app/config/app.config';
+import { app } from '@/app/config/app.config';
 
 export const eventSchema = z.unknown();
 export const responseSchema = z.unknown();
 
 export const fn = app.defineFunction({
-  eventType: '${token}',
-  httpContexts: ['public'],
-  method: '${method}',
-  basePath: '${basePath}',
-  contentType: 'application/json',
-  eventSchema,
+${basePath === undefined ? '' : `  // Folder [param] is served as {param}.\n  basePath: '${basePath}',\n`}  eventSchema,
   responseSchema,
   callerModuleUrl: import.meta.url,
-  endpointsRootAbs: join(APP_ROOT_ABS, 'functions', '${token}').replace(/\\\\\\\\/g, '/'),
 });
 `;
 
@@ -167,27 +161,6 @@ export {};
 `;
 };
 
-const lambdaInternalTemplate = (token: string) => `/**
- * Registration: internal ${token} function.
- */
-import { join } from 'node:path';
-
-import { z } from 'zod';
-
-import { app, APP_ROOT_ABS } from '@/app/config/app.config';
-
-export const eventSchema = z.unknown();
-export const responseSchema = z.unknown();
-
-export const fn = app.defineFunction({
-  eventType: '${token}',
-  eventSchema,
-  responseSchema,
-  callerModuleUrl: import.meta.url,
-  endpointsRootAbs: join(APP_ROOT_ABS, 'functions', '${token}').replace(/\\\\\\\\/g, '/'),
-});
-`;
-
 const handlerInternalTemplate = () => `/**
  * Handler: replace with your business logic.
  */
@@ -229,7 +202,7 @@ export const runAdd = async (
   const pathSegs = baseParts.map(toPathSeg);
 
   // Base path (Serverless/OpenAPI native, uses {param})
-  const basePathPosix = toPosix(pathSegs.join('/'));
+  const basePath = pathSegs.join('/');
 
   // Derive path template and param names for OpenAPI hints
   const paramNames = baseParts.filter(isParamSeg).map(getParamName);
@@ -252,10 +225,10 @@ export const runAdd = async (
   if (isHttp) {
     files.push({
       path: lambdaPath,
-      content: lambdaHttpTemplate({
-        token,
-        basePath: basePathPosix,
-        method: method!,
+      content: lambdaTemplate({
+        heading: `${method!.toUpperCase()} ${pathTemplate}`,
+        // Derived basePath is the folder path; write it only when it differs.
+        basePath: basePath === dirSegs.join('/') ? undefined : basePath,
       }),
       enabled: true,
     });
@@ -272,7 +245,7 @@ export const runAdd = async (
   } else {
     files.push({
       path: lambdaPath,
-      content: lambdaInternalTemplate(token),
+      content: lambdaTemplate({ heading: `internal ${token} function` }),
       enabled: true,
     });
     files.push({

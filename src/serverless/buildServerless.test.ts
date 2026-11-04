@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
+import type { FunctionRegistration } from '@/src/core/functionOptions';
 import {
   buildAllServerlessFunctions,
-  type RegEntry,
   type ServerlessConfigLike,
 } from '@/src/serverless/buildServerless';
 
@@ -37,7 +37,7 @@ describe('serverless/buildServerlessFunctions', () => {
         ? 'C:/tmp/sandbox/app/functions/rest'
         : '/tmp/sandbox/app/functions/rest';
 
-    const reg: RegEntry[] = [
+    const reg: FunctionRegistration[] = [
       {
         functionName: 'users_get',
         eventType: 'rest',
@@ -87,7 +87,7 @@ describe('serverless/buildServerlessFunctions', () => {
         ? 'C:/tmp/sandbox/app/functions/rest'
         : '/tmp/sandbox/app/functions/rest';
 
-    const reg: RegEntry[] = [
+    const reg: FunctionRegistration[] = [
       {
         functionName: 'profile_get',
         eventType: 'rest',
@@ -121,7 +121,7 @@ describe('serverless/buildServerlessFunctions', () => {
         ? 'C:/tmp/sandbox/app/functions/sqs'
         : '/tmp/sandbox/app/functions/sqs';
 
-    const reg: RegEntry[] = [
+    const reg: FunctionRegistration[] = [
       {
         functionName: 'tick',
         eventType: 'sqs',

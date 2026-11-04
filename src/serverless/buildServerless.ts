@@ -8,26 +8,16 @@ import { fileURLToPath } from 'node:url';
 
 import type { AWS } from '@serverless/typescript';
 import { packageDirectorySync } from 'package-directory';
+import { omit } from 'radash';
 
 import type { BaseEventTypeMap } from '@/src/core/baseEventTypeMapSchema';
+import type {
+  FunctionRegistration,
+  FunctionServerlessConfig,
+} from '@/src/core/functionOptions';
 import { buildPathElements } from '@/src/http/buildPath';
 import { resolveHttpFromFunctionConfig } from '@/src/http/resolveHttpFromFunctionConfig';
-import type { MethodKey } from '@/src/types/FunctionConfig';
-import type { HttpContext } from '@/src/types/HttpContext';
 import type { SecurityContextHttpEventMap } from '@/src/types/SecurityContextHttpEventMap';
-
-export type RegEntry = {
-  functionName: string;
-  eventType: string;
-  method?: MethodKey;
-  basePath?: string;
-  httpContexts?: readonly HttpContext[];
-  contentType?: string;
-  serverlessExtras?: unknown;
-  fnEnvKeys?: readonly PropertyKey[];
-  callerModuleUrl: string;
-  endpointsRootAbs: string;
-};
 
 export type ServerlessConfigLike = {
   httpContextEventMap: SecurityContextHttpEventMap;
@@ -35,8 +25,40 @@ export type ServerlessConfigLike = {
   defaultHandlerFileExport: string;
 };
 
+/**
+ * One function definition: the function's `serverless` properties with the
+ * SMOZ-owned keys on top, so `handler`, `events` and `environment` always
+ * come from SMOZ.
+ *
+ * With `image` set, `handler` is omitted (Serverless rejects a function with
+ * both). An `image` object without `command` gets `command: [handler]`; a
+ * string `image` is left as is (its CMD must name the handler).
+ */
+const buildFunctionDefinition = (
+  config: FunctionServerlessConfig | undefined,
+  owned: { handler: string; events: unknown; environment: unknown },
+): Record<string, unknown> => {
+  // Strip owned keys even if a cast smuggled them in.
+  const passthrough = omit((config ?? {}) as Record<string, unknown>, [
+    'handler',
+    'events',
+    'environment',
+  ]);
+  const image = config?.image;
+  if (image === undefined) return { ...passthrough, ...owned };
+  const { handler, ...rest } = owned;
+  return {
+    ...passthrough,
+    ...rest,
+    image:
+      typeof image === 'string' || image.command
+        ? image
+        : { ...image, command: [handler] },
+  };
+};
+
 export const buildAllServerlessFunctions = (
-  registry: Iterable<RegEntry>,
+  registry: Iterable<FunctionRegistration>,
   serverless: ServerlessConfigLike,
   buildFnEnv: (fnEnvKeys?: readonly never[]) => Record<string, string>,
 ): NonNullable<AWS['functions']> => {
@@ -80,13 +102,11 @@ export const buildAllServerlessFunctions = (
       events = r.serverlessExtras ?? [];
     }
 
-    const def: Record<string, unknown> = {
+    out[r.functionName] = buildFunctionDefinition(r.serverless, {
       handler,
       events,
       environment: buildFnEnv((r.fnEnvKeys ?? []) as readonly never[]),
-    };
-
-    out[r.functionName] = def;
+    });
   }
 
   return out as NonNullable<AWS['functions']>;

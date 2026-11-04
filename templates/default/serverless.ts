@@ -61,6 +61,10 @@ const config: AWS = {
   provider: {
     apiGateway: {
       apiKeys: ['${param:SERVICE_NAME}-${param:STAGE}'],
+      // Bodies of these types reach Lambda base64-encoded, so binary uploads
+      // survive; `smoz dev` reads this list too. Add other binary types you
+      // accept (e.g. 'image/*').
+      binaryMediaTypes: ['multipart/form-data'],
       disableDefaultEndpoint: true,
     },
     apiName: '${param:SERVICE_NAME}',

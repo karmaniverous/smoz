@@ -33,14 +33,14 @@ export const app = App.create({
 ## Endpoint selection
 
 ```ts
+// app/functions/rest/users/get/lambda.ts
 export const fn = app.defineFunction({
-  eventType: 'rest',
   httpContexts: ['public', 'my'], // publish on both public and "my"
-  method: 'get',
-  basePath: 'users',
-  // ...
+  callerModuleUrl: import.meta.url,
 });
 ```
+
+To give every function the same contexts, set them once in `App.create({ functionDefaults: { httpContexts: ['my', 'private'] } })`; a function's own `httpContexts` still wins.
 
 At build time:
 

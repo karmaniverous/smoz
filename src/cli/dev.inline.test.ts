@@ -1,98 +1,65 @@
+import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import { describe, expect, it, vi } from 'vitest';
 
-// Mock built-ins before importing the module under test.
-vi.mock('node:fs', () => {
-  const existsMock = vi.fn();
-  const mod = {
-    default: {
-      existsSync: existsMock,
-    },
-    // Also expose the named export to satisfy consumers that import named APIs
-    existsSync: existsMock,
-  };
-  return mod;
-});
-vi.mock('node:child_process', () => {
-  const spawnMock = vi.fn();
-  const spawnSyncMock = vi.fn();
-  const mod = {
-    spawn: spawnMock,
-    spawnSync: spawnSyncMock,
-  };
-  return mod;
-});
+import { pathCommand } from '@/src/cli/util/command';
+
+// Mock child_process before importing the module under test (PATH probe).
+vi.mock('node:child_process', () => ({
+  spawn: vi.fn(),
+  spawnSync: vi.fn(),
+}));
 
 describe('dev.inline: resolveTsxCommand', async () => {
-  const mod = await import('@/src/cli/dev/index');
-  const { resolveTsxCommand } = mod as unknown as {
-    resolveTsxCommand: (
-      root: string,
-      tsEntry: string,
-    ) => { cmd: string; args: string[]; shell: boolean };
+  const { resolveTsxCommand } = await import('@/src/cli/dev/index');
+  const cp = (await import('node:child_process')) as unknown as {
+    spawnSync: ReturnType<typeof vi.fn>;
   };
 
-  type FnMock = ReturnType<typeof vi.fn>;
-  const fsMod = (await import('node:fs')) as unknown as {
-    default: { existsSync: FnMock };
-  };
-  const cpMod = (await import('node:child_process')) as unknown as {
-    spawnSync: FnMock;
-  };
+  const noTsxRoot = path.resolve('/', 'tmp', 'smoz-no-tsx-here');
+  const entry = path.resolve(
+    '/',
+    'tmp',
+    'sandbox',
+    'inline.server',
+    'index.ts',
+  );
 
-  const reset = () => {
-    fsMod.default.existsSync.mockReset();
-    cpMod.spawnSync.mockReset();
-  };
-
-  it('prefers project-local tsx CLI (node <root>/node_modules/tsx/dist/cli.js <entry>)', () => {
-    reset();
-    const root = path.resolve('/', 'tmp', 'sandbox');
-    const tsEntry = path.resolve(
-      root,
-      'src',
-      'cli',
-      'local',
-      'inline.server',
-      'index.ts',
+  it("runs the project's tsx CLI under the current node, without a shell", () => {
+    cp.spawnSync.mockReset();
+    const root = process.cwd();
+    const cli = createRequire(path.resolve(root, 'package.json')).resolve(
+      'tsx/cli',
     );
-    const localCli = path
-      .resolve(root, 'node_modules', 'tsx', 'dist', 'cli.js')
-      .replace(/\\/g, '/');
-
-    fsMod.default.existsSync.mockImplementation((p: unknown) => {
-      const norm = String(p).replace(/\\/g, '/');
-      return norm === localCli;
+    expect(resolveTsxCommand(root, entry)).toEqual({
+      cmd: process.execPath,
+      args: [cli, entry],
+      shell: false,
     });
-    // PATH probe should not matter when local exists
-    cpMod.spawnSync.mockReturnValue({ status: 1 });
+    expect(cp.spawnSync).not.toHaveBeenCalled();
+  });
 
-    const res = resolveTsxCommand(root, tsEntry);
-    expect(res.cmd).toBe(process.execPath);
-    expect(res.args[0]).toEqual(localCli);
-    expect(res.args[1]).toEqual(tsEntry);
-    expect(res.shell).toBe(false);
+  it('falls back to tsx on PATH, never passing args with shell: true', () => {
+    cp.spawnSync.mockReset();
+    cp.spawnSync.mockReturnValue({ status: 0 });
+    expect(resolveTsxCommand(noTsxRoot, entry)).toEqual(
+      pathCommand('tsx', [entry]),
+    );
+    const [cmd, args, opts] = cp.spawnSync.mock.calls[0] as [
+      string,
+      string[],
+      { shell: boolean },
+    ];
+    expect({ cmd, args, shell: opts.shell }).toEqual(
+      pathCommand('tsx', ['--version']),
+    );
   });
 
   it('throws a hard error when tsx is not available locally or on PATH', () => {
-    reset();
-    const root = path.resolve('/', 'tmp', 'sandbox');
-    const tsEntry = path.resolve(
-      root,
-      'src',
-      'cli',
-      'local',
-      'inline.server',
-      'index.ts',
-    );
-
-    // No local tsx
-    fsMod.default.existsSync.mockReturnValue(false);
-    // PATH probe fails
-    cpMod.spawnSync.mockReturnValue({ status: 127 });
-
-    expect(() => resolveTsxCommand(root, tsEntry)).toThrow(
+    cp.spawnSync.mockReset();
+    cp.spawnSync.mockReturnValue({ status: 127 });
+    expect(() => resolveTsxCommand(noTsxRoot, entry)).toThrow(
       /Inline requires tsx/i,
     );
   });

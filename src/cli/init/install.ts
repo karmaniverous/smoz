@@ -2,6 +2,8 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { pathCommand } from '@/src/cli/util/command';
+
 export const detectPm = (
   root: string,
 ): 'pnpm' | 'yarn' | 'npm' | 'bun' | undefined => {
@@ -32,11 +34,8 @@ export const runInstall = (
   const known = pm === 'pnpm' || pm === 'yarn' || pm === 'bun' || pm === 'npm';
   if (!known) return 'unknown-pm';
 
-  const res = spawnSync(pm, ['install'], {
-    stdio: 'inherit',
-    cwd: root,
-    shell: true,
-  });
+  const { cmd, args, shell } = pathCommand(pm, ['install']);
+  const res = spawnSync(cmd, args, { stdio: 'inherit', cwd: root, shell });
 
   if (res.status === 0) {
     const tag: 'ran (pnpm)' | 'ran (yarn)' | 'ran (bun)' | 'ran (npm)' =

@@ -5,32 +5,27 @@ import { fileURLToPath } from 'node:url';
 
 import { buildSpawnEnv } from '@karmaniverous/get-dotenv';
 import { packageDirectorySync } from 'package-directory';
-export const resolveTsxCommand = (
-  root: string,
-  tsEntry: string,
-): { cmd: string; args: string[]; shell: boolean } => {
-  const localCli = path.resolve(root, 'node_modules', 'tsx', 'dist', 'cli.js');
-  if (fs.existsSync(localCli)) {
-    // Normalize to POSIX separators for cross-platform comparisons (tests)
-    const localCliPosix = localCli.split(path.sep).join('/');
-    return {
-      cmd: process.execPath,
-      args: [localCliPosix, tsEntry],
-      shell: false,
-    };
+
+import {
+  localTsxCli,
+  pathCommand,
+  type SpawnSpec,
+} from '@/src/cli/util/command';
+
+/**
+ * Command running `tsEntry` with tsx: the project's tsx CLI under the
+ * current Node when installed, else `tsx` from PATH.
+ *
+ * @throws Error when tsx is neither installed in the project nor on PATH
+ */
+export const resolveTsxCommand = (root: string, tsEntry: string): SpawnSpec => {
+  const localCli = localTsxCli(root);
+  if (localCli) {
+    return { cmd: process.execPath, args: [localCli, tsEntry], shell: false };
   }
-  const probe = spawnSync(
-    process.platform === 'win32' ? 'tsx.cmd' : 'tsx',
-    ['--version'],
-    { shell: true },
-  );
-  if (typeof probe.status === 'number' && probe.status === 0) {
-    return {
-      cmd: process.platform === 'win32' ? 'tsx.cmd' : 'tsx',
-      args: [tsEntry],
-      shell: true,
-    };
-  }
+  const probe = pathCommand('tsx', ['--version']);
+  const { status } = spawnSync(probe.cmd, probe.args, { shell: probe.shell });
+  if (status === 0) return pathCommand('tsx', [tsEntry]);
   throw new Error(
     'Inline requires tsx. Install it with "npm i -D tsx", or run "smoz dev -l offline".',
   );

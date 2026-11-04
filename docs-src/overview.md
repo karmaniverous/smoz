@@ -54,6 +54,64 @@ Why this stack?
    const paths = app.buildAllOpenApiPaths();
    ```
 
+## What `defineFunction` derives from the path
+
+A function's folder under `app/functions` already says most of what SMOZ needs. Only `callerModuleUrl` is required; for `app/functions/rest/users/get/lambda.ts`:
+
+| Field              | Derived value                 | Rule                                                                               |
+| ------------------ | ----------------------------- | ---------------------------------------------------------------------------------- |
+| `eventType`        | `'rest'`                      | First folder under `<appRootAbs>/functions`; must be a key of `eventTypeMapSchema` |
+| `endpointsRootAbs` | `<appRootAbs>/functions/rest` | `<appRootAbs>/functions/<eventType>`                                               |
+| `method`           | `'get'`                       | Last folder (HTTP only)                                                            |
+| `basePath`         | `'users'`                     | Folders between `endpointsRootAbs` and the method folder (HTTP only)               |
+| `functionName`     | `functions_rest_users_get`    | Folder relative to `appRootAbs`, joined with `_`                                   |
+| `httpContexts`     | `['public']`                  | Built-in default                                                                   |
+| `contentType`      | `'application/json'`          | Built-in default                                                                   |
+
+```ts
+// app/functions/rest/users/get/lambda.ts
+import { z } from 'zod';
+
+import { app } from '@/app/config/app.config';
+
+export const responseSchema = z.array(z.object({ id: z.string() }));
+
+export const fn = app.defineFunction({
+  eventType: 'rest', // optional; see below
+  responseSchema,
+  callerModuleUrl: import.meta.url,
+});
+```
+
+An explicit field always wins over a derived one, so set `basePath` or `functionName` where a function departs from its folder. If `eventType` is omitted and the file isn't under `functions/<eventType>/`, or that folder isn't a key of `eventTypeMapSchema`, `defineFunction` throws when the module loads, naming the fix. It also throws when the derived `eventType` is HTTP and the method or base path can't be derived (e.g. `functions/rest/lambda.ts`, or `functions/rest/users/lambda.ts` where `users` isn't a method): put the file in `functions/rest/<path>/<method>/` or pass `method` and `basePath`. With an explicit `eventType` there is no such check, and a function without a derivable route gets no HTTP event and no OpenAPI path.
+
+`eventType` is worth passing even though it can be derived: given explicitly, the literal token types the handler's event (e.g. `APIGatewayProxyEvent` for `'rest'`). Omitted, the handler's event type widens to the union of all event types in the map.
+
+### App-wide defaults (`functionDefaults`)
+
+Where your functions share a value that differs from the built-in default, set it once in `App.create`:
+
+```ts
+export const app = App.create({
+  // ...
+  functionDefaults: {
+    httpContexts: ['my', 'private'],
+    fnEnvKeys: ['TABLE_NAME'],
+    // 'kebab': functions/rest/user/logo/patch -> 'user-logo-patch'
+    functionName: 'kebab',
+  },
+});
+```
+
+Precedence for every field: the function's own value, then `functionDefaults`, then the built-in default. In detail:
+
+- `fnEnvKeys` merge with the function's keys (no duplicates).
+- `serverless` (Lambda properties such as `memorySize`, `timeout`, `tenancy` or `image`) merges key by key under the function's own `serverless`, and `image` one level deeper when both are objects; see [Per-function Lambda config](./recipes/lambda-config.md).
+- `http` is a layer of the [middleware stack](./middleware.md) between the app's `http.defaults` and the profile, and it never overrides what the function chose. Options resolve, lowest to highest: `http.defaults`, `functionDefaults.http.options`, the selected profile, the function's own `http.options`. `functionDefaults.http.profile` is used only when the function selects no profile; its `extend`, `transform` and `replace` only when the function sets no value for that key. A profile name (the function's or the default's) that isn't in `http.profiles` throws when the function is defined.
+- `contentType` is the lowest layer of the content type: the app's `http.defaults`, `functionDefaults.http.options` and the selected profile all beat it. A function's own `contentType` beats every one of those; only its own `http.options.contentType` beats it (see [Middleware](./middleware.md)).
+- `functionName` is a name style, used only when a function sets no `functionName`: `'kebab'`, or a function `(ctx) => string` receiving `eventType`, `segments` (folders under `endpointsRootAbs`, e.g. `['user', 'logo', 'patch']`) and `defaultName` (the built-in name). Changing a style renames deployed functions.
+- `httpContexts`, `contentType` and `http` only affect HTTP functions.
+
 ## Path hygiene (cross‑platform)
 
 Windows uses backslashes, which can leak into string comparisons and generated artifacts. Normalize consistently:
