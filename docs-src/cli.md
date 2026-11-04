@@ -99,12 +99,14 @@ Scaffold:
 
 Paths must follow the convention under `app/functions/<eventType>/...`.
 
+The generated `lambda.ts` sets only the schemas and `callerModuleUrl`. The event type, method, base path, function name, contexts and content type derive from the folder and the app's `functionDefaults` (see "What `defineFunction` derives from the path" in the [Overview](./overview.md)); add a field to override it.
+
 Path parameters
 
 - You can write params as `:id`, `{id}`, or `[id]`:
   - Accepted spec forms (equivalent): `rest/users/:id/get`, `rest/users/{id}/get`, `rest/users/[id]/get`.
   - On disk, folders are Windows‑safe: `app/functions/rest/users/[id]/get/*`.
-  - In code, lambda.ts uses a native API path: `basePath: 'users/{id}'`.
+  - In code, lambda.ts uses a native API path: `basePath: 'users/{id}'`. This is the one field `add` writes explicitly, because the folder path (`users/[id]`) isn't the API path.
   - The scaffolded `openapi.ts` includes a path parameters array and a short “Path template” hint (e.g., `/users/{id}`).
 
 Consuming path parameters (eventSchema & handler)

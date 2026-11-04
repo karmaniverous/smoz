@@ -13,3 +13,6 @@ undefined/temp/tsx-*
 
 # TypeDoc output
 docs/
+
+# Scratch copy written (and removed) by scripts/templates-typecheck.ts
+templates/.add-check/
