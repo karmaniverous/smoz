@@ -3,7 +3,8 @@
  * location and apply app-level function defaults.
  *
  * Precedence for every field: explicit value \> `functionDefaults` \>
- * built-in default.
+ * built-in default. `functionDefaults.http` is not applied here: it is a
+ * separate layer of the HTTP middleware stack (see `computeHttpMiddleware`).
  */
 import { dirname, isAbsolute, posix, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +16,6 @@ import type {
   FunctionNameStyle,
   ResolvedFunctionOptions,
 } from '@/src/core/functionOptions';
-import type { FunctionHttpConfig } from '@/src/http/middleware/customization/types';
 import { toPosixPath } from '@/src/util/path';
 
 /** App-level inputs to resolution. */
@@ -92,21 +92,6 @@ const applyNameStyle = (
   return style === 'kebab' ? segments.map(kebab).join('-') : style(nameCtx);
 };
 
-/**
- * Combine `functionDefaults.http` with a function's own `http`: top-level
- * keys from the function win; `options` merge shallowly (function wins).
- */
-const mergeFunctionHttp = (
-  defaults: FunctionHttpConfig | undefined,
-  fn: FunctionHttpConfig | undefined,
-): FunctionHttpConfig | undefined => {
-  if (!defaults || !fn) return fn ?? defaults;
-  const merged: FunctionHttpConfig = { ...defaults, ...fn };
-  if (defaults.options && fn.options)
-    merged.options = { ...defaults.options, ...fn.options };
-  return merged;
-};
-
 /** Unique union of default and per-function env keys, defaults first. */
 const mergeFnEnvKeys = (
   defaults: readonly PropertyKey[] | undefined,
@@ -155,7 +140,6 @@ export const resolveFunctionOptions = (
 
   const httpContexts = options.httpContexts ?? defaults.httpContexts;
   const contentType = options.contentType ?? defaults.contentType;
-  const http = mergeFunctionHttp(defaults.http, options.http);
 
   return {
     ...options,
@@ -165,6 +149,5 @@ export const resolveFunctionOptions = (
     ...(fnEnvKeys.length ? { fnEnvKeys } : {}),
     ...(httpContexts ? { httpContexts } : {}),
     ...(contentType ? { contentType } : {}),
-    ...(http ? { http } : {}),
   };
 };

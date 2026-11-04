@@ -62,6 +62,8 @@ export function wrapHandler<
   opts?: {
     httpEventTypeTokens?: readonly string[];
     httpConfig?: AppHttpConfig;
+    /** App-wide per-function HTTP default (`functionDefaults.http`). */
+    functionHttpDefaults?: FunctionHttpConfig;
   },
 ) {
   const assertKeysSubset = (
@@ -136,6 +138,7 @@ export function wrapHandler<
       responseSchema?: z.ZodType;
       contentType?: string;
       app?: AppHttpConfig;
+      fnDefaults?: FunctionHttpConfig;
       fn?: FunctionHttpConfig;
     } = {
       functionName: functionConfig.functionName,
@@ -150,6 +153,9 @@ export function wrapHandler<
         ? { contentType: maybeContentType }
         : {}),
       ...(opts?.httpConfig ? { app: opts.httpConfig } : {}),
+      ...(opts?.functionHttpDefaults
+        ? { fnDefaults: opts.functionHttpDefaults }
+        : {}),
       ...(fnHttp ? { fn: fnHttp } : {}),
     };
     const http = computeHttpMiddleware(args);

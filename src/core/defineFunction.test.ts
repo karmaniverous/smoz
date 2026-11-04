@@ -446,6 +446,31 @@ describe('functionDefaults', () => {
       expect(res.headers['Content-Type']).toBe('application/vnd.smoz+json');
     });
 
+    it('never overrides the profile the function selects', async () => {
+      const app = makeApp({
+        http: uploads,
+        functionDefaults: { http: { options: { multipartBodyParser: false } } },
+      });
+      const chosen = app
+        .defineFunction({
+          http: { profile: 'uploads' },
+          callerModuleUrl: at('functions/rest/a/post'),
+        })
+        .handler(sawParsedBody);
+      const optedOut = app
+        .defineFunction({
+          http: {
+            profile: 'uploads',
+            options: { multipartBodyParser: false },
+          },
+          callerModuleUrl: at('functions/rest/b/post'),
+        })
+        .handler(sawParsedBody);
+      // Profile option beats the default; the function's own option beats both.
+      expect(await postForm(chosen)).toEqual({ parsed: true });
+      expect(await postForm(optedOut)).toEqual({ parsed: false });
+    });
+
     it('lets the function profile win over the default profile', async () => {
       const app = makeApp({
         http: uploads,

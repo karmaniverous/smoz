@@ -106,7 +106,7 @@ export const app = App.create({
 Precedence for every field: the function's own value, then `functionDefaults`, then the built-in default. In detail:
 
 - `fnEnvKeys` merge with the function's keys (no duplicates).
-- `http` combines with the function's `http`: each key the function sets (`profile`, `extend`, `transform`, `replace`) wins, and `options` merge key by key, the function's keys winning. The result is the function-level layer of the [middleware stack](./middleware.md), applied after the selected profile; use the app's `http.defaults` for defaults that profiles can override.
+- `http` is a layer of the [middleware stack](./middleware.md) between the app's `http.defaults` and the profile, and it never overrides what the function chose. Options resolve, lowest to highest: `http.defaults`, `functionDefaults.http.options`, the selected profile, the function's own `http.options`. `functionDefaults.http.profile` is used only when the function selects no profile; its `extend`, `transform` and `replace` only when the function sets no value for that key.
 - `functionName` is a name style, used only when a function sets no `functionName`: `'kebab'`, or a function `(ctx) => string` receiving `eventType`, `segments` (folders under `endpointsRootAbs`, e.g. `['user', 'logo', 'patch']`) and `defaultName` (the built-in name). Changing a style renames deployed functions.
 - `httpContexts`, `contentType` and `http` only affect HTTP functions.
 

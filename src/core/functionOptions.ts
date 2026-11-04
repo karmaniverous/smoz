@@ -121,13 +121,14 @@ export interface FunctionDefaults {
   /** Default response content type for HTTP functions (built-in default `application/json`). */
   contentType?: string;
   /**
-   * Default per-function HTTP customization.
+   * Default per-function HTTP customization. A default never overrides what
+   * the function chose.
    *
-   * Combined with a function's own `http`: each top-level key (`profile`,
-   * `extend`, `transform`, `replace`) set on the function wins; `options` are
-   * shallow-merged key by key, function keys winning. The result is the
-   * function-level layer, so its `options` apply after the selected profile.
-   * For defaults that profiles can override, use the app's `http.defaults`.
+   * Options resolve, lowest to highest: app `http.defaults` \<
+   * `functionDefaults.http.options` \< the selected profile \< the function's
+   * own `http.options`. `profile` is used only when the function sets none;
+   * `extend`, `transform` and `replace` only when the function sets no value
+   * for that key (`extend` and `transform` run before the profile's).
    */
   http?: FunctionHttpConfig;
   /**

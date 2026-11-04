@@ -34,9 +34,31 @@ SMOZ builds a robust Middy stack around HTTP handlers. Non‑HTTP flows bypassMi
   - `http.extend`: append steps into phases
   - `http.transform`: insert/replace/remove steps by ID
   - `http.replace`: phased arrays or a single middleware (advanced)
-- App-wide function defaults (optional; `functionDefaults.http` in `App.create`): the same shape as a function's `http`, applied to every function. A function's own `http` keys win and `options` merge key by key (see "App-wide defaults" in the [Overview](./overview.md)).
+- App-wide function defaults (optional; `functionDefaults.http` in `App.create`): the same shape as a function's `http`, applied to every function. A default never overrides what the function chose (see "App-wide defaults" in the [Overview](./overview.md)).
 
-Options resolve in this order, later layers winning: built-in defaults, `http.defaults`, the selected profile, then the function-level options (`functionDefaults.http.options` merged with the function's `http.options`).
+Options resolve in this order, later layers winning:
+
+1. built-in defaults
+2. `http.defaults`
+3. `functionDefaults.http.options`
+4. the selected profile: the function's `http.profile`, else `functionDefaults.http.profile`
+5. the function's own `http.options`
+
+`extend` and `transform` run in the same layer order (`http.defaults`, `functionDefaults.http`, profile, function). `functionDefaults.http.extend`, `.transform` and `.replace` apply only to functions that set no value for that key.
+
+```ts
+export const app = App.create({
+  // ...
+  http: { profiles: { uploads: { multipartBodyParser: {} } } },
+  functionDefaults: { http: { options: { multipartBodyParser: false } } },
+});
+
+// Parses multipart: the profile the function selects beats the default.
+app.defineFunction({
+  http: { profile: 'uploads' },
+  callerModuleUrl: import.meta.url,
+});
+```
 
 ## Multipart form data (opt-in)
 

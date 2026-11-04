@@ -71,7 +71,19 @@ const enforceZod = (
   }
 };
 
-/** Compute final stack given app-level and function-level customization. */
+/**
+ * Compute the final stack from app-level, app-wide function default and
+ * function-level customization.
+ *
+ * Layers, lowest to highest: `app.defaults` \< `fnDefaults` \< the selected
+ * profile \< `fn`. A default never overrides what the function chose:
+ * - the profile is `fn.profile`, else `fnDefaults.profile`;
+ * - options merge key by key in layer order, so a profile's option beats a
+ *   `fnDefaults` option and the function's own option beats both;
+ * - `fnDefaults.extend`, `.transform` and `.replace` apply only when the
+ *   function sets no value for that key; `extend` and `transform` run in the
+ *   `fnDefaults` layer (after `app.defaults`, before the profile).
+ */
 export const computeHttpMiddleware = (args: {
   functionName: string;
   eventSchema?: z.ZodType | undefined;
@@ -79,6 +91,8 @@ export const computeHttpMiddleware = (args: {
   logger?: ConsoleLogger;
   contentType?: string;
   app?: AppHttpConfig;
+  /** App-wide per-function default (`functionDefaults.http`). */
+  fnDefaults?: FunctionHttpConfig;
   fn?: FunctionHttpConfig;
 }): MiddlewareObj<APIGatewayProxyEvent, Context> => {
   const {
@@ -88,8 +102,16 @@ export const computeHttpMiddleware = (args: {
     logger: maybeLogger,
     contentType: maybeContentType,
     app,
-    fn,
+    fnDefaults,
   } = args;
+  // The function's own keys win over the app-wide default's.
+  const fn: FunctionHttpConfig = {
+    ...(fnDefaults?.replace ? { replace: fnDefaults.replace } : {}),
+    ...args.fn,
+  };
+  const profileName = fn.profile ?? fnDefaults?.profile;
+  const defaultsExtend = fn.extend ? undefined : fnDefaults?.extend;
+  const defaultsTransform = fn.transform ? undefined : fnDefaults?.transform;
 
   const baseContentType = (
     maybeContentType ?? 'application/json'
@@ -99,13 +121,12 @@ export const computeHttpMiddleware = (args: {
     logger: maybeLogger ?? console,
   };
 
-  // Layer A: app.defaults.options
+  // Layer A: options (app.defaults → fnDefaults → profile → function)
   effective = mergeOptions(effective, app?.defaults);
-  // Apply profile (options)
-  const profile = fn?.profile ? app?.profiles?.[fn.profile] : undefined;
+  effective = mergeOptions(effective, fnDefaults?.options);
+  const profile = profileName ? app?.profiles?.[profileName] : undefined;
   effective = mergeOptions(effective, profile);
-  // Function-level options
-  effective = mergeOptions(effective, fn?.options);
+  effective = mergeOptions(effective, fn.options);
 
   const contentType = (effective.contentType ?? baseContentType).toLowerCase();
   const logger = effective.logger ?? console;
@@ -119,7 +140,7 @@ export const computeHttpMiddleware = (args: {
     responseSchema,
   });
 
-  // Layer B: extend (app.defaults → profile → function)
+  // Layer B: extend (app.defaults → fnDefaults → profile → function)
   applyExtend(
     phases,
     (
@@ -127,16 +148,18 @@ export const computeHttpMiddleware = (args: {
         { extend?: { before?: M[]; after?: M[]; onError?: M[] } } | undefined
     )?.extend,
   );
+  applyExtend(phases, defaultsExtend);
   applyExtend(phases, profile?.extend);
-  applyExtend(phases, fn?.extend);
+  applyExtend(phases, fn.extend);
 
-  // Layer C: transform (app.defaults → profile → function)
+  // Layer C: transform (app.defaults → fnDefaults → profile → function)
   phases = applyTransform(
     phases,
     (app?.defaults as { transform?: HttpTransform } | undefined)?.transform,
   );
+  phases = applyTransform(phases, defaultsTransform);
   phases = applyTransform(phases, profile?.transform);
-  phases = applyTransform(phases, fn?.transform);
+  phases = applyTransform(phases, fn.transform);
 
   // Invariants (pre-replace)
   assertInvariants(phases);
@@ -145,7 +168,7 @@ export const computeHttpMiddleware = (args: {
   enforceZod(phases, !!(eventSchema || responseSchema), functionName);
 
   // Layer D: replace (full override)
-  if (fn?.replace?.stack) {
+  if (fn.replace?.stack) {
     const rep = fn.replace.stack;
     if (
       typeof rep === 'object' &&

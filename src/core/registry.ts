@@ -109,7 +109,7 @@ export const createRegistry = <
             EventType,
             EventSchema,
             ResponseSchema
-          >(deps.httpEventTypeTokens, deps.http);
+          >(deps.httpEventTypeTokens, deps.http, deps.functionDefaults?.http);
           return make(fnConfig, business);
         },
         openapi: (baseOperation: BaseOperation) => {
