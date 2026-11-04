@@ -25,10 +25,24 @@ const echo = (method: string, pattern: string): Route => ({
   }),
 });
 
+/** A route that returns the JPEG bytes as a base64-flagged binary response. */
+const image: Route = {
+  ...echo('GET', '/image'),
+  handler: () =>
+    Promise.resolve({
+      statusCode: 200,
+      headers: { 'Content-Type': 'image/jpeg' },
+      body: jpeg.toString('base64'),
+      isBase64Encoded: true,
+    }),
+};
+
 const failing: Route = {
   ...echo('DELETE', '/fail'),
   handler: () => Promise.reject(new Error('kaboom')),
 };
+
+const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x80, 0xff, 0xd9]);
 
 let server: http.Server | undefined;
 
@@ -36,7 +50,7 @@ let server: http.Server | undefined;
 const serve = async (binaryMediaTypes: readonly string[]): Promise<string> => {
   const s = http.createServer(
     createListener(
-      [echo('POST', '/users/{id}/logo'), echo('GET', '/hello'), failing],
+      [echo('POST', '/users/{id}/logo'), echo('GET', '/hello'), image, failing],
       binaryMediaTypes,
     ),
   );
@@ -51,9 +65,14 @@ afterEach(async () => {
   if (s) await new Promise((resolve) => s.close(resolve));
 });
 
-const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x80, 0xff, 0xd9]);
-
 describe('inline request listener', () => {
+  it('decodes a base64-flagged response body to its bytes, as API Gateway does', async () => {
+    const base = await serve([]);
+    const res = await fetch(`${base}/image`);
+    expect(res.status).toBe(200);
+    expect(Buffer.from(await res.arrayBuffer())).toEqual(jpeg);
+  });
+
   it('delivers a binary-typed upload base64-encoded, bytes intact', async () => {
     const base = await serve(['image/*']);
     const res = await fetch(`${base}/users/42/logo`, {

@@ -31,7 +31,7 @@ SMOZ builds a robust Middy stack around HTTP handlers. Non‑HTTP flows bypassMi
 - Function level (optional; in `app.defineFunction`):
   - `http.profile`: choose one profile by name (an unknown name throws when the function is defined, listing the known profiles)
   - `http.options`: shallow overrides
-  - `http.extend`: add steps to phases. `before` and `onError` steps are appended; `after` steps go just before `shape`, so they see the handler's response before it is shaped and serialized (and `serializer` stays last)
+  - `http.extend`: add steps to phases. `before` and `onError` steps are appended; `after` steps go just before `shape`, so they see the handler's response before it is shaped and serialized (and `serializer` stays last). They run after response validation (`zod-after`), CORS and preferred-media, so any change they make to the body is not validated against `responseSchema`
   - `http.transform`: insert/replace/remove steps by ID
   - `http.replace`: phased arrays or a single middleware (advanced)
 - App-wide function defaults (optional; `functionDefaults.http` in `App.create`): the same shape as a function's `http`, applied to every function. A default never overrides what the function chose (see "App-wide defaults" in the [Overview](./overview.md)).
@@ -101,7 +101,7 @@ provider: {
 },
 ```
 
-API Gateway then base64-encodes those bodies and sets `isBase64Encoded`, which the parser decodes. Without it, API Gateway passes the body to Lambda as UTF-8 text, and file bytes that aren't valid UTF-8 (any JPEG or PNG) are corrupted: each one becomes `ef bf bd` (U+FFFD). `smoz dev` (inline) reads the same list from `serverless.ts` and encodes request bodies the same way, so uploads behave in dev as they will deployed; it prints the list it applies at startup. If `serverless.ts` is missing or fails to load, it uses `multipart/form-data`, `image/*` and `application/octet-stream`.
+API Gateway then base64-encodes those bodies and sets `isBase64Encoded`, which the parser decodes. Without it, API Gateway passes the body to Lambda as UTF-8 text, and file bytes that aren't valid UTF-8 (any JPEG or PNG) are corrupted: each one becomes `ef bf bd` (U+FFFD). `smoz dev` (inline) reads the same list from `serverless.ts` and encodes request bodies the same way, so uploads behave in dev as they will deployed. It also decodes response bodies that a handler flags with `isBase64Encoded: true`, as API Gateway does. The list is read once, at startup (which prints it): restart `smoz dev` after changing it. If `serverless.ts` is missing or fails to load (and in projects that use `serverless.yml` or `serverless.js`), dev uses `multipart/form-data`, `image/*` and `application/octet-stream`, which may differ from what you deploy.
 
 Set `multipartBodyParser: false` on a function to opt it out of a profile or app default that enables it. Options merge shallowly, like every other stack option: a function's `multipartBodyParser: { ... }` replaces a profile's object entirely rather than merging into it.
 

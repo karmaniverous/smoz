@@ -168,7 +168,7 @@ Root version flag:
 
 Notes:
 
-- Inline backend maps Node HTTP → API Gateway v1 event → wrapped handler → response. It prints a route table and the selected port at startup. Request bodies whose Content-Type matches `provider.apiGateway.binaryMediaTypes` in `serverless.ts` arrive base64-encoded with `isBase64Encoded: true`, as API Gateway sends them; other bodies arrive as UTF-8 text. The startup output lists the types applied (see [Multipart form data](./middleware.md#multipart-form-data-opt-in)).
+- Inline backend maps Node HTTP → API Gateway v1 event → wrapped handler → response. It prints a route table and the selected port at startup. Request bodies whose Content-Type matches `provider.apiGateway.binaryMediaTypes` in `serverless.ts` arrive base64-encoded with `isBase64Encoded: true`, as API Gateway sends them; other bodies arrive as UTF-8 text. Response bodies a handler returns with `isBase64Encoded: true` are decoded to bytes. The list is read once at startup, and the startup output prints it: restart after changing it. Without a loadable `serverless.ts`, dev uses a fallback list (see [Multipart form data](./middleware.md#multipart-form-data-opt-in)).
 - Offline backend runs `serverless offline` in a child process; when the route surface changes (register writes), the child is restarted automatically.
 - The loop seeds basic env (e.g., `STAGE`) and prints “Updated” vs “No changes” per task run; bursts are debounced.
 - Env seeding:

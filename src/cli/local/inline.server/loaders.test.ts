@@ -85,6 +85,13 @@ describe('loadBinaryMediaTypes', () => {
     expect(source).toMatch(/serverless\.ts/);
   });
 
+  it('awaits an async (Promise) serverless.ts default export', async () => {
+    const root = project(
+      "export default Promise.resolve({ provider: { apiGateway: { binaryMediaTypes: ['image/png'] } } });\n",
+    );
+    expect((await loadBinaryMediaTypes(root)).types).toEqual(['image/png']);
+  });
+
   it('applies none when serverless.ts sets none, as API Gateway does', async () => {
     const root = project("export default { provider: { name: 'aws' } };\n");
     expect((await loadBinaryMediaTypes(root)).types).toEqual([]);

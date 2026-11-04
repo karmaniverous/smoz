@@ -182,7 +182,9 @@ export const writeResult = (
   const status =
     typeof result.statusCode === 'number' ? result.statusCode : 200;
   const headers = result.headers ?? {};
-  const body = typeof result.body === 'string' ? result.body : '';
+  const text = typeof result.body === 'string' ? result.body : '';
+  // API Gateway decodes base64 bodies flagged by the handler (binary responses).
+  const body = result.isBase64Encoded ? Buffer.from(text, 'base64') : text;
   for (const [k, v] of Object.entries(headers)) {
     if (typeof v === 'string') res.setHeader(k, v);
   }

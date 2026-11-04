@@ -82,7 +82,8 @@ export const loadBinaryMediaTypes = async (
   try {
     const mod = (await import(pathToFileURL(p).href)) as { default?: unknown };
     return {
-      types: binaryMediaTypesOf(mod.default),
+      // Serverless accepts a Promise as the default export.
+      types: binaryMediaTypesOf(await mod.default),
       source: 'serverless.ts provider.apiGateway.binaryMediaTypes',
     };
   } catch (e) {
