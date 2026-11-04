@@ -1,8 +1,9 @@
 import { type ChildProcess, spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+import { resolveTsxCommand } from '@/src/cli/dev/inline';
 
 /**
  * Wait for the inline server to print its listening port.
@@ -36,23 +37,12 @@ const waitForListening = async (
   });
 };
 
-/**
- * Launch the inline server via tsx.
- * - Prefer the project-local JS entry (node node_modules/tsx/dist/cli.js <entry>)
- * - Fallback to PATH resolution of "tsx" (or "tsx.cmd" on Windows)
- */
+/** Launch the inline server via tsx, resolved the way `smoz dev` does. */
 const startInline = async (): Promise<{
   port: number;
   close: () => Promise<void>;
 }> => {
   const repoRoot = process.cwd();
-  const tsxCli = path.resolve(
-    repoRoot,
-    'node_modules',
-    'tsx',
-    'dist',
-    'cli.js',
-  );
   const entry = path.resolve(
     repoRoot,
     'src',
@@ -62,18 +52,7 @@ const startInline = async (): Promise<{
     'index.ts',
   );
 
-  const args: string[] = [];
-  let cmd: string;
-  let shell = false;
-  if (existsSync(tsxCli)) {
-    // Prefer Node + JS CLI to avoid .cmd quirks on Windows
-    cmd = process.execPath;
-    args.push(tsxCli, entry);
-  } else {
-    cmd = process.platform === 'win32' ? 'tsx.cmd' : 'tsx';
-    args.push(entry);
-    shell = true;
-  }
+  const { cmd, args, shell } = resolveTsxCommand(repoRoot, entry);
 
   const child: ChildProcess = spawn(cmd, args, {
     cwd: repoRoot,

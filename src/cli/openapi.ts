@@ -7,34 +7,24 @@
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import { buildSpawnEnv } from '@karmaniverous/get-dotenv';
 
-interface SpawnSpec {
-  cmd: string;
-  args: string[];
-  shell: boolean;
-}
+import { localTsxCli, type SpawnSpec } from '@/src/cli/util/command';
 
 const findTsxCli = (root: string): SpawnSpec => {
-  const requireFromRoot = createRequire(path.resolve(root, 'package.json'));
-
-  try {
-    const cli = requireFromRoot.resolve('tsx/cli');
-
-    return {
-      cmd: process.execPath,
-      args: [cli, 'app/config/openapi.ts'],
-      shell: false,
-    };
-  } catch (cause) {
+  const cli = localTsxCli(root);
+  if (!cli) {
     throw new Error(
       'tsx is required to generate OpenAPI. Install it with "npm install --save-dev tsx".',
-      { cause },
     );
   }
+  return {
+    cmd: process.execPath,
+    args: [cli, 'app/config/openapi.ts'],
+    shell: false,
+  };
 };
 
 const findPrettierCli = (root: string): SpawnSpec => {

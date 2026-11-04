@@ -12,6 +12,8 @@ import path from 'node:path';
 
 import { buildSpawnEnv } from '@karmaniverous/get-dotenv';
 
+import { pathCommand, type SpawnSpec } from '@/src/cli/util/command';
+
 export type OfflineRunner = {
   restart: () => Promise<void>;
   close: () => Promise<void>;
@@ -34,35 +36,19 @@ export const launchOffline = async (
     'serverless.js',
   );
 
-  const makeCmd = () => {
-    const args: string[] = [];
-    let cmd: string;
-    let shell = false;
-    if (fs.existsSync(slsJs)) {
-      cmd = process.execPath;
-      args.push(
-        slsJs,
-        'offline',
-        'start',
-        '--stage',
-        opts.stage,
-        '--httpPort',
-        String(typeof opts.port === 'number' ? opts.port : 0),
-      );
-    } else {
-      // Fallback to PATH
-      cmd = process.platform === 'win32' ? 'serverless.cmd' : 'serverless';
-      args.push(
-        'offline',
-        'start',
-        '--stage',
-        opts.stage,
-        '--httpPort',
-        String(typeof opts.port === 'number' ? opts.port : 0),
-      );
-      shell = true;
-    }
-    return { cmd, args, shell };
+  const makeCmd = (): SpawnSpec => {
+    const args = [
+      'offline',
+      'start',
+      '--stage',
+      opts.stage,
+      '--httpPort',
+      String(typeof opts.port === 'number' ? opts.port : 0),
+    ];
+    return fs.existsSync(slsJs)
+      ? { cmd: process.execPath, args: [slsJs, ...args], shell: false }
+      : // Fallback to PATH
+        pathCommand('serverless', args);
   };
 
   let child = await spawnOffline(root, makeCmd(), opts.verbose);
@@ -93,7 +79,7 @@ export const launchOffline = async (
 
 const spawnOffline = async (
   root: string,
-  cmd: { cmd: string; args: string[]; shell: boolean },
+  cmd: SpawnSpec,
   verbose: boolean,
 ): Promise<ReturnType<typeof spawn>> => {
   // Normalize child environment via get-dotenv when available; safe fallback otherwise.
