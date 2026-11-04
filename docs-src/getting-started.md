@@ -107,7 +107,6 @@ import { app } from '@/app/config/app.config';
 export const responseSchema = z.object({ ok: z.boolean() });
 
 export const fn = app.defineFunction({
-  eventType: 'rest',
   responseSchema,
   callerModuleUrl: import.meta.url,
 });

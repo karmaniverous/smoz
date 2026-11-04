@@ -82,7 +82,6 @@ export const app = App.create({
 
 // app/functions/rest/user/logo/post/lambda.ts
 export const fn = app.defineFunction({
-  eventType: 'rest',
   callerModuleUrl: import.meta.url,
   http: { profile: 'uploads' },
 });
@@ -125,7 +124,6 @@ Choose a profile and override content type:
 
 ```ts
 export const fn = app.defineFunction({
-  eventType: 'rest',
   callerModuleUrl: import.meta.url,
   http: {
     profile: 'publicJson', // defined in App.create({ http: { profiles } })
@@ -144,7 +142,6 @@ const mw = {
   },
 };
 export const fn = app.defineFunction({
-  eventType: 'rest',
   callerModuleUrl: import.meta.url,
   http: {
     transform: ({ before, after, onError }) => ({
@@ -160,7 +157,6 @@ Replace (advanced):
 
 ```ts
 export const fn = app.defineFunction({
-  eventType: 'rest',
   callerModuleUrl: import.meta.url,
   http: {
     replace: {

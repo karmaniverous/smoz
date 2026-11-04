@@ -10,7 +10,6 @@ Expose only what each function needs. Provider‑level env is built from app‑w
 ```ts
 // app/functions/rest/admin/things/get/lambda.ts
 export const fn = app.defineFunction({
-  eventType: 'rest',
   httpContexts: ['private'],
   fnEnvKeys: ['PROFILE', 'DOMAIN_NAME'] as const, // example
   callerModuleUrl: import.meta.url,

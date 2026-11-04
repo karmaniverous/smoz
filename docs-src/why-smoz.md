@@ -76,7 +76,6 @@ import { app } from '@/app/config/app.config';
 
 export const responseSchema = z.object({ ok: z.boolean() });
 export const fn = app.defineFunction({
-  eventType: 'rest',
   responseSchema,
   callerModuleUrl: import.meta.url, // method, path and name derive from the folder
 });
@@ -129,7 +128,6 @@ Tiny customization example:
 import { insertAfter } from '@karmaniverous/smoz/http';
 const xHeader = { after: (r: any) => (r.response.headers['X-Trace'] = '1') };
 export const fn = app.defineFunction({
-  eventType: 'rest',
   callerModuleUrl: import.meta.url,
   http: {
     transform: ({ before, after, onError }) => ({

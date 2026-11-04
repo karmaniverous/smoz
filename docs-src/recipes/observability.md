@@ -27,7 +27,6 @@ const echoRequestId = {
 };
 
 export const fn = app.defineFunction({
-  eventType: 'rest',
   callerModuleUrl: import.meta.url,
   http: {
     transform: ({ before, after, onError }) => ({

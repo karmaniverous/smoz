@@ -35,7 +35,6 @@ export const app = App.create({
 ```ts
 // app/functions/rest/users/get/lambda.ts
 export const fn = app.defineFunction({
-  eventType: 'rest',
   httpContexts: ['public', 'my'], // publish on both public and "my"
   callerModuleUrl: import.meta.url,
 });
