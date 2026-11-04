@@ -1,55 +1,44 @@
-import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { describe, expect, it, vi } from 'vitest';
-import { z } from 'zod';
-
-import { createApiGatewayV1Event, createLambdaContext } from '@/src/test/aws';
+import type { APIGatewayProxyEvent, Context, SQSEvent } from 'aws-lambda';
+import { describe, expectTypeOf, it } from 'vitest';
+import type { z } from 'zod';
 
 import type { Handler, HandlerOptions, ShapedEvent } from './Handler';
 
-const eventSchema = z.object({
-  id: z.string(),
-  q: z.string().optional(),
-});
-
-const responseSchema = z.object({
-  ok: z.boolean(),
-  id: z.string(),
-  requestId: z.string(),
-});
+/** Event schema type: `z.object({ id: z.string(), q: z.string().optional() })`. */
+type E = z.ZodObject<{ id: z.ZodString; q: z.ZodOptional<z.ZodString> }>;
+/** Response schema type: `z.object({ ok: z.boolean() })`. */
+type R = z.ZodObject<{ ok: z.ZodBoolean }>;
 
 describe('Handler type', () => {
-  it('accepts (ShapedEvent<EventSchema>, Context, HandlerOptions) -> payload', async () => {
-    const impl: Handler<
-      typeof eventSchema,
-      typeof responseSchema,
-      APIGatewayProxyEvent
-    > = async (
-      event: ShapedEvent<typeof eventSchema, APIGatewayProxyEvent>,
-      ctx: Context,
-      opts: HandlerOptions,
-    ) => {
-      opts.logger.info('handling', event.id);
-      return { ok: true, id: event.id, requestId: ctx.awsRequestId };
-    };
-    const info = vi.fn();
+  it('takes (ShapedEvent<EventSchema>, Context, HandlerOptions)', () => {
+    expectTypeOf<
+      Handler<E, R, APIGatewayProxyEvent>
+    >().parameters.toEqualTypeOf<
+      [ShapedEvent<E, APIGatewayProxyEvent>, Context, HandlerOptions]
+    >();
+  });
 
-    const result = await impl(
-      {
-        ...createApiGatewayV1Event('GET'),
-        ...eventSchema.parse({ id: 'x' }),
-      } as ShapedEvent<typeof eventSchema, APIGatewayProxyEvent>,
-      createLambdaContext(),
-      {
-        env: {},
-        logger: { debug: vi.fn(), info, error: vi.fn(), log: vi.fn() },
-      },
-    );
+  it('returns a promise of the response schema payload', () => {
+    expectTypeOf<
+      ReturnType<Handler<E, R, APIGatewayProxyEvent>>
+    >().toEqualTypeOf<Promise<z.infer<R>>>();
+  });
 
-    expect(responseSchema.parse(result)).toEqual({
-      ok: true,
-      id: 'x',
-      requestId: 'test-req-id',
-    });
-    expect(info).toHaveBeenCalledWith('handling', 'x');
+  it('returns a promise of unknown without a response schema', () => {
+    expectTypeOf<
+      ReturnType<Handler<E, undefined, APIGatewayProxyEvent>>
+    >().toEqualTypeOf<Promise<unknown>>();
+  });
+});
+
+describe('ShapedEvent type', () => {
+  it('overlays the event schema on the base event', () => {
+    type Shaped = ShapedEvent<E, APIGatewayProxyEvent>;
+    expectTypeOf<Shaped['id']>().toEqualTypeOf<string>();
+    expectTypeOf<Shaped['httpMethod']>().toEqualTypeOf<string>();
+  });
+
+  it('is the base event without an event schema', () => {
+    expectTypeOf<ShapedEvent<undefined, SQSEvent>>().toEqualTypeOf<SQSEvent>();
   });
 });

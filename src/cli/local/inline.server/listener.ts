@@ -3,13 +3,14 @@ import { URL } from 'node:url';
 
 import type { Context } from 'aws-lambda';
 
+import { StubLambdaContext } from '@/src/runtime/lambdaContext';
+
 import { match, toEvent, writeResult } from './http';
-import { createStubLambdaContext } from './lambdaContext';
 import type { Route } from './routes';
 
 /** Lambda context stub passed to every inline handler. */
 const lambdaContext = (): Context =>
-  createStubLambdaContext({
+  new StubLambdaContext({
     awsRequestId: String(Date.now()),
     functionName: 'inline',
     invokedFunctionArn: 'arn:inline',

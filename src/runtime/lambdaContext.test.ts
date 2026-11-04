@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createStubLambdaContext } from './lambdaContext';
+import { StubLambdaContext } from './lambdaContext';
 
 const fields = {
   awsRequestId: 'req-1',
@@ -10,9 +10,9 @@ const fields = {
   remainingTimeInMillis: 1234,
 };
 
-describe('createStubLambdaContext', () => {
+describe('StubLambdaContext', () => {
   it('carries the per-invocation fields and Lambda defaults', () => {
-    expect(createStubLambdaContext(fields)).toMatchObject({
+    expect(new StubLambdaContext(fields)).toMatchObject({
       awsRequestId: 'req-1',
       callbackWaitsForEmptyEventLoop: false,
       functionName: 'fn',
@@ -26,7 +26,7 @@ describe('createStubLambdaContext', () => {
 
   it('returns the remaining time even when the getter is called detached', () => {
     // middy reads getRemainingTimeInMillis off the context and calls it unbound.
-    const { getRemainingTimeInMillis } = createStubLambdaContext(fields);
+    const { getRemainingTimeInMillis } = new StubLambdaContext(fields);
     expect(getRemainingTimeInMillis()).toBe(1234);
   });
 });

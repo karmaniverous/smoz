@@ -1,6 +1,6 @@
 import type { Context } from 'aws-lambda';
 
-/** Per-invocation fields of a stub Lambda {@link Context}. */
+/** Per-invocation fields of a stub Lambda `Context` (aws-lambda). */
 export interface LambdaContextFields {
   awsRequestId: string;
   functionName: string;
@@ -11,7 +11,7 @@ export interface LambdaContextFields {
 }
 
 /**
- * Stub Lambda {@link Context} for handlers invoked outside AWS (the inline
+ * Stub Lambda `Context` (aws-lambda) for handlers invoked outside AWS (the inline
  * dev server and tests).
  *
  * `done`, `fail` and `succeed` are Node 0.10 compatibility methods that
@@ -19,7 +19,7 @@ export interface LambdaContextFields {
  * results or throw, so the stubs are no-ops that exist only to satisfy the
  * interface.
  */
-class StubLambdaContext implements Context {
+export class StubLambdaContext implements Context {
   readonly awsRequestId: string;
   callbackWaitsForEmptyEventLoop = false;
   readonly functionName: string;
@@ -51,8 +51,3 @@ class StubLambdaContext implements Context {
     // No-op: see class docs.
   }
 }
-
-/** Create a stub Lambda {@link Context} with the given per-invocation fields. */
-export const createStubLambdaContext = (
-  fields: LambdaContextFields,
-): StubLambdaContext => new StubLambdaContext(fields);

@@ -4,7 +4,7 @@ import type {
   Context,
 } from 'aws-lambda';
 
-import { createStubLambdaContext } from '@/src/cli/local/inline.server/lambdaContext';
+import { StubLambdaContext } from '@/src/runtime/lambdaContext';
 
 export const createApiGatewayV1Event = (
   method: string,
@@ -70,7 +70,7 @@ export const createApiGatewayV2Event = (
   }) as unknown as APIGatewayProxyEventV2;
 
 export const createLambdaContext = (): Context =>
-  createStubLambdaContext({
+  new StubLambdaContext({
     awsRequestId: 'test-req-id',
     functionName: 'fn',
     invokedFunctionArn: 'arn',
