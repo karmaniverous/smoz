@@ -16,9 +16,6 @@
  *
  * @remarks See README for a full quick‑start, and typedoc for detailed API docs.
  */
-import { dirname, relative, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import type { AWS } from '@serverless/typescript';
 import type { z } from 'zod';
 import type { ZodOpenApiPathsObject } from 'zod-openapi';
@@ -26,6 +23,10 @@ import type { ZodOpenApiPathsObject } from 'zod-openapi';
 import { baseEventTypeMapSchema } from '@/src/core/baseEventTypeMapSchema';
 import { buildStageArtifacts } from '@/src/core/buildStageArtifacts';
 import type { EnvSchemaNode } from '@/src/core/defineAppConfig';
+import type {
+  DefineFunctionOptions,
+  FunctionDefaults,
+} from '@/src/core/functionOptions';
 import {
   defaultHttpEventTypeTokens,
   validateEventTypeMapSchemaIncludesBase,
@@ -39,8 +40,6 @@ import type { ZodObj } from '@/src/core/types';
 import type { AppHttpConfig } from '@/src/http/middleware/httpStackCustomization';
 import { buildAllOpenApiPaths as buildPaths } from '@/src/openapi/buildOpenApi';
 import { buildAllServerlessFunctions as buildFns } from '@/src/serverless/buildServerless';
-import type { MethodKey } from '@/src/types/FunctionConfig';
-import type { HttpContext } from '@/src/types/HttpContext';
 
 export interface AppInit<
   GlobalParamsSchema extends ZodObj,
@@ -71,10 +70,12 @@ export interface AppInit<
    * Optional app-level HTTP middleware customization (defaults & profiles).
    */
   http?: AppHttpConfig;
-  /** Optional defaults applied to every function (merged per registration). */
-  functionDefaults?: {
-    fnEnvKeys?: readonly string[];
-  };
+  /**
+   * Optional defaults applied to every function registered with
+   * `defineFunction` (env keys, HTTP contexts, content type, per-function
+   * HTTP customization, name style). Explicit per-function values win.
+   */
+  functionDefaults?: FunctionDefaults;
 }
 /**
  * Application class. *
@@ -171,6 +172,8 @@ export interface AppInit<
       StageParamsSchema,
       EventTypeMapSchema
     >({
+      appRootAbs: this.appRootAbs,
+      eventTypeKeys: Object.keys(this.eventTypeMapSchema.shape),
       httpEventTypeTokens: this.httpEventTypeTokens,
       env: { global: this.global, stage: this.stage },
       http: this.http,
@@ -220,59 +223,34 @@ export interface AppInit<
   /**
    * Register a function (HTTP or non‑HTTP).
    *
-   * @typeParam EventType      - A key from your eventTypeMapSchema (e.g., 'rest' | 'http' | 'sqs' | 'step')
-   * @typeParam EventSchema    - Optional Zod schema validated BEFORE the handler (refines event shape)   * @typeParam ResponseSchema - Optional Zod schema validated AFTER the handler (refines response shape)   * @param options - per‑function configuration (method/basePath/httpContexts for HTTP; serverless extras for non‑HTTP)
+   * Only `callerModuleUrl` is required. `eventType`, `endpointsRootAbs`,
+   * `functionName`, `method` and `basePath` derive from the file's location
+   * under `<appRootAbs>/functions/<eventType>/`; `httpContexts`,
+   * `contentType`, `http`, `fnEnvKeys` and the name style come from the app's
+   * `functionDefaults`. Explicit values always win. See
+   * {@link DefineFunctionOptions} for each field's default.
+   *
+   * @typeParam EventType      - A key from your eventTypeMapSchema (e.g., 'rest' | 'http' | 'sqs' | 'step'). Inferred as a literal when `eventType` is passed; when omitted it widens to all keys of the map (the runtime value is still derived from the path), so pass `eventType` when the handler needs the narrowed event type.
+   * @typeParam EventSchema    - Optional Zod schema validated BEFORE the handler (refines event shape)
+   * @typeParam ResponseSchema - Optional Zod schema validated AFTER the handler (refines response shape)
+   * @param options - per‑function configuration
    * @returns a per‑function API: { handler(business), openapi(baseOperation), serverless(extras) }
+   * @throws Error when `eventType` is omitted and the caller isn't under `<appRootAbs>/functions/<eventType>/` for a key of eventTypeMapSchema, or when `functionName` duplicates another function's
    */
   public defineFunction<
     EventType extends Extract<keyof z.infer<EventTypeMapSchema>, string>,
     EventSchema extends z.ZodType | undefined,
     ResponseSchema extends z.ZodType | undefined,
-  >(options: {
-    functionName?: string;
-    eventType: EventType;
-    // Optional HTTP-only
-    method?: MethodKey;
-    basePath?: string;
-    httpContexts?: readonly HttpContext[];
-    contentType?: string;
-    // Optional schemas
-    eventSchema?: EventSchema;
-    responseSchema?: ResponseSchema;
-    // Optional env keys
-    fnEnvKeys?: readonly (keyof (z.infer<GlobalParamsSchema> &
-      z.infer<StageParamsSchema>))[];
-    // Identity & roots
-    callerModuleUrl: string;
-    endpointsRootAbs: string;
-  }) {
-    const functionName =
-      options.functionName ??
-      (() => {
-        const callerDir = dirname(fileURLToPath(options.callerModuleUrl));
-        const rel = relative(this.appRootAbs, callerDir).split(sep).join('/');
-        const parts = rel.split('/').filter(Boolean);
-        // Drop leading 'app' segment if present, per repo convention
-        if (parts[0] === 'app') parts.shift();
-        return parts.join('_'); // underscore formatting
-      })();
-
+  >(
+    options: DefineFunctionOptions<
+      EventType,
+      EventSchema,
+      ResponseSchema,
+      keyof (z.infer<GlobalParamsSchema> & z.infer<StageParamsSchema>)
+    >,
+  ) {
     return this.registry.defineFunction<EventType, EventSchema, ResponseSchema>(
-      {
-        functionName,
-        eventType: options.eventType,
-        ...(options.method ? { method: options.method } : {}),
-        ...(options.basePath ? { basePath: options.basePath } : {}),
-        ...(options.httpContexts ? { httpContexts: options.httpContexts } : {}),
-        ...(options.contentType ? { contentType: options.contentType } : {}),
-        ...(options.eventSchema ? { eventSchema: options.eventSchema } : {}),
-        ...(options.responseSchema
-          ? { responseSchema: options.responseSchema }
-          : {}),
-        ...(options.fnEnvKeys ? { fnEnvKeys: options.fnEnvKeys } : {}),
-        callerModuleUrl: options.callerModuleUrl,
-        endpointsRootAbs: options.endpointsRootAbs,
-      },
+      options,
     );
   }
 

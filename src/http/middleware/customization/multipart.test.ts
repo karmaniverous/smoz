@@ -10,6 +10,13 @@ import {
 } from '@/src/http/middleware/httpStackCustomization';
 import { getId } from '@/src/http/middleware/transformUtils';
 import { createApiGatewayV1Event, createLambdaContext } from '@/src/test/aws';
+import {
+  boundary,
+  formParts,
+  multipartBody,
+  multipartContentType,
+  type Part,
+} from '@/src/test/multipart';
 
 import type { HttpStackOptions } from './types';
 
@@ -18,35 +25,6 @@ type HttpResponse = {
   headers: Record<string, string>;
   body: string;
 };
-
-type Part =
-  | { name: string; value: string }
-  | { name: string; value: string; filename: string; contentType: string };
-
-const boundary = 'smoz-test-boundary';
-const multipartContentType = `multipart/form-data; boundary=${boundary}`;
-
-/** Build a multipart/form-data body from text and file parts. */
-const multipartBody = (parts: Part[]): string =>
-  parts
-    .map((p) => {
-      const disposition =
-        'filename' in p
-          ? `form-data; name="${p.name}"; filename="${p.filename}"\r\nContent-Type: ${p.contentType}`
-          : `form-data; name="${p.name}"`;
-      return `--${boundary}\r\nContent-Disposition: ${disposition}\r\n\r\n${p.value}\r\n`;
-    })
-    .join('') + `--${boundary}--\r\n`;
-
-const formParts: Part[] = [
-  { name: 'name', value: 'Aris' },
-  {
-    name: 'logo',
-    value: 'PNGDATA',
-    filename: 'logo.png',
-    contentType: 'image/png',
-  },
-];
 
 /**
  * Run a request through the computed stack; returns the response and the body

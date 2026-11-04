@@ -10,24 +10,10 @@ import type { AWS } from '@serverless/typescript';
 import { packageDirectorySync } from 'package-directory';
 
 import type { BaseEventTypeMap } from '@/src/core/baseEventTypeMapSchema';
+import type { FunctionRegistration } from '@/src/core/functionOptions';
 import { buildPathElements } from '@/src/http/buildPath';
 import { resolveHttpFromFunctionConfig } from '@/src/http/resolveHttpFromFunctionConfig';
-import type { MethodKey } from '@/src/types/FunctionConfig';
-import type { HttpContext } from '@/src/types/HttpContext';
 import type { SecurityContextHttpEventMap } from '@/src/types/SecurityContextHttpEventMap';
-
-export type RegEntry = {
-  functionName: string;
-  eventType: string;
-  method?: MethodKey;
-  basePath?: string;
-  httpContexts?: readonly HttpContext[];
-  contentType?: string;
-  serverlessExtras?: unknown;
-  fnEnvKeys?: readonly PropertyKey[];
-  callerModuleUrl: string;
-  endpointsRootAbs: string;
-};
 
 export type ServerlessConfigLike = {
   httpContextEventMap: SecurityContextHttpEventMap;
@@ -36,7 +22,7 @@ export type ServerlessConfigLike = {
 };
 
 export const buildAllServerlessFunctions = (
-  registry: Iterable<RegEntry>,
+  registry: Iterable<FunctionRegistration>,
   serverless: ServerlessConfigLike,
   buildFnEnv: (fnEnvKeys?: readonly never[]) => Record<string, string>,
 ): NonNullable<AWS['functions']> => {

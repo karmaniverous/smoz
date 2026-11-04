@@ -6,24 +6,12 @@
 import type { ZodOpenApiPathsObject } from 'zod-openapi';
 
 import type { BaseEventTypeMap } from '@/src/core/baseEventTypeMapSchema';
+import type { FunctionRegistration } from '@/src/core/functionOptions';
 import { buildPathElements } from '@/src/http/buildPath';
 import { resolveHttpFromFunctionConfig } from '@/src/http/resolveHttpFromFunctionConfig';
-import type { BaseOperation } from '@/src/openapi/types';
-import type { MethodKey } from '@/src/types/FunctionConfig';
-import type { HttpContext } from '@/src/types/HttpContext';
-export type RegEntry = {
-  functionName: string;
-  eventType: string;
-  method?: MethodKey;
-  basePath?: string;
-  httpContexts?: readonly HttpContext[];
-  callerModuleUrl: string;
-  endpointsRootAbs: string;
-  openapiBaseOperation?: BaseOperation;
-};
 
 export const buildAllOpenApiPaths = (
-  registry: Iterable<RegEntry>,
+  registry: Iterable<FunctionRegistration>,
 ): ZodOpenApiPathsObject => {
   const paths: Record<string, unknown> = {};
 

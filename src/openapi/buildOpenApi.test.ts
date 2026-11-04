@@ -4,10 +4,8 @@
 */
 import { describe, expect, it } from 'vitest';
 
-import {
-  buildAllOpenApiPaths,
-  type RegEntry,
-} from '@/src/openapi/buildOpenApi';
+import type { FunctionRegistration } from '@/src/core/functionOptions';
+import { buildAllOpenApiPaths } from '@/src/openapi/buildOpenApi';
 
 describe('openapi/buildAllOpenApiPaths', () => {
   it('builds path items per context with augmented summary, tags, and composed operationIds', () => {
@@ -23,7 +21,7 @@ describe('openapi/buildAllOpenApiPaths', () => {
       process.platform === 'win32'
         ? 'C:/tmp/sandbox/app/functions/rest'
         : '/tmp/sandbox/app/functions/rest';
-    const reg: RegEntry[] = [
+    const reg: FunctionRegistration[] = [
       {
         functionName: 'users_get',
         eventType: 'rest',

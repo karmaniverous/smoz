@@ -126,7 +126,7 @@ export function wrapHandler<
       );
     }
     // HTTP: build middleware stack
-    const fnHttp = (functionConfig as { http?: unknown }).http;
+    const fnHttp = (functionConfig as { http?: FunctionHttpConfig }).http;
     const maybeContentType = (functionConfig as { contentType?: string })
       .contentType;
     const args: {

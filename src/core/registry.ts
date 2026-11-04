@@ -13,29 +13,21 @@ import type { BaseEventTypeMap } from '@/src/core/baseEventTypeMapSchema';
 import type { EnvSchemaNode } from '@/src/core/defineAppConfig';
 import type { EnvAttached } from '@/src/core/defineFunctionConfig';
 import { ENV_CONFIG } from '@/src/core/defineFunctionConfig';
+import type {
+  DefineFunctionOptions,
+  FunctionDefaults,
+  FunctionRegistration,
+} from '@/src/core/functionOptions';
 import { handlerFactory } from '@/src/core/handlerFactory';
+import { resolveFunctionOptions } from '@/src/core/resolveFunctionOptions';
 import type { ZodObj } from '@/src/core/types';
 import type { AppHttpConfig } from '@/src/http/middleware/httpStackCustomization';
 import type { BaseOperation } from '@/src/openapi/types';
-import type { MethodKey } from '@/src/types/FunctionConfig';
 import type { FunctionConfig } from '@/src/types/FunctionConfig';
 import type { Handler } from '@/src/types/Handler';
-import type { HttpContext } from '@/src/types/HttpContext';
 
-export type RegistryEntry = {
-  functionName: string;
-  eventType: string;
-  method?: MethodKey;
-  basePath?: string;
-  httpContexts?: readonly HttpContext[];
-  contentType?: string;
-  fnEnvKeys?: readonly PropertyKey[];
-  eventSchema?: z.ZodType | undefined;
-  responseSchema?: z.ZodType | undefined;
-  openapiBaseOperation?: BaseOperation;
-  serverlessExtras?: unknown;
-  callerModuleUrl: string;
-  endpointsRootAbs: string;
+/** A stored registry row: the resolved registration plus its branded runtime config. */
+export type RegistryEntry = FunctionRegistration & {
   brandedConfig: Record<string, unknown>;
 };
 
@@ -44,16 +36,17 @@ export const createRegistry = <
   StageParamsSchema extends ZodObj,
   EventTypeMapSchema extends ZodObj,
 >(deps: {
+  /** POSIX app root; eventType, endpointsRootAbs and functionName derive from it. */
+  appRootAbs: string;
+  /** Keys of the app's eventTypeMapSchema (valid derived event types). */
+  eventTypeKeys: readonly string[];
   httpEventTypeTokens: readonly string[];
   env: {
     global: EnvSchemaNode<GlobalParamsSchema>;
     stage: EnvSchemaNode<StageParamsSchema>;
   };
   http: AppHttpConfig;
-  functionDefaults?: {
-    /** Default per-function env keys applied to all functions (merged). */
-    fnEnvKeys?: readonly string[];
-  };
+  functionDefaults?: FunctionDefaults;
 }) => {
   const map = new Map<string, RegistryEntry>();
   return {
@@ -61,69 +54,31 @@ export const createRegistry = <
       EventType extends Extract<keyof z.infer<EventTypeMapSchema>, string>,
       EventSchema extends z.ZodType | undefined,
       ResponseSchema extends z.ZodType | undefined,
-    >(options: {
-      functionName: string;
-      eventType: EventType;
-      method?: MethodKey;
-      basePath?: string;
-      httpContexts?: readonly HttpContext[];
-      contentType?: string;
-      eventSchema?: EventSchema;
-      responseSchema?: ResponseSchema;
-      fnEnvKeys?: readonly (keyof (z.infer<GlobalParamsSchema> &
-        z.infer<StageParamsSchema>))[];
-      callerModuleUrl: string;
-      endpointsRootAbs: string;
-    }) {
-      const key = options.functionName;
-      if (map.has(key)) {
-        const other = map.get(key)!;
+    >(
+      options: DefineFunctionOptions<
+        EventType,
+        EventSchema,
+        ResponseSchema,
+        keyof (z.infer<GlobalParamsSchema> & z.infer<StageParamsSchema>)
+      >,
+    ) {
+      const resolved = resolveFunctionOptions(options, deps);
+      const key = resolved.functionName;
+      const other = map.get(key);
+      if (other) {
         throw new Error(
-          `Duplicate functionName "${key}". Existing: ${other.callerModuleUrl}. New: ${options.callerModuleUrl}. Provide a unique functionName.`,
+          `Duplicate functionName "${key}". Existing: ${other.callerModuleUrl}. New: ${resolved.callerModuleUrl}. Provide a unique functionName.`,
         );
       }
-      // Merge default fnEnvKeys with per-function keys (unique, preserve order).
-      const mergedFnEnvKeys = (() => {
-        const out = new Set<PropertyKey>();
-        (deps.functionDefaults?.fnEnvKeys ?? []).forEach((k) => out.add(k));
-        (options.fnEnvKeys ?? []).forEach((k) => out.add(k));
-        return Array.from(out);
-      })();
 
-      const brandedConfig = {
-        functionName: options.functionName,
-        eventType: options.eventType,
-        ...(options.method ? { method: options.method } : {}),
-        ...(options.basePath ? { basePath: options.basePath } : {}),
-        ...(options.httpContexts ? { httpContexts: options.httpContexts } : {}),
-        ...(options.contentType ? { contentType: options.contentType } : {}),
-        ...(mergedFnEnvKeys.length ? { fnEnvKeys: mergedFnEnvKeys } : {}),
-        ...(options.eventSchema ? { eventSchema: options.eventSchema } : {}),
-        ...(options.responseSchema
-          ? { responseSchema: options.responseSchema }
-          : {}),
-        [ENV_CONFIG]: {
-          global: deps.env.global,
-          stage: deps.env.stage,
-        },
-      } as Record<string, unknown>;
+      // The single place the runtime config is built: everything resolved,
+      // plus the env brand read by wrapHandler.
+      const brandedConfig: Record<string, unknown> = {
+        ...resolved,
+        [ENV_CONFIG]: { global: deps.env.global, stage: deps.env.stage },
+      };
+      map.set(key, { ...resolved, brandedConfig });
 
-      map.set(key, {
-        functionName: options.functionName,
-        eventType: options.eventType,
-        ...(options.method ? { method: options.method } : {}),
-        ...(options.basePath ? { basePath: options.basePath } : {}),
-        ...(options.httpContexts ? { httpContexts: options.httpContexts } : {}),
-        ...(options.contentType ? { contentType: options.contentType } : {}),
-        ...(mergedFnEnvKeys.length ? { fnEnvKeys: mergedFnEnvKeys } : {}),
-        ...(options.eventSchema ? { eventSchema: options.eventSchema } : {}),
-        ...(options.responseSchema
-          ? { responseSchema: options.responseSchema }
-          : {}),
-        callerModuleUrl: options.callerModuleUrl,
-        endpointsRootAbs: options.endpointsRootAbs,
-        brandedConfig,
-      });
       return {
         handler: (
           business: Handler<
