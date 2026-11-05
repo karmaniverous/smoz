@@ -227,7 +227,7 @@ describe('defineFunction: eventType and endpointsRootAbs from the path', () => {
     ).toThrow(`not under ${appRoot}/functions/rest.`);
     expect(() =>
       app.defineFunction({ callerModuleUrl: at('lib/users/get') }),
-    ).toThrow(`not under ${appRoot}/functions/<eventType>/ and`);
+    ).toThrow(`not under ${appRoot}/functions/<eventType>/, and`);
   });
 
   it('throws when the caller sits directly in <appRootAbs>/functions', () => {
@@ -545,7 +545,7 @@ describe('defineFunction: app config bundled into the function (#29)', () => {
     expect(Object.keys(fnsOf(app))).toEqual(['src_functions_rest_users_get']);
     expect(() =>
       makeApp({ appRootAbs: base }).defineFunction({ callerModuleUrl: caller }),
-    ).toThrow(`not under ${base}/functions/<eventType>/ and`);
+    ).toThrow(`not under ${base}/functions/<eventType>/, and`);
   });
 
   it('recovers a filesystem or drive root', () => {
@@ -559,6 +559,26 @@ describe('defineFunction: app config bundled into the function (#29)', () => {
       'get /users',
     ]);
   });
+
+  // Only Windows has UNC roots: on POSIX '//server' is just '/server'.
+  it.runIf(process.platform === 'win32')(
+    'derives under a UNC root, bundled or not',
+    () => {
+      const root = '//server/share/app';
+      const rel = 'functions/rest/users/get';
+      const callerModuleUrl = pathToFileURL(`${root}/${rel}/lambda.ts`).href;
+      for (const app of [
+        makeApp({
+          appRootAbs: root,
+          functionDefaults: { functionName: 'kebab' },
+        }),
+        bundledApp(rel, { root, functionDefaults: { functionName: 'kebab' } }),
+      ]) {
+        app.defineFunction({ callerModuleUrl });
+        expect(httpEvents(fnsOf(app)['users-get'])).toEqual(['get /users']);
+      }
+    },
+  );
 });
 
 describe('defineFunction: minimal form matches the explicit form', () => {

@@ -119,6 +119,7 @@ beforeAll(async () => {
     bundle: true,
     format: 'esm',
     platform: 'node',
+    // Tracks the Lambda runtime of the template's serverless.ts (nodejs22.x).
     target: 'node22',
     banner: {
       js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);",

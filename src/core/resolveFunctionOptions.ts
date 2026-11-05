@@ -8,7 +8,7 @@
  * `computeHttpMiddleware`), so the stored `contentType` is only the
  * function's own and beats every HTTP default there.
  */
-import { dirname, posix, relative, sep } from 'node:path';
+import { dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import type { BaseEventTypeMap } from '@/src/core/baseEventTypeMapSchema';
@@ -35,6 +35,18 @@ export interface ResolveFunctionContext {
 }
 
 /**
+ * `<root>/functions[/<eventType>]` (POSIX). Unlike `posix.join`, keeps a
+ * leading `//` (a Windows UNC root such as `//server/share`), which
+ * `posix.join` collapses to `/`, moving the path onto the current drive.
+ */
+const functionsDir = (root: string, eventType?: string) =>
+  [
+    root.replace(/\/+$/, ''),
+    'functions',
+    ...(eventType ? [eventType] : []),
+  ].join('/');
+
+/**
  * The root that derivation measures the caller against: `appRootAbs`, unless
  * the app config was bundled into the function.
  *
@@ -57,7 +69,7 @@ const derivationRoot = (
   callerDir: string,
   ctx: ResolveFunctionContext,
 ): string => {
-  if (segmentsUnder(posix.join(ctx.appRootAbs, 'functions'), callerDir))
+  if (segmentsUnder(functionsDir(ctx.appRootAbs), callerDir))
     return ctx.appRootAbs;
   const segs = callerDir.split('/');
   for (let i = segs.length - 2; i >= 0; i--) {
@@ -65,7 +77,7 @@ const derivationRoot = (
       continue;
     // Trailing slash keeps a drive or filesystem root absolute ('C:/', '/').
     const root = `${segs.slice(0, i).join('/')}/`;
-    return segmentsUnder(posix.join(root, 'functions'), ctx.appRootAbs)
+    return segmentsUnder(functionsDir(root), ctx.appRootAbs)
       ? root
       : ctx.appRootAbs;
   }
@@ -77,11 +89,11 @@ const deriveEventType = (
   root: string,
   ctx: ResolveFunctionContext,
 ): string => {
-  const functionsRoot = posix.join(root, 'functions');
+  const functionsRoot = functionsDir(root);
   const eventType = segmentsUnder(functionsRoot, callerDir)?.[0];
   if (!eventType) {
     throw new Error(
-      `defineFunction: cannot derive eventType for ${callerDir}: it is not under ${functionsRoot}/<eventType>/ ` +
+      `defineFunction: cannot derive eventType for ${callerDir}: it is not under ${functionsRoot}/<eventType>/, ` +
         `and its path has no functions/<eventType>/ folder for an event type of this app (known: ${ctx.eventTypeKeys.join(', ')}). ` +
         'Move the file under functions/<eventType>/ or pass eventType explicitly.',
     );
@@ -208,7 +220,7 @@ export const resolveFunctionOptions = (
 
   const eventType = options.eventType ?? deriveEventType(callerDir, root, ctx);
   const endpointsRootAbs =
-    options.endpointsRootAbs ?? posix.join(root, 'functions', eventType);
+    options.endpointsRootAbs ?? functionsDir(root, eventType);
   // An explicit eventType keeps the old behaviour (no route check).
   if (
     options.eventType === undefined &&
