@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.4.1](https://github.com/karmaniverous/smoz/compare/0.4.0...0.4.1)
+
+- fix: path derivation works inside bundled Lambdas [`#30`](https://github.com/karmaniverous/smoz/pull/30)
+- [29] fix(core): derive eventType, endpoints root and name from the caller's path inside bundles [`#29`](https://github.com/karmaniverous/smoz/issues/29)
+- [29] test(core): cold-start functions from an esbuild bundle laid out like /var/task [`bc900c7`](https://github.com/karmaniverous/smoz/commit/bc900c77a43b8c48487180825195adef654faff7)
+- npm audit fix [`448509b`](https://github.com/karmaniverous/smoz/commit/448509b98bdf99e390380fa85d36a9d4f40dd841)
+- [29] fix(core): keep a UNC root when joining the functions folder [`749faf7`](https://github.com/karmaniverous/smoz/commit/749faf71598dfc73aa777937c9fcacf733d047a2)
+- [29] docs: derivation works the same bundled or not [`3085e51`](https://github.com/karmaniverous/smoz/commit/3085e5168cfc631f85a5389a741f89b189ee6924)
+
 #### [0.4.0](https://github.com/karmaniverous/smoz/compare/0.3.0...0.4.0)
+
+> 4 November 2026
 
 - chore: update dependencies (chokidar stays on v5) [`#28`](https://github.com/karmaniverous/smoz/pull/28)
 - feat: derive defineFunction config from path and app defaults; per-function http [`#26`](https://github.com/karmaniverous/smoz/pull/26)
@@ -24,6 +35,7 @@ All notable changes to this project will be documented in this file. Dates are d
 - [25] fix(cli): reject % and a quoted trailing backslash on Windows; templates:typecheck cleans up before exiting [`3e5fea6`](https://github.com/karmaniverous/smoz/commit/3e5fea6f73c1960c417059467ed95df55df2d863)
 - [27] chore(template): update default template dependencies [`55718a0`](https://github.com/karmaniverous/smoz/commit/55718a0a5ace29df6ed2205c84d6f54675e013f2)
 - [25] fix(cli): dev decodes base64 responses; await async serverless.ts; knip and docs [`c2df21b`](https://github.com/karmaniverous/smoz/commit/c2df21bb8e531bf693c842de0e3f92d4623f3f96)
+- chore: release v0.4.0 [`6784779`](https://github.com/karmaniverous/smoz/commit/6784779fbb51437dee62888eeb28041de0f0979b)
 - [25] docs: minimal defineFunction in every example; tour shows smoz add output [`c899184`](https://github.com/karmaniverous/smoz/commit/c8991847451c03f4d486921aa3c456120523fff8)
 - [27] chore(deps): update @types/aws-lambda to 8.10.164 [`63dc824`](https://github.com/karmaniverous/smoz/commit/63dc824bbd2b985a6ec19219d5ea4b83b1b1a00a)
 - [27] chore(deps): update eslint-plugin-simple-import-sort to 14 [`b5d0387`](https://github.com/karmaniverous/smoz/commit/b5d0387f556b39bf89c19f16bd28ed1b018e37e7)
