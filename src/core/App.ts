@@ -229,7 +229,10 @@ export interface AppInit<
    * under `<appRootAbs>/functions/<eventType>/`; `httpContexts`,
    * `contentType`, `http`, `serverless`, `fnEnvKeys` and the name style come
    * from the app's `functionDefaults`. Explicit values always win. See
-   * {@link DefineFunctionOptions} for each field's default.
+   * {@link DefineFunctionOptions} for each field's default. Derivation gives
+   * the same result inside a deployed bundle, where `appRootAbs` points
+   * inside the bundle's folder: the root then comes from the caller's last
+   * `functions/<eventType>/` folder.
    *
    * @typeParam EventType      - A key from your eventTypeMapSchema (e.g., 'rest' | 'http' | 'sqs' | 'step'). Inferred as a literal when `eventType` is passed; when omitted it widens to all keys of the map (the runtime value is still derived from the path), so pass `eventType` when the handler needs the narrowed event type.
    * @typeParam EventSchema    - Optional Zod schema validated BEFORE the handler (refines event shape)

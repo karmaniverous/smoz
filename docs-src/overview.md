@@ -87,6 +87,14 @@ An explicit field always wins over a derived one, so set `basePath` or `function
 
 `eventType` is worth passing even though it can be derived: given explicitly, the literal token types the handler's event (e.g. `APIGatewayProxyEvent` for `'rest'`). Omitted, the handler's event type widens to the union of all event types in the map.
 
+### Bundled or not, the same result
+
+Derivation keys off the function file's own location (`.../functions/<eventType>/...`), so it gives the same result when the function runs unbundled (`smoz dev`, `serverless.ts`, `smoz openapi`) and when it runs from a deployed Lambda bundle.
+
+That matters because `defineFunction` runs again at cold start, inside the bundle. The Serverless esbuild build inlines `app.config.ts` into each function's bundle, so the template's `APP_ROOT_ABS` (`new URL('..', import.meta.url)`) resolves next to the bundle instead of to `app/`: for `/var/task/app/functions/rest/users/get/handler.mjs` it is `/var/task/app/functions/rest/users`. When the caller isn't under `<appRootAbs>/functions/` and `appRootAbs` itself lies inside a `functions` folder, SMOZ measures from the folder holding the caller's last `functions/<eventType>/` (where `<eventType>` is a key of `eventTypeMapSchema`) instead. `eventType`, `endpointsRootAbs`, `method`, `basePath`, the name style's `segments` and the built-in `functionName` then match what `serverless.ts` derived at build time.
+
+Values you compute from `APP_ROOT_ABS` yourself, such as an explicit `endpointsRootAbs`, are not corrected inside the bundle: an explicit value always wins. Prefer the derived value; if you need an explicit one at cold start, don't build it from `APP_ROOT_ABS`.
+
 ### App-wide defaults (`functionDefaults`)
 
 Where your functions share a value that differs from the built-in default, set it once in `App.create`:

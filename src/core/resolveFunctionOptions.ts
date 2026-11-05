@@ -8,7 +8,7 @@
  * `computeHttpMiddleware`), so the stored `contentType` is only the
  * function's own and beats every HTTP default there.
  */
-import { dirname, posix, relative, sep } from 'node:path';
+import { dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import type { BaseEventTypeMap } from '@/src/core/baseEventTypeMapSchema';
@@ -25,7 +25,7 @@ import { segmentsUnder, toPosixPath } from '@/src/util/path';
 
 /** App-level inputs to resolution. */
 export interface ResolveFunctionContext {
-  /** POSIX app root. */
+  /** POSIX app root (see `derivationRoot` for the bundled case). */
   appRootAbs: string;
   /** Keys of the app's eventTypeMapSchema. */
   eventTypeKeys: readonly string[];
@@ -34,15 +34,67 @@ export interface ResolveFunctionContext {
   functionDefaults?: FunctionDefaults | undefined;
 }
 
-const deriveEventType = (
+/**
+ * `<root>/functions[/<eventType>]` (POSIX). Unlike `posix.join`, keeps a
+ * leading `//` (a Windows UNC root such as `//server/share`), which
+ * `posix.join` collapses to `/`, moving the path onto the current drive.
+ */
+const functionsDir = (root: string, eventType?: string) =>
+  [
+    root.replace(/\/+$/, ''),
+    'functions',
+    ...(eventType ? [eventType] : []),
+  ].join('/');
+
+/**
+ * The root that derivation measures the caller against: `appRootAbs`, unless
+ * the app config was bundled into the function.
+ *
+ * esbuild inlines `app.config.ts` into each function bundle, so an
+ * `appRootAbs` computed from the config's `import.meta.url` points inside the
+ * bundle's own folder (e.g. `/var/task/app/functions/rest/users` for
+ * `/var/task/app/functions/rest/users/get/handler.mjs`). The caller's path
+ * still mirrors the source tree, so when the caller isn't under
+ * `<appRootAbs>/functions/<folder>/` the root is recovered from it: the folder
+ * holding the caller's last `functions/<eventType>/` pair for a known event
+ * type, if `appRootAbs` lies within that `functions` folder (the bundled
+ * case). Otherwise `appRootAbs` stays the root, so unbundled results don't
+ * change.
+ *
+ * @param callerDir - POSIX directory of the calling module
+ * @param ctx - app root and event type keys
+ * @returns POSIX root whose `functions/<eventType>/` holds the caller, or `appRootAbs`
+ */
+const derivationRoot = (
   callerDir: string,
   ctx: ResolveFunctionContext,
 ): string => {
-  const functionsRoot = posix.join(ctx.appRootAbs, 'functions');
+  if (segmentsUnder(functionsDir(ctx.appRootAbs), callerDir))
+    return ctx.appRootAbs;
+  const segs = callerDir.split('/');
+  for (let i = segs.length - 2; i >= 0; i--) {
+    if (segs[i] !== 'functions' || !ctx.eventTypeKeys.includes(segs[i + 1]!))
+      continue;
+    // Trailing slash keeps a drive or filesystem root absolute ('C:/', '/').
+    const root = `${segs.slice(0, i).join('/')}/`;
+    return segmentsUnder(functionsDir(root), ctx.appRootAbs)
+      ? root
+      : ctx.appRootAbs;
+  }
+  return ctx.appRootAbs;
+};
+
+const deriveEventType = (
+  callerDir: string,
+  root: string,
+  ctx: ResolveFunctionContext,
+): string => {
+  const functionsRoot = functionsDir(root);
   const eventType = segmentsUnder(functionsRoot, callerDir)?.[0];
   if (!eventType) {
     throw new Error(
-      `defineFunction: cannot derive eventType for ${callerDir}: it is not under ${functionsRoot}/<eventType>/. ` +
+      `defineFunction: cannot derive eventType for ${callerDir}: it is not under ${functionsRoot}/<eventType>/, ` +
+        `and its path has no functions/<eventType>/ folder for an event type of this app (known: ${ctx.eventTypeKeys.join(', ')}). ` +
         'Move the file under functions/<eventType>/ or pass eventType explicitly.',
     );
   }
@@ -56,9 +108,9 @@ const deriveEventType = (
   return eventType;
 };
 
-/** Built-in name: caller dir relative to appRootAbs, joined with `_`. */
-const builtInFunctionName = (callerDir: string, appRootAbs: string) => {
-  const parts = relative(appRootAbs, callerDir)
+/** Built-in name: caller dir relative to the derivation root, joined with `_`. */
+const builtInFunctionName = (callerDir: string, root: string) => {
+  const parts = relative(root, callerDir)
     .split(sep)
     .join('/')
     .split('/')
@@ -153,7 +205,7 @@ const mergeFnEnvKeys = (
  * @param options - options as passed to `defineFunction`
  * @param ctx - app root, event token keys and function defaults
  * @returns options with `functionName`, `eventType` and `endpointsRootAbs` set and defaults applied
- * @throws Error when `eventType` must be derived but the caller isn't under `functions/<eventType>/` of a known event type; when a derived HTTP `eventType`'s method or base path can't be derived; or when a name style needs segments the caller can't provide
+ * @throws Error when `eventType` must be derived but the caller isn't under `functions/<eventType>/` of a known event type (measured from `appRootAbs`, or from the caller's own path when the app config is bundled into the function); when a derived HTTP `eventType`'s method or base path can't be derived; or when a name style needs segments the caller can't provide
  */
 export const resolveFunctionOptions = (
   options: DefineFunctionOptions,
@@ -164,10 +216,11 @@ export const resolveFunctionOptions = (
     dirname(fileURLToPath(options.callerModuleUrl)),
   );
 
-  const eventType = options.eventType ?? deriveEventType(callerDir, ctx);
+  const root = derivationRoot(callerDir, ctx);
+
+  const eventType = options.eventType ?? deriveEventType(callerDir, root, ctx);
   const endpointsRootAbs =
-    options.endpointsRootAbs ??
-    posix.join(ctx.appRootAbs, 'functions', eventType);
+    options.endpointsRootAbs ?? functionsDir(root, eventType);
   // An explicit eventType keeps the old behaviour (no route check).
   if (
     options.eventType === undefined &&
@@ -175,7 +228,7 @@ export const resolveFunctionOptions = (
   )
     assertDerivableRoute(options, eventType, endpointsRootAbs, callerDir);
 
-  const defaultName = builtInFunctionName(callerDir, ctx.appRootAbs);
+  const defaultName = builtInFunctionName(callerDir, root);
   const functionName =
     options.functionName ??
     (defaults.functionName

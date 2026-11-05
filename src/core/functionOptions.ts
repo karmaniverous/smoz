@@ -39,6 +39,13 @@ export type FunctionServerlessConfig = Omit<
  * app's `functionDefaults`. An explicit value always wins over a derived or
  * defaulted one.
  *
+ * Derivation gives the same result inside a deployed bundle: when esbuild
+ * inlines the app config into the function, so `appRootAbs` points inside a
+ * `functions` folder and the caller isn't under `<appRootAbs>/functions`, the
+ * root is the folder holding the caller's last `functions/<eventType>/`
+ * (`<eventType>` a key of the app's `eventTypeMapSchema`). Read
+ * `<appRootAbs>` below as that root.
+ *
  * @typeParam EventType      - event token (a key of the app's eventTypeMapSchema)
  * @typeParam EventSchema    - optional Zod schema validated before the handler
  * @typeParam ResponseSchema - optional Zod schema validated after the handler
