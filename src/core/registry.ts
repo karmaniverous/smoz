@@ -37,7 +37,7 @@ export const createRegistry = <
   StageParamsSchema extends ZodObj,
   EventTypeMapSchema extends ZodObj,
 >(deps: {
-  /** POSIX app root; eventType, endpointsRootAbs and functionName derive from it. */
+  /** POSIX app root; eventType, endpointsRootAbs and functionName derive from it (or, bundled, from the caller's own path). */
   appRootAbs: string;
   /** Keys of the app's eventTypeMapSchema (valid derived event types). */
   eventTypeKeys: readonly string[];
