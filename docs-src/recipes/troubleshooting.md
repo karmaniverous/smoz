@@ -31,6 +31,17 @@ export const APP_ROOT_ABS = toPosixPath(
 );
 ```
 
+## `cannot derive eventType` at cold start
+
+Symptoms:
+
+- A deployed function fails at cold start with `defineFunction: cannot derive eventType for /var/task/...`, while `smoz dev` works.
+
+Fix:
+
+- Upgrade SMOZ: 0.4.0 measured the path against `appRootAbs`, which points inside the bundle once esbuild inlines `app.config.ts`. Later versions derive from the function file's own location; see [Bundled or not, the same result](../overview.md#bundled-or-not-the-same-result).
+- If it persists, check that the file is under `functions/<eventType>/` with `<eventType>` a key of `eventTypeMapSchema`, or pass `eventType` explicitly.
+
 ## serverless‑offline loops or stale artifacts
 
 - Ensure registers are fresh (`npx smoz register`).
