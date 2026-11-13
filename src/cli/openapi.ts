@@ -11,7 +11,11 @@ import path from 'node:path';
 
 import { buildSpawnEnv } from '@karmaniverous/get-dotenv';
 
-import { localTsxCli, type SpawnSpec } from '@/src/cli/util/command';
+import {
+  localPackageFile,
+  localTsxCli,
+  type SpawnSpec,
+} from '@/src/cli/util/command';
 
 const findTsxCli = (root: string): SpawnSpec => {
   const cli = localTsxCli(root);
@@ -28,16 +32,10 @@ const findTsxCli = (root: string): SpawnSpec => {
 };
 
 const findPrettierCli = (root: string): SpawnSpec => {
-  const js = path.resolve(
-    root,
-    'node_modules',
-    'prettier',
-    'bin',
-    'prettier.cjs',
-  );
-  if (!existsSync(js)) {
+  const js = localPackageFile(root, 'prettier', 'bin/prettier.cjs');
+  if (!js) {
     throw new Error(
-      `prettier not found at ${js}. Install it as a devDependency.`,
+      `prettier not found in ${root} or its parent directories' node_modules. Install it as a devDependency.`,
     );
   }
   return {

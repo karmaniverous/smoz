@@ -4,6 +4,7 @@
  * Never passes an args array together with `shell: true` (Node DEP0190:
  * args would be concatenated unescaped).
  */
+import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
@@ -67,4 +68,32 @@ export const localTsxCli = (root: string): string | undefined => {
   } catch {
     return undefined;
   }
+};
+
+/**
+ * Absolute path of a file inside a package installed for the project at
+ * `root`, or undefined when the package (or the file) isn't installed.
+ *
+ * Searches the same `node_modules` directories Node would, nearest first:
+ * the project's own, then each ancestor's. That finds packages npm hoisted
+ * to a workspace root, e.g. prettier at `<repo>/node_modules` for a service
+ * in `<repo>/packages/service`. Node's global folders are skipped, so only
+ * project-installed packages count. Package `exports` are not consulted, so
+ * files a package doesn't export (like a `bin` script) can be found.
+ *
+ * @param root - project root (a directory containing package.json)
+ * @param pkg - package name, e.g. `prettier` or `@scope/name`
+ * @param file - path of the file inside the package, e.g. `bin/prettier.cjs`
+ */
+export const localPackageFile = (
+  root: string,
+  pkg: string,
+  file: string,
+): string | undefined => {
+  const lookupDirs =
+    createRequire(path.resolve(root, 'package.json')).resolve.paths(pkg) ?? [];
+  return lookupDirs
+    .filter((dir) => path.basename(dir) === 'node_modules')
+    .map((dir) => path.join(dir, pkg, file))
+    .find((candidate) => existsSync(candidate));
 };

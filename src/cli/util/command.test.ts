@@ -1,9 +1,15 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { localTsxCli, pathCommand } from '@/src/cli/util/command';
+import {
+  localPackageFile,
+  localTsxCli,
+  pathCommand,
+} from '@/src/cli/util/command';
 
 describe('cli/util/command.pathCommand', () => {
   it('spawns directly without a shell on POSIX', () => {
@@ -66,6 +72,104 @@ describe('cli/util/command.localTsxCli', () => {
   it('returns undefined when tsx is not installed', () => {
     expect(
       localTsxCli(path.resolve('/', 'tmp', 'smoz-no-tsx-here')),
+    ).toBeUndefined();
+  });
+});
+
+describe('cli/util/command.localPackageFile', () => {
+  // <repo>/package.json + <repo>/packages/service/package.json: an npm
+  // workspaces layout.
+  let repo: string;
+  let service: string;
+
+  const writeFile = (file: string, content = '') => {
+    mkdirSync(path.dirname(file), { recursive: true });
+    writeFileSync(file, content);
+  };
+
+  beforeEach(() => {
+    repo = mkdtempSync(path.join(tmpdir(), 'smoz-pkgfile-'));
+    service = path.join(repo, 'packages', 'service');
+    writeFile(path.join(repo, 'package.json'), '{}');
+    writeFile(path.join(service, 'package.json'), '{}');
+  });
+
+  afterEach(() => {
+    rmSync(repo, { recursive: true, force: true });
+  });
+
+  it("finds a file in the project's own node_modules", () => {
+    const file = path.join(
+      service,
+      'node_modules',
+      'prettier',
+      'bin',
+      'prettier.cjs',
+    );
+    writeFile(file);
+    expect(localPackageFile(service, 'prettier', 'bin/prettier.cjs')).toBe(
+      file,
+    );
+  });
+
+  it('finds a package hoisted to the workspace root', () => {
+    const file = path.join(
+      repo,
+      'node_modules',
+      'prettier',
+      'bin',
+      'prettier.cjs',
+    );
+    writeFile(file);
+    expect(localPackageFile(service, 'prettier', 'bin/prettier.cjs')).toBe(
+      file,
+    );
+  });
+
+  it('prefers the nearest copy when both exist', () => {
+    const near = path.join(
+      service,
+      'node_modules',
+      'serverless',
+      'bin',
+      'serverless.js',
+    );
+    writeFile(near);
+    writeFile(
+      path.join(repo, 'node_modules', 'serverless', 'bin', 'serverless.js'),
+    );
+    expect(localPackageFile(service, 'serverless', 'bin/serverless.js')).toBe(
+      near,
+    );
+  });
+
+  it('skips a nearer copy of the package that lacks the file', () => {
+    writeFile(
+      path.join(service, 'node_modules', 'prettier', 'package.json'),
+      '{}',
+    );
+    const file = path.join(
+      repo,
+      'node_modules',
+      'prettier',
+      'bin',
+      'prettier.cjs',
+    );
+    writeFile(file);
+    expect(localPackageFile(service, 'prettier', 'bin/prettier.cjs')).toBe(
+      file,
+    );
+  });
+
+  it('resolves scoped package names', () => {
+    const file = path.join(repo, 'node_modules', '@scope', 'tool', 'cli.js');
+    writeFile(file);
+    expect(localPackageFile(service, '@scope/tool', 'cli.js')).toBe(file);
+  });
+
+  it('returns undefined when the package is not installed', () => {
+    expect(
+      localPackageFile(service, 'smoz-no-such-package', 'bin/cli.js'),
     ).toBeUndefined();
   });
 });
