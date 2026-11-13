@@ -11,7 +11,7 @@ import { spawn } from 'node:child_process';
 import { buildSpawnEnv } from '@karmaniverous/get-dotenv';
 
 import {
-  localPackageFile,
+  localPackageBin,
   pathCommand,
   type SpawnSpec,
 } from '@/src/cli/util/command';
@@ -30,8 +30,6 @@ export const launchOffline = async (
   root: string,
   opts: LaunchOpts,
 ): Promise<OfflineRunner> => {
-  const slsJs = localPackageFile(root, 'serverless', 'bin/serverless.js');
-
   const makeCmd = (): SpawnSpec => {
     const args = [
       'offline',
@@ -41,6 +39,8 @@ export const launchOffline = async (
       '--httpPort',
       String(typeof opts.port === 'number' ? opts.port : 0),
     ];
+    // Looked up per launch so a restart picks up an install or removal.
+    const slsJs = localPackageBin(root, 'serverless');
     return slsJs
       ? { cmd: process.execPath, args: [slsJs, ...args], shell: false }
       : // Fallback to PATH

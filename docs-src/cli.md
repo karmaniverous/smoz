@@ -147,7 +147,7 @@ Portability
 npx smoz openapi
 ```
 
-One-shot: runs `app/config/openapi.ts` with tsx to write `app/generated/openapi.json`, then formats that file with Prettier. tsx and Prettier must be installed for the project (as dev dependencies). They are found the way Node resolves packages: the project's own `node_modules` first, then each parent directory's, so in an npm workspaces monorepo a service in `packages/service` uses the copies npm hoisted to the repo root.
+One-shot: runs `app/config/openapi.ts` with tsx to write `app/generated/openapi.json`, then formats that file with Prettier. tsx and Prettier must be installed for the project (as dev dependencies). They are found the way Node resolves packages: the nearest copy wins, searching the project's own `node_modules` first, then each parent directory's. So in an npm workspaces monorepo a service in `packages/service` uses the copies npm hoisted to the repo root, unless it installs its own. Prettier must be installed in the project or a parent directory: a global install (including one reached through `NODE_PATH`) isn't used.
 
 ## dev
 
@@ -177,7 +177,7 @@ Root version flag:
 Notes:
 
 - Inline backend maps Node HTTP → API Gateway v1 event → wrapped handler → response. It prints a route table and the selected port at startup. Request bodies whose Content-Type matches `provider.apiGateway.binaryMediaTypes` in `serverless.ts` arrive base64-encoded with `isBase64Encoded: true`, as API Gateway sends them; other bodies arrive as UTF-8 text. Response bodies a handler returns with `isBase64Encoded: true` are decoded to bytes. The list is read once at startup, and the startup output prints it: restart after changing it. Without a loadable `serverless.ts`, dev uses a fallback list (see [Multipart form data](./middleware.md#multipart-form-data-opt-in)).
-- Offline backend runs `serverless offline` in a child process, using the project's installed `serverless` (found like tsx and Prettier above, including a copy hoisted to a workspace root) or else the one on PATH; when the route surface changes (register writes), the child is restarted automatically.
+- Offline backend runs `serverless offline` in a child process, using the project's installed `serverless` (found like Prettier in [openapi](#openapi), including a copy hoisted to a workspace root, and looked up again on each restart) or else the one on PATH; when the route surface changes (register writes), the child is restarted automatically.
 - The loop seeds basic env (e.g., `STAGE`) and prints “Updated” vs “No changes” per task run; bursts are debounced.
 - Env seeding:
   - The dev loop imports `app/config/app.config.ts` and seeds `process.env` for keys declared in your app’s `global.envKeys` and `stage.envKeys`, using the concrete values from `stages.default.params` (global) and `stages[<stage>].params` (selected stage). Existing `process.env` entries are not overridden. This provides parity with provider-level env in production so handlers validate cleanly in dev.
