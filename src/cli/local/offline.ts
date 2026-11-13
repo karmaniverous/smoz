@@ -7,12 +7,14 @@
  * - Avoids unnecessary nullish-coalescing so ESLint doesn't flag conditions.
  */
 import { spawn } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
 
 import { buildSpawnEnv } from '@karmaniverous/get-dotenv';
 
-import { pathCommand, type SpawnSpec } from '@/src/cli/util/command';
+import {
+  localPackageBin,
+  pathCommand,
+  type SpawnSpec,
+} from '@/src/cli/util/command';
 
 export type OfflineRunner = {
   restart: () => Promise<void>;
@@ -28,14 +30,6 @@ export const launchOffline = async (
   root: string,
   opts: LaunchOpts,
 ): Promise<OfflineRunner> => {
-  const slsJs = path.resolve(
-    root,
-    'node_modules',
-    'serverless',
-    'bin',
-    'serverless.js',
-  );
-
   const makeCmd = (): SpawnSpec => {
     const args = [
       'offline',
@@ -45,7 +39,9 @@ export const launchOffline = async (
       '--httpPort',
       String(typeof opts.port === 'number' ? opts.port : 0),
     ];
-    return fs.existsSync(slsJs)
+    // Looked up per launch so a restart picks up an install or removal.
+    const slsJs = localPackageBin(root, 'serverless');
+    return slsJs
       ? { cmd: process.execPath, args: [slsJs, ...args], shell: false }
       : // Fallback to PATH
         pathCommand('serverless', args);
