@@ -164,6 +164,7 @@
   },
   "scripts": {
     "build": "rimraf dist && rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
+    "baseline:record": "tsx scripts/baseline-record.ts",
     "changelog": "auto-changelog",
     "deploy": "tsx src/cli/index.ts register && serverless deploy",
     "diagrams": "cd diagrams/src && plantuml -tpng -o ../out -r .",

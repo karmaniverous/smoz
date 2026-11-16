@@ -1,0 +1,8 @@
+smoz v7.0.11
+
+
+Usage: smoz cmd [options] [command...]
+
+Execute command according to the --shell option, conflicts with --command option
+(default subcommand)
+--- exit 0 ---

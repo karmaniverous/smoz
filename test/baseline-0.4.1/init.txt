@@ -1,0 +1,92 @@
+
+--- files ---
+.editorconfig
+.gitattributes
+.gitignore
+.node-version
+.npmrc
+.nvmrc
+.prettierrc.json
+.vscode/extensions.json
+.vscode/settings.json
+README.md
+app/config/app.config.ts
+app/config/openapi.ts
+app/functions/rest/hello/get/handler.ts
+app/functions/rest/hello/get/lambda.ts
+app/functions/rest/hello/get/openapi.ts
+app/functions/rest/openapi/get/handler.ts
+app/functions/rest/openapi/get/lambda.ts
+app/functions/rest/openapi/get/openapi.ts
+app/generated/openapi.json
+app/generated/register.functions.ts
+app/generated/register.openapi.ts
+app/generated/register.serverless.ts
+eslint.config.ts
+package.json
+serverless.ts
+test/smoke.test.ts
+tsconfig.base.json
+tsconfig.eslint.json
+tsconfig.json
+tsdoc.json
+typedoc.json
+types/registers.d.ts
+vitest.config.ts
+--- package.json ---
+{
+  "name": "<app>",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "smoz dev",
+    "docs": "typedoc",
+    "lint:fix": "eslint --fix .",
+    "lint": "eslint .",
+    "openapi": "smoz openapi",
+    "package": "serverless package",
+    "register": "smoz register",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@middy/core": "^7.9.2",
+    "@middy/http-content-negotiation": "^7.9.2",
+    "@middy/http-cors": "^7.9.2",
+    "@middy/http-error-handler": "^7.9.2",
+    "@middy/http-event-normalizer": "^7.9.2",
+    "@middy/http-header-normalizer": "^7.9.2",
+    "@middy/http-json-body-parser": "^7.9.2",
+    "@middy/http-response-serializer": "^7.9.2",
+    "fs-extra": "^11.4.1",
+    "package-directory": "^8.2.0",
+    "zod": "^4.6.7",
+    "@karmaniverous/smoz": "^0.4.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@serverless/typescript": "^4.30.0",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.20.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.7",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "eslint": "^10.14.0",
+    "jiti": "^2.7.0",
+    "prettier": "^3.9.10",
+    "serverless-apigateway-log-retention": "^1.1.0",
+    "serverless-deployment-bucket": "^1.6.0",
+    "serverless-domain-manager": "^10.5.0",
+    "serverless-offline": "^14.8.4",
+    "serverless-plugin-common-excludes": "^4.0.0",
+    "serverless": "^4.46.0",
+    "tsx": "^4.23.15",
+    "typedoc": "^0.28.20",
+    "typescript-eslint": "^8.72.1",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.0",
+    "zod-openapi": "^6.0.2"
+  }
+}
+--- exit 0 ---

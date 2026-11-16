@@ -1,0 +1,17 @@
+smoz v7.0.11
+
+
+Usage: smoz dev [options]
+
+Dev loop: register/openapi + local backend (inline|offline)
+
+Options:
+  -l, --local [mode]   local mode: inline | offline | false (default inline)
+  -O, --no-openapi     disable openapi step
+  -o, --openapi        run openapi step (default on)
+  -p, --port <number>  port (0 = random free port)
+  -R, --no-register    disable register step
+  -r, --register       run register step (default on)
+  -s, --stage <name>   stage name
+  -V, --verbose        verbose output
+--- exit 0 ---

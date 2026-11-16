@@ -1,0 +1,14 @@
+smoz v7.0.11
+
+
+Usage: smoz init [options]
+
+Scaffold a new SMOZ app from a template
+
+Options:
+  -t, --template <name>  template name (default: "default")
+  -y, --yes              assume “example” on conflicts
+  --conflict <policy>    overwrite|example|skip|ask
+  --install <pm>         explicit package manager (npm|pnpm|yarn|bun)
+  --no-install           do not install dependencies
+--- exit 0 ---

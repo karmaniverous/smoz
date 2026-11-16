@@ -1,0 +1,107 @@
+smoz v7.0.11
+
+
+Usage: smoz [options] [command]
+
+Base CLI.
+
+Options:
+  -a, --exclude-all                   exclude all dotenv variables from loading
+                                      ON
+  -A, --exclude-all-off               exclude all dotenv variables from loading
+                                      OFF (default)
+  -e, --env <string>                  target environment (dotenv-expanded)
+  -g, --exclude-global                exclude global dotenv variables from
+                                      loading ON
+  -G, --exclude-global-off            exclude global dotenv variables from
+                                      loading OFF (default)
+  -l, --log                           console log loaded variables ON
+  -L, --log-off                       console log loaded variables OFF (default)
+  -n, --exclude-env                   exclude environment-specific dotenv
+                                      variables from loading ON
+  -N, --exclude-env-off               exclude environment-specific dotenv
+                                      variables from loading OFF (default)
+  -o, --output-path <string>          consolidated output file
+                                      (dotenv-expanded)
+  -p, --load-process                  load variables to process.env ON (default)
+  -P, --load-process-off              load variables to process.env OFF
+  -r, --exclude-private               exclude private dotenv variables from
+                                      loading ON
+  -R, --exclude-private-off           exclude private dotenv variables from
+                                      loading OFF (default)
+  -s, --shell [string]                command execution shell, no argument for
+                                      default OS shell or provide shell string
+                                      (default powershell.exe)
+  -S, --shell-off                     command execution shell OFF
+  -u, --exclude-public                exclude public dotenv variables from
+                                      loading ON
+  -U, --exclude-public-off            exclude public dotenv variables from
+                                      loading OFF (default)
+  -v, --vars <string>                 extra variables expressed as delimited
+                                      key-value pairs (dotenv-expanded):
+                                      KEY1=VAL1 KEY2=VAL2
+  -z, --exclude-dynamic               exclude dynamic dotenv variables from
+                                      loading ON
+  -Z, --exclude-dynamic-off           exclude dynamic dotenv variables from
+                                      loading OFF (default)
+  --capture                           capture child process stdio for commands
+                                      (tests/CI)
+  --debug                             enable debug logging to stderr ON
+  --debug-off                         enable debug logging to stderr OFF
+                                      (default)
+  --default-env <string>              default target environment
+  --default-env-key <string>          env var name in global dotenv files that
+                                      specifies the default environment
+                                      (dotenv-expanded)
+  --dotenv-token <string>             dotenv-expanded token indicating a dotenv
+                                      file
+  --dynamic-path <string>             dynamic variables path (.js or .ts; .ts is
+                                      auto-compiled when esbuild is available,
+                                      otherwise precompile)
+  --entropy-min-length <number>       min length to examine for entropy (default
+                                      16)
+  --entropy-threshold <number>        entropy bits/char threshold (default 3.8)
+  --entropy-warn                      enable entropy warnings (default on)
+  --entropy-warn-off                  disable entropy warnings
+  --entropy-whitelist <pattern...>    suppress entropy warnings when key matches
+                                      any regex pattern
+  --paths <string>                    dotenv-expanded delimited list of paths to
+                                      dotenv directory
+  --paths-delimiter <string>          paths delimiter string
+  --paths-delimiter-pattern <string>  paths delimiter regex pattern
+  --private-token <string>            dotenv-expanded token indicating private
+                                      variables
+  --redact                            presentation-time redaction for
+                                      secret-like keys ON
+  --redact-off                        presentation-time redaction for
+                                      secret-like keys OFF
+  --redact-pattern <pattern...>       additional key-match regex patterns to
+                                      trigger redaction
+  --strict                            fail on env validation errors
+                                      (schema/requiredKeys)
+  --trace [keys...]                   emit diagnostics for child env composition
+                                      (optional keys)
+  --vars-assignor <string>            vars assignment operator string
+  --vars-assignor-pattern <string>    vars assignment operator regex pattern
+  --vars-delimiter <string>           vars delimiter string
+  --vars-delimiter-pattern <string>   vars delimiter regex pattern
+
+Plugin options — cmd:
+  -c, --cmd <command...>  alias of cmd subcommand; provide command tokens (variadic)
+
+Commands:
+  init [options]                      Scaffold a new SMOZ app from a template
+  add <spec>                          Scaffold a function under app/functions
+  register                            Generate side-effect register files
+  openapi [options]                   Generate OpenAPI document
+                                      (app/generated/openapi.json)
+  dev [options]                       Dev loop: register/openapi + local backend
+                                      (inline|offline)
+  aws [options] [args...]             Establish an AWS session and optionally
+                                      forward to the AWS CLI
+  cmd [command...]                    Execute command according to the --shell
+                                      option, conflicts with --command option
+                                      (default subcommand)
+  batch [options] [command...]        Batch command execution across multiple
+                                      working directories.
+--- exit 0 ---

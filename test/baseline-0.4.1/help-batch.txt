@@ -1,0 +1,25 @@
+smoz v7.0.11
+
+
+Usage: smoz batch [options] [command] [command...]
+
+Batch command execution across multiple working directories.
+
+Options:
+  -c, --command <string>    command executed according to the base shell
+                            resolution
+  -C, --concurrency <n>     max concurrent executions in parallel mode (default:
+                            8)
+  -e, --ignore-errors       ignore errors and continue with next path
+  -g, --globs <string>      space-delimited globs from root path (default: "*")
+  -l, --list                list working directories without executing command
+  -P, --parallel            execute commands in parallel across directories
+  -p, --pkg-cwd             use nearest package directory as current working
+                            directory
+  -r, --root-path <string>  path to batch root directory from current working
+                            directory (default: "./")
+
+Commands:
+  cmd [command...]          execute command, conflicts with --command option
+                            (default subcommand)
+--- exit 0 ---
