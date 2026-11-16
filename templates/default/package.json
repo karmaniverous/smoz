@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@karmaniverous/get-dotenv": "^8.0.0",
     "@serverless/typescript": "^4.30.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.20.5",

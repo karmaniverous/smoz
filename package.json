@@ -13,7 +13,6 @@
     "url": "https://github.com/karmaniverous/smoz/issues"
   },
   "dependencies": {
-    "@karmaniverous/get-dotenv": "^7.0.11",
     "@types/aws-lambda": "^8.10.164",
     "chokidar": "^6.0.0",
     "http-errors": "^2.0.1",
@@ -21,10 +20,11 @@
     "radash": "^12.1.1",
     "zod": "^4.6.7"
   },
-  "description": "John Galt Services back end.",
+  "description": "Serverless + Middy + OpenAPI 3.1 + Zod toolkit for AWS Lambda handlers.",
   "devDependencies": {
     "@dotenvx/dotenvx": "^2.38.2",
     "@eslint/js": "^10.0.1",
+    "@karmaniverous/get-dotenv": "^8.0.0",
     "@middy/core": "^7.9.2",
     "@middy/http-content-negotiation": "^7.9.2",
     "@middy/http-cors": "^7.9.2",
@@ -194,6 +194,7 @@
     "node": "22.23.4"
   },
   "peerDependencies": {
+    "@karmaniverous/get-dotenv": "^8.0.0",
     "@middy/core": "^7.7.0",
     "@middy/http-content-negotiation": "^7.7.0",
     "@middy/http-cors": "^7.7.0",
@@ -207,6 +208,9 @@
     "zod-openapi": "^6.0.0"
   },
   "peerDependenciesMeta": {
+    "@karmaniverous/get-dotenv": {
+      "optional": true
+    },
     "@middy/core": {
       "optional": true
     },

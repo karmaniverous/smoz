@@ -22,16 +22,18 @@ This mirrors the README quickstart for the fastest path to “it runs.”
 ## Signature
 
 ```bash
-npx smoz
+npx smoz -h
 ```
 
-Prints version, repo root, detected PM, and presence of key files.
+Prints smoz's version and description, the root options and the commands. `smoz <command> -h` prints a command's help.
 
-Tip: you can print the CLI version directly:
+Print the CLI version:
 
 ```bash
-npx smoz -v
+npx smoz -V
 ```
+
+`-v` is not the version: it is get-dotenv's `-v, --vars` root option (extra variables, `KEY1=VAL1 KEY2=VAL2`).
 
 ## init
 
@@ -172,7 +174,7 @@ Flags (CLI wins over config defaults; `cliDefaults.dev.local` sets the default):
 
 Root version flag:
 
-- `-v, --version` — print `smoz` version (use `--verbose` with `dev` to control verbosity)
+- `-V, --version` — print the `smoz` version. On `dev` and `openapi`, `-V` is `--verbose`.
 
 Notes:
 
