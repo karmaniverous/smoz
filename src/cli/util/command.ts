@@ -4,6 +4,7 @@
  * Never passes an args array together with `shell: true` (Node DEP0190:
  * args would be concatenated unescaped).
  */
+import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
@@ -67,4 +68,73 @@ export const localTsxCli = (root: string): string | undefined => {
   } catch {
     return undefined;
   }
+};
+
+/**
+ * The `node_modules` directories Node searches for a package required from
+ * `root`, nearest first: `root`'s own, then each ancestor's up to the
+ * filesystem root. Like Node, skips directories that are themselves named
+ * `node_modules`. Unlike `require.resolve.paths`, never includes `NODE_PATH`
+ * or Node's global folders.
+ *
+ * @param root - directory to start from
+ */
+const ancestorNodeModules = (root: string): string[] => {
+  const dirs: string[] = [];
+  let dir = path.resolve(root);
+  for (;;) {
+    if (path.basename(dir) !== 'node_modules')
+      dirs.push(path.join(dir, 'node_modules'));
+    const parent = path.dirname(dir);
+    if (parent === dir) return dirs;
+    dir = parent;
+  }
+};
+
+/**
+ * Absolute path of a package's CLI script as installed for the project at
+ * `root`, or undefined when the package isn't installed there or has no such
+ * bin.
+ *
+ * Finds the package the way Node does: the nearest copy wins, searching
+ * `root`'s own `node_modules` and then each ancestor's. That finds packages
+ * npm hoisted to a workspace root (e.g. prettier at `<repo>/node_modules` for
+ * a service in `<repo>/packages/service`), and a project's own copy shadows a
+ * hoisted one. Global installs (`NODE_PATH`, Node's global folders) are
+ * ignored. The script is read from the package's `bin` field, so it follows
+ * the installed version's layout (e.g. serverless v4 ships `run.js`).
+ *
+ * @param root - project root (a directory containing package.json)
+ * @param pkg - package name, e.g. `prettier` or `@scope/name`
+ * @param binName - bin entry to use when `bin` is an object (defaults to the
+ *   package name without its scope)
+ */
+export const localPackageBin = (
+  root: string,
+  pkg: string,
+  binName: string = pkg.split('/').pop() ?? pkg,
+): string | undefined => {
+  const pkgDir = ancestorNodeModules(root)
+    .map((dir) => path.join(dir, pkg))
+    .find((dir) => existsSync(path.join(dir, 'package.json')));
+  if (!pkgDir) return undefined;
+
+  let bin: unknown;
+  try {
+    ({ bin } = JSON.parse(
+      readFileSync(path.join(pkgDir, 'package.json'), 'utf8'),
+    ) as { bin?: unknown });
+  } catch {
+    return undefined;
+  }
+  const rel =
+    typeof bin === 'string'
+      ? bin
+      : bin !== null && typeof bin === 'object'
+        ? (bin as Record<string, unknown>)[binName]
+        : undefined;
+  if (typeof rel !== 'string') return undefined;
+
+  const script = path.resolve(pkgDir, rel);
+  return existsSync(script) ? script : undefined;
 };
