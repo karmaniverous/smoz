@@ -97,7 +97,7 @@ export const handler = fn.handler(async (): Promise<Response> => ({
 - Two commands from zero:
 
 ```bash
-npx @karmaniverous/smoz init -i
+npx -p @karmaniverous/get-dotenv@^8 -p @karmaniverous/smoz smoz init
 npx smoz dev -p 3000
 ```
 

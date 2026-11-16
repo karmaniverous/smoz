@@ -9,7 +9,7 @@ sidebar_position: 5
 ## From zero in two commands
 
 ```bash
-npx @karmaniverous/smoz init -i
+npx -p @karmaniverous/get-dotenv@^8 -p @karmaniverous/smoz smoz init
 npx smoz dev -p 3000
 ```
 
@@ -41,7 +41,7 @@ npx smoz -V
 npx smoz init --yes
 ```
 
-First‑time npx note: You can also run `npx @karmaniverous/smoz init -i` in an empty directory — this uses the published package and installs template dependencies so subsequent `npx smoz …` commands run from your local bin.
+`npx smoz` runs the `smoz` bin installed in your project (with `@karmaniverous/get-dotenv` ^8, which the CLI needs). First‑time npx note: in an empty directory, run `npx -p @karmaniverous/get-dotenv@^8 -p @karmaniverous/smoz smoz init` instead — it uses the published packages and installs the template's dependencies (get-dotenv included), so subsequent `npx smoz …` commands run from your local bin.
 
 Scaffolds a new app:
 
@@ -51,26 +51,13 @@ Scaffolds a new app:
 
 Options:
 
-- `-t, --template <nameOrPath>` — template name (e.g., `default`) or a filesystem directory
-- `--install [pm]` — install deps with npm|pnpm|yarn|bun
-- `--no-install` — skip installation (overrides `-y`)
-- `-y, --yes` — no prompts
-- `--dry-run` — show actions without writing
+- `-t, --template <name>` — template name (default: `default`) or a filesystem directory
+- `-y, --yes` — no prompts; conflicts write `*.example` files
+- `--conflict <policy>` — `overwrite`, `example`, `skip` or `ask`
+- `--install <pm>` — install dependencies with npm, pnpm, yarn or bun
+- `--no-install` — don't install dependencies
 
-Defaults via smoz.config.json (optional):
-
-```json
-{
-  "cliDefaults": {
-    "init": {
-      "template": "default",
-      "onConflict": "example",
-      "install": "auto"
-    },
-    "dev": { "local": "inline" }
-  }
-}
-```
+Dependencies are installed by default, with the package manager detected from the directory.
 
 ## register
 
@@ -163,7 +150,7 @@ Long‑running dev loop that watches source files and runs, in order. Inline is 
 2. `openapi` (if enabled)
 3. local HTTP backend actions (restart/refresh if applicable)
 
-Flags (CLI wins over config defaults; `cliDefaults.dev.local` sets the default):
+Flags:
 
 - `-r, --register` / `-R, --no-register` (default: on)
 - `-o, --openapi` / `-O, --no-openapi` (default: on)

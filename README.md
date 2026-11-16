@@ -23,11 +23,11 @@ SMOZ is a small, pragmatic toolkit for authoring AWS Lambda handlers with [Middy
 From an empty directory:
 
 ```bash
-npx @karmaniverous/smoz init -i
+npx -p @karmaniverous/get-dotenv@^8 -p @karmaniverous/smoz smoz init
 npx smoz dev -p 3000
 ```
 
-- The first command scaffolds a new app and installs dependencies (including a local `smoz` bin).
+- The first command scaffolds a new app and installs its dependencies, including a local `smoz` bin and `@karmaniverous/get-dotenv`, which the bin needs.
 - The second command starts the inline local backend and keeps registers + OpenAPI fresh.
 - Open http://localhost:3000/openapi in your browser.
 
@@ -64,8 +64,10 @@ npx smoz add rest/foo/get
 ## Install
 
 ```bash
-npm i @karmaniverous/smoz zod zod-openapi
+npm i @karmaniverous/smoz @karmaniverous/get-dotenv@^8 zod zod-openapi
 ```
+
+@karmaniverous/get-dotenv (^8) is an optional peer dependency: the smoz CLI needs it, your Lambda code doesn’t. Without it, smoz prints how to install it and exits 1.
 
 `zod-openapi` (^6) and `@serverless/typescript` (^4.30) are optional peer dependencies: SMOZ's type declarations import their types. Install `@serverless/typescript` as a dev dependency when you type `serverless.ts` or a function's `serverless` config (the template does).
 
