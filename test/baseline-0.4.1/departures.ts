@@ -96,7 +96,7 @@ export const departures: Departure[] = [
     case: 'init',
     part: 'package.json:devDependencies',
     issueOrDecision: 'D36',
-    note: 'The app gets @karmaniverous/get-dotenv ^8.0.0 as a devDependency, so its smoz bin runs.',
+    note: 'The app gets @karmaniverous/get-dotenv ^8.0.0-0 as a devDependency, so its smoz bin runs.',
   },
   // Dependency updates.
   {
