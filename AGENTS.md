@@ -41,13 +41,9 @@ npm audit --omit=dev --audit-level=high
 - CI (`.github/workflows/ci.yml`) runs the same gates and must be green on the pushed head, on both the Linux and Windows jobs.
 - A gate that already fails on `main` is not "pre-existing" and is not out of scope. Fix it in the PR, or stop and report it.
 
-### get-dotenv 8 before it is published
+### get-dotenv 8 prerelease
 
-Until `@karmaniverous/get-dotenv@8.0.0` is on npm, `package.json` declares it as `^8.0.0` (optional peer and devDependency) while the committed lockfile can't resolve that range, so CI fails at `npm ci`. That is expected and planned: the lockfile is refreshed once 8.0.0 is published (dev plan S26). Meanwhile:
-
-- Pack get-dotenv from its branch (`npm pack`) and install the tarball locally with `npm install --no-save <tgz>`. Never commit a `file:` reference or a lockfile entry that points at a tarball.
-- Run every gate locally against the tarball, and say in the PR which get-dotenv commit it was packed from.
-- Any later `npm install` restores the lockfile's copy: reinstall the tarball afterwards.
+Until the final `@karmaniverous/get-dotenv@8.0.0` release, `package.json`, the template and documented commands use `^8.0.0-0`. The committed lockfile must resolve that range from the npm registry, never from a `file:` path or tarball. CI and clean-install proofs run against the published prerelease selected by that range.
 
 ## Finishing step
 
@@ -60,7 +56,7 @@ The finishing step runs the `jeeves-pr-review` passes. Their results go in the f
 | Test adequacy          | Coverage for each touched file is at least its baseline on `main`, new files have their own coverage, a mutation check per new module, and no trivial tests.    |
 | Docs sync              | README and `docs-src/**` checked against the code. TypeDoc has 0 warnings.                                                                                      |
 | Independent review     | By a fresh subagent with no shared context, posted as a GitHub review. Every finding is fixed or answered.                                                      |
-| Gates + CI + mergeable | All gates green on the pushed head (locally against the get-dotenv tarball until 8.0.0 is published), and the PR is mergeable.                                  |
+| Gates + CI + mergeable | All gates and CI green on the pushed head against the registry prerelease, and the PR is mergeable.                                                             |
 
 ## Tests
 

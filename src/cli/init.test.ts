@@ -1,7 +1,7 @@
 /* REQUIREMENTS ADDRESSED (TEST)
 - CLI init: copies template files, seeds register placeholders, and reports
   install status without performing installs by default.
-- The app's package.json gets @karmaniverous/get-dotenv ^8 as a
+- The app's package.json gets @karmaniverous/get-dotenv ^8.0.0-0 as a
   devDependency, so the app's `smoz` bin runs (get-dotenv Decision 36).
 */
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -39,7 +39,7 @@ describe('CLI: init', () => {
     }
   });
 
-  it('writes the get-dotenv ^8 devDependency the smoz bin needs', async () => {
+  it('writes the get-dotenv ^8.0.0-0 devDependency the smoz bin needs', async () => {
     const root = mkdtempSync(join(tmpdir(), 'smoz-init-'));
     try {
       await runInit(root, 'default', { install: false, yes: true });
@@ -49,7 +49,9 @@ describe('CLI: init', () => {
         dependencies?: Record<string, string>;
         devDependencies?: Record<string, string>;
       };
-      expect(pkg.devDependencies?.['@karmaniverous/get-dotenv']).toBe('^8.0.0');
+      expect(pkg.devDependencies?.['@karmaniverous/get-dotenv']).toBe(
+        '^8.0.0-0',
+      );
       expect(pkg.dependencies?.['@karmaniverous/get-dotenv']).toBeUndefined();
     } finally {
       rmSync(root, { recursive: true, force: true });

@@ -21,10 +21,10 @@ const names = { bin: 'smoz', pkg: '@karmaniverous/smoz' };
 
 /** The hint, exactly as get-dotenv's spec (4.7) gives it for smoz. */
 const expectedHint = [
-  'smoz needs @karmaniverous/get-dotenv ^8. Install it:',
-  '  local:  npm i -D @karmaniverous/get-dotenv@^8',
-  '  global: npm i -g @karmaniverous/get-dotenv@^8',
-  '  npx:    npx -p @karmaniverous/get-dotenv@^8 -p @karmaniverous/smoz smoz',
+  'smoz needs @karmaniverous/get-dotenv ^8.0.0-0. Install it:',
+  '  local:  npm i -D @karmaniverous/get-dotenv@^8.0.0-0',
+  '  global: npm i -g @karmaniverous/get-dotenv@^8.0.0-0',
+  '  npx:    npx -p @karmaniverous/get-dotenv@^8.0.0-0 -p @karmaniverous/smoz smoz',
 ].join('\n');
 
 let dir: string;

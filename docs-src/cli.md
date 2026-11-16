@@ -9,7 +9,7 @@ sidebar_position: 5
 ## From zero in two commands
 
 ```bash
-npx -p @karmaniverous/get-dotenv@^8 -p @karmaniverous/smoz smoz init
+npx -p @karmaniverous/get-dotenv@^8.0.0-0 -p @karmaniverous/smoz smoz init
 npx smoz dev -p 3000
 ```
 
@@ -41,7 +41,7 @@ npx smoz -V
 npx smoz init --yes
 ```
 
-`npx smoz` runs the `smoz` bin installed in your project (with `@karmaniverous/get-dotenv` ^8, which the CLI needs). First‑time npx note: in an empty directory, run `npx -p @karmaniverous/get-dotenv@^8 -p @karmaniverous/smoz smoz init` instead — it uses the published packages and installs the template's dependencies (get-dotenv included), so subsequent `npx smoz …` commands run from your local bin.
+`npx smoz` runs the `smoz` bin installed in your project (with `@karmaniverous/get-dotenv` ^8.0.0-0, which the CLI needs). First‑time npx note: in an empty directory, run `npx -p @karmaniverous/get-dotenv@^8.0.0-0 -p @karmaniverous/smoz smoz init` instead — it uses the published packages and installs the template's dependencies (get-dotenv included), so subsequent `npx smoz …` commands run from your local bin.
 
 Scaffolds a new app:
 

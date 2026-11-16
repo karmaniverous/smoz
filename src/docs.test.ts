@@ -1,9 +1,9 @@
 /* REQUIREMENTS ADDRESSED (TEST)
 - #35: the docs bootstrap a new app with
-  `npx -p @karmaniverous/get-dotenv@^8 -p @karmaniverous/smoz smoz init`;
+  `npx -p @karmaniverous/get-dotenv@^8.0.0-0 -p @karmaniverous/smoz smoz init`;
   nothing tells users to run the nonexistent `smoz init -i`.
 - Every command that installs or runs the published smoz package also brings
-  @karmaniverous/get-dotenv ^8, which the smoz CLI needs (get-dotenv
+  @karmaniverous/get-dotenv ^8.0.0-0, which the smoz CLI needs (get-dotenv
   Decision 36).
 - The `init` options listed in docs-src/cli.md are the command's options.
 */
@@ -17,7 +17,7 @@ import { setupSmozCommands } from '@/src/cli/plugins/smoz';
 import { repoRoot } from '@/src/test/cliBaseline';
 
 const bootstrap =
-  'npx -p @karmaniverous/get-dotenv@^8 -p @karmaniverous/smoz smoz init';
+  'npx -p @karmaniverous/get-dotenv@^8.0.0-0 -p @karmaniverous/smoz smoz init';
 
 const listMarkdown = (rel: string): string[] =>
   readdirSync(path.join(repoRoot, rel), { withFileTypes: true }).flatMap((e) =>
@@ -46,12 +46,12 @@ describe('docs: bootstrap and install commands (#35)', () => {
     'docs-src/cli.md',
     'docs-src/getting-started.md',
     'docs-src/why-smoz.md',
-  ])('%s bootstraps with get-dotenv ^8', (rel) => {
+  ])('%s bootstraps with get-dotenv ^8.0.0-0', (rel) => {
     expect(read(rel)).toContain(bootstrap);
   });
 
   it.each(docs)(
-    '%s installs or runs published smoz only with get-dotenv ^8',
+    '%s installs or runs published smoz only with get-dotenv ^8.0.0-0',
     (rel) => {
       const lines = read(rel)
         .split(/\r?\n/)
@@ -62,15 +62,15 @@ describe('docs: bootstrap and install commands (#35)', () => {
         );
       for (const line of lines)
         expect(line, `${rel}: ${line}`).toContain(
-          '@karmaniverous/get-dotenv@^8',
+          '@karmaniverous/get-dotenv@^8.0.0-0',
         );
     },
   );
 
-  it('the README and getting-started install commands include get-dotenv ^8', () => {
+  it('the README and getting-started install commands include get-dotenv ^8.0.0-0', () => {
     for (const rel of ['README.md', 'docs-src/getting-started.md']) {
       expect(read(rel)).toMatch(
-        /npm i @karmaniverous\/smoz @karmaniverous\/get-dotenv@\^8/,
+        /npm i @karmaniverous\/smoz @karmaniverous\/get-dotenv@\^8.0.0-0/,
       );
     }
   });

@@ -13,10 +13,10 @@ End‑to‑end in one sitting: init → add → register → openapi → package
 In an empty directory, install SMOZ and the packages it needs:
 
 ```bash
-npm i @karmaniverous/smoz @karmaniverous/get-dotenv@^8 zod zod-openapi
+npm i @karmaniverous/smoz @karmaniverous/get-dotenv@^8.0.0-0 zod zod-openapi
 ```
 
-`@karmaniverous/get-dotenv` (^8) is an optional peer dependency: the `smoz` CLI needs it, your Lambda code doesn't. Without it, `smoz` prints how to install it and exits 1.
+`@karmaniverous/get-dotenv` (^8.0.0-0) is an optional peer dependency: the `smoz` CLI needs it, your Lambda code doesn't. Without it, `smoz` prints how to install it and exits 1.
 
 ## 1) Initialize a new app
 
