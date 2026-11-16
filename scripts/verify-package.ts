@@ -162,6 +162,10 @@ try {
   const otherPeers = Object.keys(peerDependencies)
     .filter((name) => name !== '@karmaniverous/get-dotenv')
     .map((name) => `${name}@${installedVersion(name)}`);
+  const declarationPeers = [
+    '@aws/durable-execution-sdk-js@^2.0.0',
+    'type-fest@^5.0.0',
+  ];
   npm(
     [
       'install',
@@ -170,6 +174,7 @@ try {
       '--ignore-scripts',
       '--prefer-offline',
       ...otherPeers,
+      ...declarationPeers,
     ],
     app,
   );
@@ -189,31 +194,26 @@ try {
     '--pretty',
     'false',
   ]);
-  // With skipLibCheck off, tsc also reports errors inside other packages'
-  // declarations (@middy/core, @serverless/typescript), which smoz can't fix.
-  // Every error in smoz's own declarations or the consumer fails, and so does
-  // any error that mentions get-dotenv.
+  // @serverless/typescript 4.30.0 has one known declaration error with
+  // skipLibCheck off. Keep the exception exact so every new consumer, smoz,
+  // get-dotenv, or third-party diagnostic still fails this verification.
   const errors = `${tsc.stdout}${tsc.stderr}`
     .split(/\r?\n/)
     .filter((line) => /error TS\d+/.test(line));
-  const ours = errors.filter((line) => {
-    const pkg = /node_modules\/((?:@[^/]+\/)?[^/]+)\//.exec(
-      line.replace(/\\/g, '/'),
-    )?.[1];
-    return (
-      pkg === undefined ||
-      pkg === '@karmaniverous/smoz' ||
-      line.includes('get-dotenv')
-    );
-  });
-  if (ours.length || (tsc.status !== 0 && !errors.length))
+  const knownServerlessError = (line: string): boolean =>
+    line
+      .replace(/\\/g, '/')
+      .includes(
+        'node_modules/@serverless/typescript/index.d.ts(1485,7): error TS2411:',
+      ) && line.includes(`Property '"Fn::Transform"'`);
+  const unexpected = errors.filter((line) => !knownServerlessError(line));
+  if (unexpected.length || (tsc.status !== 0 && !errors.length))
     fail(
-      `tsc (skipLibCheck: false) failed:\n${ours.join('\n') || tsc.stdout + tsc.stderr}`,
+      `tsc (skipLibCheck: false) failed:\n${unexpected.join('\n') || tsc.stdout + tsc.stderr}`,
     );
-  const theirs = errors.length - ours.length;
-  if (theirs)
+  if (errors.length)
     console.log(
-      `verify:package: ignored ${String(theirs)} tsc error(s) inside third-party declarations:\n  ${errors.join('\n  ')}`,
+      `verify:package: recognized @serverless/typescript 4.30.0's exact TS2411 declaration defect:\n  ${errors.join('\n  ')}`,
     );
 
   // 6. zod is imported, not bundled.

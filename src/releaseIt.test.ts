@@ -151,4 +151,29 @@ describe('release-it config (#18)', () => {
       git('tag', '-d', '1.1.0');
     }
   });
+
+  it('uses the preceding prerelease in a sequential-prerelease compare link', () => {
+    const head = git('rev-parse', 'HEAD').trim();
+    git('tag', '1.1.0-0');
+    git(
+      'commit',
+      '-q',
+      '--allow-empty',
+      '-m',
+      '[GH-18] fix: prerelease follow-up',
+    );
+    try {
+      const notes = releaseNotes({
+        version: '1.1.0-1',
+        latestTag: '1.1.0-0',
+      });
+      expect(notes).toMatch(
+        /^## \[1\.1\.0-1\]\(.*\/compare\/1\.1\.0-0\.\.\.1\.1\.0-1\)/,
+      );
+      expect(notes).toContain('Prerelease follow-up');
+    } finally {
+      git('reset', '--hard', head);
+      git('tag', '-d', '1.1.0-0');
+    }
+  });
 });

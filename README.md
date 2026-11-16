@@ -64,7 +64,8 @@ npx smoz add rest/foo/get
 ## Install
 
 ```bash
-npm i @karmaniverous/smoz @karmaniverous/get-dotenv@^8.0.0-0 zod zod-openapi
+npm i @karmaniverous/smoz zod zod-openapi
+npm i -D @karmaniverous/get-dotenv@^8.0.0-0
 ```
 
 @karmaniverous/get-dotenv (^8.0.0-0) is an optional peer dependency: the smoz CLI needs it, your Lambda code doesn’t. Without it, smoz prints how to install it and exits 1.

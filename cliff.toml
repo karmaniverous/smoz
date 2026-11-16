@@ -51,6 +51,7 @@ commit_parsers = [
 ]
 protect_breaking_commits = false
 filter_commits = false
-# smoz tags are bare versions (0.4.1), release-it's default tagName.
-tag_pattern = "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+# smoz tags are bare versions (0.4.1 or numeric prereleases such as 0.5.0-0),
+# release-it's default tagName.
+tag_pattern = "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9]+)?$"
 sort_commits = "newest"

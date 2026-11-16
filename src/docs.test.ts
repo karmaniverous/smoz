@@ -2,8 +2,8 @@
 - #35: the docs bootstrap a new app with
   `npx -p @karmaniverous/get-dotenv@^8.0.0-0 -p @karmaniverous/smoz smoz init`;
   nothing tells users to run the nonexistent `smoz init -i`.
-- Every command that installs or runs the published smoz package also brings
-  @karmaniverous/get-dotenv ^8.0.0-0, which the smoz CLI needs (get-dotenv
+- Every bootstrap command brings @karmaniverous/get-dotenv ^8.0.0-0, and
+  manual installs put this CLI-only peer in devDependencies (get-dotenv
   Decision 36).
 - The `init` options listed in docs-src/cli.md are the command's options.
 */
@@ -50,27 +50,17 @@ describe('docs: bootstrap and install commands (#35)', () => {
     expect(read(rel)).toContain(bootstrap);
   });
 
-  it.each(docs)(
-    '%s installs or runs published smoz only with get-dotenv ^8.0.0-0',
-    (rel) => {
-      const lines = read(rel)
-        .split(/\r?\n/)
-        .filter(
-          (l) =>
-            /\b(npm (i|install|add)|npx|pnpm add|yarn add)\b/.test(l) &&
-            l.includes('@karmaniverous/smoz'),
-        );
-      for (const line of lines)
-        expect(line, `${rel}: ${line}`).toContain(
-          '@karmaniverous/get-dotenv@^8.0.0-0',
-        );
-    },
-  );
-
-  it('the README and getting-started install commands include get-dotenv ^8.0.0-0', () => {
-    for (const rel of ['README.md', 'docs-src/getting-started.md']) {
-      expect(read(rel)).toMatch(
-        /npm i @karmaniverous\/smoz @karmaniverous\/get-dotenv@\^8.0.0-0/,
+  it('manual installs keep the CLI-only get-dotenv peer in devDependencies', () => {
+    for (const rel of [
+      'README.md',
+      'docs-src/getting-started.md',
+      'docs-src/tour-10-minutes.md',
+    ]) {
+      const content = read(rel);
+      expect(content).toContain('npm i @karmaniverous/smoz zod zod-openapi');
+      expect(content).toContain('npm i -D @karmaniverous/get-dotenv@^8.0.0-0');
+      expect(content).not.toMatch(
+        /npm i @karmaniverous\/smoz .*@karmaniverous\/get-dotenv/,
       );
     }
   });
