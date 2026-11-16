@@ -15,12 +15,15 @@ import { departures } from '@/test/baseline-0.4.1/departures';
 const current = new Map<string, string>();
 
 beforeAll(async () => {
-  await Promise.all(
-    baselineCases.map(async (c) => {
+  // A few at a time: each case is a tsx process, and the other test files
+  // run alongside.
+  const queue = [...baselineCases];
+  const worker = async () => {
+    for (let c = queue.shift(); c; c = queue.shift())
       current.set(c.id, await recordCase(c));
-    }),
-  );
-}, 180_000);
+  };
+  await Promise.all([worker(), worker(), worker()]);
+}, 300_000);
 
 describe('CLI baseline (smoz 0.4.1)', () => {
   it.each(baselineCases)(

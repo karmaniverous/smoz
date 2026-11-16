@@ -49,6 +49,7 @@
     "eslint-plugin-prettier": "^5.5.7",
     "eslint-plugin-simple-import-sort": "^14.0.0",
     "fs-extra": "^11.4.1",
+    "git-cliff": "^2.14.2",
     "knip": "^6.45.1",
     "lefthook": "^2.2.2",
     "prettier": "^3.10.1",
@@ -134,7 +135,9 @@
       "requireBranch": "main"
     },
     "github": {
-      "release": true
+      "release": true,
+      "releaseName": "${name.split('/').pop()}@${version}",
+      "releaseNotes": "npx git-cliff --tag ${version} ${latestTag}..HEAD --strip header"
     },
     "hooks": {
       "after:init": [
