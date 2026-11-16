@@ -29,6 +29,7 @@ npm run typecheck
 npm test
 npm run knip
 npm run build
+npm run verify:package
 npm run templates:typecheck
 npm run templates:lint
 npm run format:check

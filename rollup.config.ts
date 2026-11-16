@@ -22,6 +22,9 @@ const entryPoints = {
   // Serverless plugin entry (CJS/ESM build + DTS). The plugin is intended to be
   // loaded via CJS by Serverless; we still emit both formats for completeness.
   'serverless-plugin': 'src/serverless/plugin.ts',
+  // get-dotenv plugin entry (`@karmaniverous/smoz/cli`). The only entry that
+  // loads get-dotenv, an optional peer.
+  cli: 'src/cli.ts',
 };
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -154,7 +157,9 @@ export const buildInlineServer = (
 });
 /**
  * CLI build (ESM bin with shebang).
- * - Output: dist/cli/index.mjs
+ * - Output: dist/cli/index.mjs, the launcher, plus the chunk it loads with a
+ *   dynamic `import()` (the CLI and get-dotenv). A directory output, because a
+ *   single file can't hold the dynamically loaded chunk.
  * - Externalization: reuse commonInputOptions to keep built-ins/deps external. */
 export const buildCli = (
   dest: string,
@@ -162,9 +167,11 @@ export const buildCli = (
 ): RollupOptions => ({
   input: 'src/cli/index.ts',
   output: {
-    file: `${dest}/cli/index.mjs`,
+    dir: `${dest}/cli`,
+    entryFileNames: 'index.mjs',
+    chunkFileNames: '[name]-[hash].mjs',
     format: 'esm',
-    banner: '#!/usr/bin/env node',
+    banner: (chunk) => (chunk.isEntry ? '#!/usr/bin/env node' : ''),
     sourcemap: false,
   },
   ...commonInputOptions(tsconfigPath),

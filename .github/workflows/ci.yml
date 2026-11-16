@@ -50,6 +50,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Packed package without get-dotenv (an optional peer): main entry,
+      # ./cli, the bin's install hint, tsc with skipLibCheck: false.
+      - name: Verify package
+        run: npm run verify:package
+
       - name: Template typecheck
         run: npm run templates:typecheck
 

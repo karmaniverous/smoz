@@ -7,6 +7,7 @@
 import {
   definePlugin,
   type GetDotenvCliPublic,
+  type PluginWithInstanceHelpers,
 } from '@karmaniverous/get-dotenv/cliHost';
 import { packageDirectorySync } from 'package-directory';
 
@@ -143,7 +144,12 @@ export const setupSmozCommands = (cli: GetDotenvCliPublic): void => {
     );
 };
 
-export const smozPlugin = () =>
+/**
+ * The smoz get-dotenv plugin: mounts init, add, register, openapi and dev
+ * under the `smoz` namespace of a host CLI (`vc smoz openapi --verbose`).
+ * Exported from `@karmaniverous/smoz/cli`.
+ */
+export const smozPlugin = (): PluginWithInstanceHelpers =>
   definePlugin({
     ns: 'smoz',
     setup: setupSmozCommands,

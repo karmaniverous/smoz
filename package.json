@@ -88,6 +88,10 @@
       "types": "./dist/serverless-plugin.d.ts",
       "default": "./dist/mjs/serverless-plugin.js"
     },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "default": "./dist/mjs/cli.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -139,6 +143,7 @@
         "npm run test",
         "npm run knip",
         "npm run build",
+        "npm run verify:package",
         "npm run templates:typecheck",
         "npm run templates:lint",
         "npm run format:check"
@@ -186,7 +191,8 @@
     "templates:lint": "eslint -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\"",
     "templates:lint:fix": "eslint --fix -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\"",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "verify:package": "tsx scripts/verify-package.ts"
   },
   "type": "module",
   "version": "0.4.1",
