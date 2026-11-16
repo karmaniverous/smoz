@@ -169,10 +169,28 @@ export type CaseParts = Record<string, string>;
 
 const sectionHeading = /^\S.*:$/;
 
+/** `init` parts: its stdout, the files written, and each `package.json` key. */
+const initParts = (text: string): CaseParts => {
+  const [stdout = '', rest = ''] = text.split('--- files ---\n');
+  const [files = '', pkg = '{}'] = rest.split('--- package.json ---\n');
+  const manifest = JSON.parse(pkg) as Record<string, unknown>;
+  return {
+    text: stdout.trim(),
+    files: files.trim(),
+    ...Object.fromEntries(
+      Object.entries(manifest).map(([k, v]) => [
+        `package.json:${k}`,
+        JSON.stringify(v, null, 2),
+      ]),
+    ),
+  };
+};
+
 /**
  * Split a recorded case into its comparable parts: `exit`, then for help
  * `header`, `usage`, `description` and one `section:<heading>` per section
- * (its terms, one per line), and for any other case `text`.
+ * (its terms, one per line); for `init` `text` (stdout), `files` and one
+ * `package.json:<key>` per manifest key; and for any other case `text`.
  */
 export const caseParts = (
   kind: BaselineCase['kind'],
@@ -180,6 +198,7 @@ export const caseParts = (
 ): CaseParts => {
   const lines = text.replace(/\r\n/g, '\n').trimEnd().split('\n');
   const exit = lines.pop() ?? '';
+  if (kind === 'init') return { exit, ...initParts(lines.join('\n')) };
   if (kind !== 'help') return { exit, text: lines.join('\n') };
   const usageAt = lines.findIndex((l) => l.startsWith('Usage: '));
   const parts: CaseParts = {

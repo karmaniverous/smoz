@@ -12,7 +12,10 @@
 export interface Departure {
   /** Case id, as in `baselineCases`. */
   case: string;
-  /** Part of the case: `exit`, `text`, `header`, `usage`, `description` or `section:<heading>`. */
+  /**
+   * Part of the case: `exit`, `text`, `header`, `usage`, `description`,
+   * `section:<heading>`, `files` or `package.json:<key>`.
+   */
   part: string;
   /** The smoz issue (`#NN`) or get-dotenv spec decision (`DNN`) that causes the change. */
   issueOrDecision: `#${number}` | `D${number}`;
@@ -21,4 +24,11 @@ export interface Departure {
 }
 
 /** The departures, by case. */
-export const departures: Departure[] = [];
+export const departures: Departure[] = [
+  {
+    case: 'init',
+    part: 'package.json:devDependencies',
+    issueOrDecision: 'D39',
+    note: 'Template dependency updates: eslint, prettier, typescript-eslint, and serverless-domain-manager 11 (a major approved at the lock).',
+  },
+];
