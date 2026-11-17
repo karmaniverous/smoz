@@ -2,7 +2,32 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.5.0](https://github.com/karmaniverous/smoz/compare/0.4.1...0.5.0)
+
+- [GH-37] fix(init): skip template dependencies and repository metadata [`#38`](https://github.com/karmaniverous/smoz/pull/38)
+- feat: smoz on get-dotenv 8 (optional peer, ./cli, launcher bin) [`#36`](https://github.com/karmaniverous/smoz/pull/36)
+- [GH-33] docs: bootstrap with get-dotenv ^8; drop the nonexistent init -i [`#35`](https://github.com/karmaniverous/smoz/pull/35)
+- [GH-33] feat!: get-dotenv 8 as an optional peer; smoz reports its own version [`#33`](https://github.com/karmaniverous/smoz/pull/33)
+- fix: find prettier and serverless hoisted to a workspace root [`#32`](https://github.com/karmaniverous/smoz/pull/32)
+- [GH-33] chore(deps): update dependencies (chokidar 6, serverless-domain-manager 11) [`cb3581b`](https://github.com/karmaniverous/smoz/commit/cb3581bd5a10cdc7acc6ad96aafdbcc5742319dc)
+- [GH-33] test: record the smoz 0.4.1 CLI baseline (help, -V, init) [`ea1aa6f`](https://github.com/karmaniverous/smoz/commit/ea1aa6f01c6df6722ad96ad071296c1c4b5d8bce)
+- [GH-33] feat: ./cli subpath for smozPlugin; smoz bin is a launcher with an install hint [`18063a8`](https://github.com/karmaniverous/smoz/commit/18063a856d4d3396055001af015b7bf2de05576c)
+- [GH-33] feat(release): name GitHub releases smoz@version with git-cliff notes (#18) [`f00df40`](https://github.com/karmaniverous/smoz/commit/f00df40bde01251fdffe3812e117d08e45255021)
+- [31] fix: resolve tool bins from package.json, nearest copy only, no NODE_PATH [`79c4e22`](https://github.com/karmaniverous/smoz/commit/79c4e2241f194769e0753135b73082fd5cef0d92)
+- [31] fix: find prettier and serverless hoisted to a workspace root [`99510b4`](https://github.com/karmaniverous/smoz/commit/99510b425412ab49820220efc030e32ec2a87141)
+- [GH-33] chore: use get-dotenv 8 registry prerelease [`478e325`](https://github.com/karmaniverous/smoz/commit/478e32512bb79aa25b3c54eab3103c0fc5a451e4)
+- npm audit fix [`41bee97`](https://github.com/karmaniverous/smoz/commit/41bee97b5a478ce655ce3fa53532ba7257f344b6)
+- [GH-33] fix: address S16 review findings [`8134685`](https://github.com/karmaniverous/smoz/commit/8134685ac8ef555e21e37944315836c0366fc083)
+- [GH-37] fix(init): skip copied dependencies and metadata [`09007fe`](https://github.com/karmaniverous/smoz/commit/09007fee1ca7237536b7212e92bf5090405e7ed5)
+- [GH-33] chore(deps): require released get-dotenv ^8.0.0 [`88e1a4a`](https://github.com/karmaniverous/smoz/commit/88e1a4a7aa734d8938cd308161d02d2aa055967b)
+- [GH-33] docs: AGENTS.md for the get-dotenv 8 work, and CLAUDE.md [`5508687`](https://github.com/karmaniverous/smoz/commit/5508687eda251e15804f198afd130546ad838b7e)
+- [GH-33] chore(deps): approve dependency install scripts [`722d936`](https://github.com/karmaniverous/smoz/commit/722d936bac14aa7e3e68fa902379c60889931602)
+- [GH-33] fix(init): scaffold the selected working directory [`fe89ff2`](https://github.com/karmaniverous/smoz/commit/fe89ff2eff2ef0786752993ffa1b7e9bf86ff73b)
+- [GH-33] test: cover CLI host in process [`882bb13`](https://github.com/karmaniverous/smoz/commit/882bb13278f24a9f3e7f34e3dd0c544374fb0918)
+
 #### [0.4.1](https://github.com/karmaniverous/smoz/compare/0.4.0...0.4.1)
+
+> 5 November 2026
 
 - fix: path derivation works inside bundled Lambdas [`#30`](https://github.com/karmaniverous/smoz/pull/30)
 - [29] fix(core): derive eventType, endpoints root and name from the caller's path inside bundles [`#29`](https://github.com/karmaniverous/smoz/issues/29)
@@ -10,6 +35,7 @@ All notable changes to this project will be documented in this file. Dates are d
 - npm audit fix [`448509b`](https://github.com/karmaniverous/smoz/commit/448509b98bdf99e390380fa85d36a9d4f40dd841)
 - [29] fix(core): keep a UNC root when joining the functions folder [`749faf7`](https://github.com/karmaniverous/smoz/commit/749faf71598dfc73aa777937c9fcacf733d047a2)
 - [29] docs: derivation works the same bundled or not [`3085e51`](https://github.com/karmaniverous/smoz/commit/3085e5168cfc631f85a5389a741f89b189ee6924)
+- chore: release v0.4.1 [`b520b71`](https://github.com/karmaniverous/smoz/commit/b520b71d482e28c9982e108a21d0bbd91ee0d2c7)
 
 #### [0.4.0](https://github.com/karmaniverous/smoz/compare/0.3.0...0.4.0)
 
