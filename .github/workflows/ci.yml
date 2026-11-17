@@ -28,7 +28,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - run: npm ci
+      - name: Install dependencies with npm 11.19.1
+        run: npx --yes --package npm@11.19.1 npm ci
 
       - name: Lint
         run: npm run lint

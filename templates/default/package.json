@@ -21,22 +21,22 @@
     "@serverless/typescript": "^4.30.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.20.5",
+    "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.7",
     "eslint-plugin-simple-import-sort": "^14.0.0",
-    "eslint": "^10.15.0",
     "jiti": "^2.7.0",
     "prettier": "^3.10.1",
+    "serverless": "^4.46.0",
     "serverless-apigateway-log-retention": "^1.1.0",
     "serverless-deployment-bucket": "^1.6.0",
     "serverless-domain-manager": "^11.0.1",
     "serverless-offline": "^14.8.4",
     "serverless-plugin-common-excludes": "^4.0.0",
-    "serverless": "^4.46.0",
     "tsx": "^4.23.15",
     "typedoc": "^0.28.20",
-    "typescript-eslint": "^8.72.2",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2",
     "vitest": "^5.1.0",
     "zod-openapi": "^6.0.2"
   },
@@ -56,5 +56,14 @@
   "version": "0.0.0",
   "volta": {
     "node": "22.19.0"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "lefthook": true,
+    "serverless": true,
+    "fsevents": true
+  },
+  "overrides": {
+    "node-domexception": "npm:@profoundlogic/node-domexception@1.0.2"
   }
 }

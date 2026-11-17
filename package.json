@@ -253,5 +253,14 @@
     "zod-openapi": {
       "optional": true
     }
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "lefthook": true,
+    "serverless": true,
+    "fsevents": true
+  },
+  "overrides": {
+    "node-domexception": "npm:@profoundlogic/node-domexception@1.0.2"
   }
 }
