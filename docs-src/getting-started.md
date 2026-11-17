@@ -9,7 +9,7 @@ sidebar_position: 2
 ## Quick start (from zero)
 
 ```bash
-npx -p @karmaniverous/get-dotenv@^8.0.0-0 -p @karmaniverous/smoz smoz init
+npx -p @karmaniverous/get-dotenv@^8.0.0 -p @karmaniverous/smoz smoz init
 npx smoz dev -p 3000
 ```
 
@@ -33,10 +33,10 @@ npx smoz add rest/foo/get
 
 ```bash
 npm i @karmaniverous/smoz zod zod-openapi
-npm i -D @karmaniverous/get-dotenv@^8.0.0-0
+npm i -D @karmaniverous/get-dotenv@^8.0.0
 ```
 
-@karmaniverous/get-dotenv (^8.0.0-0) is an optional peer dependency: the smoz CLI needs it, your Lambda code doesn’t. Without it, smoz prints how to install it and exits 1.
+@karmaniverous/get-dotenv (^8.0.0) is an optional peer dependency: the smoz CLI needs it, your Lambda code doesn’t. Without it, smoz prints how to install it and exits 1.
 
 `zod-openapi` (^6) and `@serverless/typescript` (^4.30) are optional peer dependencies: SMOZ's type declarations import their types. Install `@serverless/typescript` as a dev dependency when you type `serverless.ts` or a function's `serverless` config (the template does).
 

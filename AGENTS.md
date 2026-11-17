@@ -41,9 +41,9 @@ npm audit --omit=dev --audit-level=high
 - CI (`.github/workflows/ci.yml`) runs the same gates and must be green on the pushed head, on both the Linux and Windows jobs.
 - A gate that already fails on `main` is not "pre-existing" and is not out of scope. Fix it in the PR, or stop and report it.
 
-### get-dotenv 8 prerelease
+### get-dotenv 8 release
 
-Until the final `@karmaniverous/get-dotenv@8.0.0` release, `package.json`, the template and documented commands use `^8.0.0-0`. The committed lockfile must resolve that range from the npm registry, never from a `file:` path or tarball. CI and clean-install proofs run against the published prerelease selected by that range.
+With `@karmaniverous/get-dotenv@8.0.0` published, `package.json`, the template and documented commands use `^8.0.0`. The committed lockfile must resolve 8.0.0 from the npm registry, never from a `file:` path or tarball. CI and clean-install proofs run against the released package.
 
 ## Finishing step
 

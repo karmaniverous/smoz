@@ -1,8 +1,8 @@
 /* REQUIREMENTS ADDRESSED (TEST)
 - #35: the docs bootstrap a new app with
-  `npx -p @karmaniverous/get-dotenv@^8.0.0-0 -p @karmaniverous/smoz smoz init`;
+  `npx -p @karmaniverous/get-dotenv@^8.0.0 -p @karmaniverous/smoz smoz init`;
   nothing tells users to run the nonexistent `smoz init -i`.
-- Every bootstrap command brings @karmaniverous/get-dotenv ^8.0.0-0, and
+- Every bootstrap command brings @karmaniverous/get-dotenv ^8.0.0, and
   manual installs put this CLI-only peer in devDependencies (get-dotenv
   Decision 36).
 - The `init` options listed in docs-src/cli.md are the command's options.
@@ -17,7 +17,7 @@ import { setupSmozCommands } from '@/src/cli/plugins/smoz';
 import { repoRoot } from '@/src/test/cliBaseline';
 
 const bootstrap =
-  'npx -p @karmaniverous/get-dotenv@^8.0.0-0 -p @karmaniverous/smoz smoz init';
+  'npx -p @karmaniverous/get-dotenv@^8.0.0 -p @karmaniverous/smoz smoz init';
 
 const listMarkdown = (rel: string): string[] =>
   readdirSync(path.join(repoRoot, rel), { withFileTypes: true }).flatMap((e) =>
@@ -46,7 +46,7 @@ describe('docs: bootstrap and install commands (#35)', () => {
     'docs-src/cli.md',
     'docs-src/getting-started.md',
     'docs-src/why-smoz.md',
-  ])('%s bootstraps with get-dotenv ^8.0.0-0', (rel) => {
+  ])('%s bootstraps with get-dotenv ^8.0.0', (rel) => {
     expect(read(rel)).toContain(bootstrap);
   });
 
@@ -58,7 +58,7 @@ describe('docs: bootstrap and install commands (#35)', () => {
     ]) {
       const content = read(rel);
       expect(content).toContain('npm i @karmaniverous/smoz zod zod-openapi');
-      expect(content).toContain('npm i -D @karmaniverous/get-dotenv@^8.0.0-0');
+      expect(content).toContain('npm i -D @karmaniverous/get-dotenv@^8.0.0');
       expect(content).not.toMatch(
         /npm i @karmaniverous\/smoz .*@karmaniverous\/get-dotenv/,
       );

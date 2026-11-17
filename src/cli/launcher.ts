@@ -9,7 +9,7 @@
  */
 
 /** The get-dotenv range smoz needs. */
-const getDotenv = '@karmaniverous/get-dotenv@^8.0.0-0';
+const getDotenv = '@karmaniverous/get-dotenv@^8.0.0';
 
 /**
  * The install hint printed when get-dotenv is missing.
@@ -19,7 +19,7 @@ const getDotenv = '@karmaniverous/get-dotenv@^8.0.0-0';
  */
 export const getDotenvInstallHint = (bin: string, pkg: string): string =>
   [
-    `${bin} needs @karmaniverous/get-dotenv ^8.0.0-0. Install it:`,
+    `${bin} needs @karmaniverous/get-dotenv ^8.0.0. Install it:`,
     `  local:  npm i -D ${getDotenv}`,
     `  global: npm i -g ${getDotenv}`,
     `  npx:    npx -p ${getDotenv} -p ${pkg} ${bin}`,
