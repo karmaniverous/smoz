@@ -26,6 +26,11 @@ describe('CLI: register', () => {
   it('generates stable, POSIX-sorted imports and is idempotent', async () => {
     const root = makeSandbox();
     try {
+      writeFileSync(
+        join(root, '.prettierrc.json'),
+        JSON.stringify({ singleQuote: true }),
+        'utf8',
+      );
       // First run creates/generated register files
       const first = await runRegister(root);
       expect(first.wrote.length).toBeGreaterThan(0);
@@ -41,12 +46,8 @@ describe('CLI: register', () => {
       const oai = readFileSync(oaiPath, 'utf8');
       // POSIX-form imports and stable substrings
       // Relative from app/generated → app/functions/...
-      expect(fns).toMatch(
-        /import ['"]\.\.\/functions\/rest\/hello\/get\/lambda['"];?/,
-      );
-      expect(oai).toMatch(
-        /import ['"]\.\.\/functions\/rest\/hello\/get\/openapi['"];?/,
-      );
+      expect(fns).toContain("import '../functions/rest/hello/get/lambda';");
+      expect(oai).toContain("import '../functions/rest/hello/get/openapi';");
       // Second run: No changes
       const second = await runRegister(root);
       expect(second.wrote.length).toBe(0);

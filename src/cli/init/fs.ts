@@ -2,6 +2,8 @@ import { existsSync } from 'node:fs';
 import { promises as fs } from 'node:fs';
 import { dirname, join } from 'node:path';
 
+const EXCLUDED_TEMPLATE_DIRECTORIES = new Set(['.git', 'node_modules']);
+
 export const writeIfAbsent = async (
   outFile: string,
   content: string,
@@ -20,6 +22,7 @@ export const walk = async (
   for (const ent of entries) {
     const p = join(dir, ent.name);
     if (ent.isDirectory()) {
+      if (EXCLUDED_TEMPLATE_DIRECTORIES.has(ent.name)) continue;
       await walk(p, out);
     } else if (ent.isFile()) {
       out.push(p);

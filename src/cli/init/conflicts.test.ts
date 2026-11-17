@@ -40,6 +40,46 @@ describe('init/conflicts.copyDirWithConflicts', () => {
     }
   });
 
+  it('does not copy node_modules or .git directories at any depth', async () => {
+    const src = mkSand('src');
+    const dst = mkSand('dst');
+    try {
+      const files = [
+        ['node_modules', 'root-package', 'index.js'],
+        ['nested', 'node_modules', 'nested-package', 'index.js'],
+        ['.git', 'config'],
+        ['nested', '.git', 'objects', 'data'],
+        ['nested', '.cache', 'kept.txt'],
+        ['nested', 'dist', 'kept.txt'],
+      ];
+      for (const segments of files) {
+        const file = join(src, ...segments);
+        mkdirSync(dirname(file), { recursive: true });
+        writeFileSync(file, segments.join('/'), 'utf8');
+      }
+
+      const created: string[] = [];
+      await copyDirWithConflicts(src, dst, created, [], [], {
+        conflict: 'overwrite',
+      });
+
+      expect(existsSync(join(dst, 'node_modules'))).toBe(false);
+      expect(existsSync(join(dst, 'nested', 'node_modules'))).toBe(false);
+      expect(existsSync(join(dst, '.git'))).toBe(false);
+      expect(existsSync(join(dst, 'nested', '.git'))).toBe(false);
+      expect(
+        readFileSync(join(dst, 'nested', '.cache', 'kept.txt'), 'utf8'),
+      ).toBe('nested/.cache/kept.txt');
+      expect(
+        readFileSync(join(dst, 'nested', 'dist', 'kept.txt'), 'utf8'),
+      ).toBe('nested/dist/kept.txt');
+      expect(created).toHaveLength(2);
+    } finally {
+      rmSync(src, { recursive: true, force: true });
+      rmSync(dst, { recursive: true, force: true });
+    }
+  });
+
   it('writes .example on conflict when policy=example', async () => {
     const src = mkSand('src');
     const dst = mkSand('dst');
