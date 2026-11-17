@@ -46,7 +46,7 @@ npx smoz init --yes
 Scaffolds a new app:
 
 - Shared “project” boilerplate
-- Selected template (default: default)
+- Selected template (default: default); `.git` and `node_modules` directories are excluded at every depth
 - Seeds empty register placeholders in `app/generated/`
 
 Options:
