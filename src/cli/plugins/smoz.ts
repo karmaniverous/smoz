@@ -30,7 +30,9 @@ export const setupSmozCommands = (cli: GetDotenvCliPublic): void => {
     .option('--install <pm>', 'explicit package manager (npm|pnpm|yarn|bun)')
     .option('--conflict <policy>', 'overwrite|example|skip|ask')
     .action(async (opts: Record<string, unknown>) => {
-      const root = repoRoot();
+      // Bootstrap the directory the user selected. Looking up a package root
+      // here can escape an empty cwd into an unrelated ancestor package.
+      const root = process.cwd();
       const template =
         typeof opts.template === 'string' ? opts.template : 'default';
 

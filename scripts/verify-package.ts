@@ -8,6 +8,8 @@
  * - `@karmaniverous/smoz/cli`, the only entry that loads get-dotenv, fails to
  *   load with get-dotenv's module-not-found error;
  * - the `smoz` bin prints the three-route install hint and exits 1;
+ * - with get-dotenv installed, the packed bin scaffolds into an empty cwd even
+ *   when an ancestor directory has its own package.json;
  * - `tsc` with `skipLibCheck: false` type-checks a consumer of the main entry;
  * - zod is imported, not bundled.
  *
@@ -232,8 +234,47 @@ try {
     );
   if (bundledZod.length) fail(`zod is bundled in ${bundledZod.join(', ')}`);
 
+  // 7. With get-dotenv present, the packed bin scaffolds into the requested
+  // empty cwd, not the nearest ancestor that happens to contain package.json.
+  npm(
+    [
+      'install',
+      '--no-audit',
+      '--no-fund',
+      '--ignore-scripts',
+      '--prefer-offline',
+      `@karmaniverous/get-dotenv@${installedVersion('@karmaniverous/get-dotenv')}`,
+    ],
+    app,
+  );
+  const scaffold = path.join(app, 'empty-scaffold');
+  mkdirSync(scaffold);
+  const init = node(scaffold, [
+    path.join(
+      app,
+      'node_modules',
+      '@karmaniverous',
+      'smoz',
+      'dist',
+      'cli',
+      'index.mjs',
+    ),
+    '--debug',
+    'init',
+    '--yes',
+    '--no-install',
+  ]);
+  if (init.status !== 0)
+    fail(
+      `packed init exited ${String(init.status)}:\n${init.stderr}${init.stdout}`,
+    );
+  if (!existsSync(path.join(scaffold, 'package.json')))
+    fail(
+      `packed init created no package.json in its cwd:\n${init.stderr}${init.stdout}`,
+    );
+
   console.log(
-    'verify:package: main entry, ./cli, bin hint, tsc (skipLibCheck: false) and zod external all OK without get-dotenv',
+    'verify:package: main entry, ./cli, bin hint, packed init cwd, tsc (skipLibCheck: false) and zod external all OK',
   );
 } finally {
   rmSync(work, { recursive: true, force: true });
