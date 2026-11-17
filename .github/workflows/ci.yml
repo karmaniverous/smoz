@@ -28,7 +28,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - run: npm ci
+      - name: Install dependencies with npm 11.19.1
+        run: npx --yes --package npm@11.19.1 npm ci
 
       - name: Lint
         run: npm run lint
@@ -49,6 +50,11 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # Packed package without get-dotenv (an optional peer): main entry,
+      # ./cli, the bin's install hint, tsc with skipLibCheck: false.
+      - name: Verify package
+        run: npm run verify:package
 
       - name: Template typecheck
         run: npm run templates:typecheck

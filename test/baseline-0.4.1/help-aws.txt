@@ -1,0 +1,22 @@
+smoz v7.0.11
+
+
+Usage: smoz aws [options] [args...]
+
+Establish an AWS session and optionally forward to the AWS CLI
+
+Options:
+  --default-region <string>        fallback region
+  --login-on-demand                attempt aws sso login on-demand
+  --no-login-on-demand             disable sso login on-demand (default)
+  --profile <string>               AWS profile name
+  --profile-fallback-key <string>  fallback dotenv/config key for profile
+                                   (default: "AWS_PROFILE")
+  --profile-key <string>           dotenv/config key for local profile (default:
+                                   "AWS_LOCAL_PROFILE")
+  --region <string>                AWS region
+  --region-key <string>            dotenv/config key for region (default:
+                                   "AWS_REGION")
+  --strategy <string>              credential acquisition strategy:
+                                   cli-export|none (default: "cli-export")
+--- exit 0 ---

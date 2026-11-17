@@ -1,0 +1,10 @@
+smoz v7.0.11
+
+
+Usage: smoz add [options] <spec>
+
+Scaffold a function under app/functions
+
+Arguments:
+  spec  spec: <eventType>/<segments...>/<method>
+--- exit 0 ---

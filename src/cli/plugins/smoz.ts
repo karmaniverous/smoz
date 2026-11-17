@@ -7,6 +7,7 @@
 import {
   definePlugin,
   type GetDotenvCliPublic,
+  type PluginWithInstanceHelpers,
 } from '@karmaniverous/get-dotenv/cliHost';
 import { packageDirectorySync } from 'package-directory';
 
@@ -29,7 +30,9 @@ export const setupSmozCommands = (cli: GetDotenvCliPublic): void => {
     .option('--install <pm>', 'explicit package manager (npm|pnpm|yarn|bun)')
     .option('--conflict <policy>', 'overwrite|example|skip|ask')
     .action(async (opts: Record<string, unknown>) => {
-      const root = repoRoot();
+      // Bootstrap the directory the user selected. Looking up a package root
+      // here can escape an empty cwd into an unrelated ancestor package.
+      const root = process.cwd();
       const template =
         typeof opts.template === 'string' ? opts.template : 'default';
 
@@ -143,7 +146,12 @@ export const setupSmozCommands = (cli: GetDotenvCliPublic): void => {
     );
 };
 
-export const smozPlugin = () =>
+/**
+ * The smoz get-dotenv plugin: mounts init, add, register, openapi and dev
+ * under the `smoz` namespace of a host CLI (`vc smoz openapi --verbose`).
+ * Exported from `@karmaniverous/smoz/cli`.
+ */
+export const smozPlugin = (): PluginWithInstanceHelpers =>
   definePlugin({
     ns: 'smoz',
     setup: setupSmozCommands,

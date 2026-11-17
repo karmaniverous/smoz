@@ -1,0 +1,7 @@
+smoz v7.0.11
+
+
+Usage: smoz register [options]
+
+Generate side-effect register files
+--- exit 0 ---

@@ -8,11 +8,24 @@ sidebar_position: 3
 
 End‑to‑end in one sitting: init → add → register → openapi → package → curl.
 
+## 0) Install
+
+In an empty directory, install SMOZ and the packages it needs:
+
+```bash
+npm i @karmaniverous/smoz zod zod-openapi
+npm i -D @karmaniverous/get-dotenv@^8.0.0
+```
+
+`@karmaniverous/get-dotenv` (^8.0.0) is an optional peer dependency: the `smoz` CLI needs it, your Lambda code doesn't. Without it, `smoz` prints how to install it and exits 1.
+
 ## 1) Initialize a new app
 
 ```bash
 npx smoz init --yes
 ```
+
+`init` merges the template's `package.json` into yours (adding `"type": "module"`, scripts and dependencies) and installs the dependencies.
 
 This scaffolds:
 

@@ -1,0 +1,57 @@
+# git-cliff: GitHub release notes for the version being released (#18).
+# release-it runs `git-cliff --tag ${version} ${latestTag}..HEAD --strip header`
+# (package.json, release-it.github.releaseNotes). CHANGELOG.md is still
+# written by auto-changelog.
+
+[changelog]
+header = """
+# Changelog\n
+All notable changes to this project will be documented in this file.\n
+"""
+body = """
+{%- macro remote_url() -%}
+  https://github.com/karmaniverous/smoz
+{%- endmacro -%}
+
+{% if version -%}
+    ## [{{ version }}]({{ self::remote_url() }}/compare/{{ previous.version }}...{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else -%}
+    ## [Unreleased]({{ self::remote_url() }}/compare/{{ previous.version }}...HEAD)
+{% endif -%}
+
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | striptags | trim | upper_first }}
+    {% for commit in commits %}
+        - {% if commit.scope %}*({{ commit.scope }})* {% endif %}{% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}]({{ self::remote_url() }}/commit/{{ commit.id }}))\
+    {% endfor %}
+{% endfor %}\n
+"""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+# The add-issue commit hook prefixes messages with the branch's issue
+# ("[GH-33] feat: ..."); strip it so the conventional type is parsed.
+commit_preprocessors = [
+  { pattern = '^\[[^\]]+\]\s*', replace = "" },
+]
+commit_parsers = [
+  { message = "^feat", group = "<!-- 0 -->Features" },
+  { message = "^fix", group = "<!-- 1 -->Bug Fixes" },
+  { message = "^perf", group = "<!-- 2 -->Performance" },
+  { message = "^refactor", group = "<!-- 3 -->Refactor" },
+  { message = "^doc", group = "<!-- 4 -->Documentation" },
+  { message = "^style", group = "<!-- 5 -->Styling" },
+  { message = "^test", group = "<!-- 6 -->Testing" },
+  { message = "^chore: release", skip = true },
+  { message = "^chore|^ci", group = "<!-- 7 -->Miscellaneous Tasks" },
+  { body = ".*security", group = "<!-- 8 -->Security" },
+]
+protect_breaking_commits = false
+filter_commits = false
+# smoz tags are bare versions (0.4.1 or numeric prereleases such as 0.5.0-0),
+# release-it's default tagName.
+tag_pattern = "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9]+)?$"
+sort_commits = "newest"
