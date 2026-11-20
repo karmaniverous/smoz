@@ -13,7 +13,7 @@ export const ENV_CONFIG = Symbol.for('szo.envConfig');
  *
  * @typeParam GlobalParamsSchema - global params schema
  * @typeParam StageParamsSchema  - stage params schema
- * @remarks The brand is read by {@link runtime/wrapHandler.wrapHandler | wrapHandler} to build the typed env object.
+ * @remarks The brand is read by `wrapHandler` to build the typed env object.
  */
 export interface EnvAttached<
   GlobalParamsSchema extends ZodObject<ZodRawShape>,
@@ -25,7 +25,7 @@ export interface EnvAttached<
   };
 }
 
-/** @see {@link runtime/wrapHandler.wrapHandler | wrapHandler} */
+/** @see `wrapHandler` (src/runtime/wrapHandler.ts) */
 export function getEnvFromFunctionConfig<
   GlobalParamsSchema extends ZodObject<ZodRawShape>,
   StageParamsSchema extends ZodObject<ZodRawShape>,
@@ -49,7 +49,7 @@ export function getEnvFromFunctionConfig<
 
 /**
  * Curried builder that binds application env schemas and keys to a function config.
- * - First call with env { global: { paramsSchema, envKeys }, stage: { paramsSchema, envKeys } }.
+ * - First call with env `{ global: { paramsSchema, envKeys }, stage: { paramsSchema, envKeys } }`.
  * - Then provide the per-function config object; returns a branded FunctionConfig.
  *
  * EventSchema/ResponseSchema are inferred from the functionConfig argument.

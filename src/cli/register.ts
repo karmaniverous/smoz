@@ -1,7 +1,7 @@
 /**
  * SMOZ CLI: register
  *
- * Scan app/functions/** for {lambda,openapi,serverless}.ts and generate
+ * Scan `app/functions/**` for `{lambda,openapi,serverless}.ts` and generate
  * side-effect import modules under app/generated/:
  *  - register.functions.ts
  *  - register.openapi.ts
@@ -77,7 +77,7 @@ const collect = async (root: string): Promise<Buckets> => {
 
 /**
  * Build ESM import lines using POSIX-relative specifiers from the generated
- * file directory (app/generated) to each target file. Avoids "@/" alias so
+ * file directory (app/generated) to each target file. Avoids the `@/` alias so
  * dynamic import in the inline server works reliably under tsx.
  */
 const makeImports = (root: string, outDir: string, files: string[]): string[] =>

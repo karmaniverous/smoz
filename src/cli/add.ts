@@ -3,8 +3,8 @@
  *
  * Scaffold a function under app/functions.
  * Usage spec:
- * - HTTP:    <eventType>/<segments...>/<method>
- * - non-HTTP:<eventType>/<segments...>
+ * - HTTP:    `<eventType>/<segments...>/<method>`
+ * - non-HTTP:`<eventType>/<segments...>`
  *
  * Creates:
  * - HTTP: lambda.ts, handler.ts, openapi.ts
@@ -41,7 +41,7 @@ const writeIfAbsent = async (
   return { created: true };
 };
 
-/** True if a segment encodes a path param (:id | {id} | [id]). */
+/** True if a segment encodes a path param (`:id | {id} | [id]`). */
 const isParamSeg = (s: string): boolean =>
   s.startsWith(':') ||
   (s.startsWith('{') && s.endsWith('}')) ||

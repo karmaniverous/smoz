@@ -2,7 +2,7 @@
  * baseEventTypeMapSchema
  * - Schema-first companion to BaseEventTypeMap.
  * - Now includes a Step Functions event with an optional Payload wrapper.
- * - Ensures z.infer<typeof baseEventTypeMapSchema> === BaseEventTypeMap.
+ * - Ensures `z.infer<typeof baseEventTypeMapSchema> === BaseEventTypeMap`.
  *
  * @remarks * Consumers typically extend this schema when creating an App to add
  * project‑local event tokens (e.g., 'step').

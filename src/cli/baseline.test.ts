@@ -34,30 +34,35 @@ describe('CLI baseline (smoz 0.4.1)', () => {
       const listed = new Set(
         departures.filter((d) => d.case === c.id).map((d) => d.part),
       );
-      for (const part of new Set([
-        ...Object.keys(before),
-        ...Object.keys(after),
-      ])) {
-        if (listed.has(part)) {
-          // A listed departure must still be a departure.
-          expect(after[part], `${c.id} ${part} (stale departure)`).not.toBe(
-            before[part],
-          );
-        } else {
-          expect(after[part], `${c.id} ${part}`).toBe(before[part]);
-        }
-      }
-      for (const part of listed) {
-        expect(part in before || part in after, `${c.id} ${part}`).toBe(true);
-      }
+      const parts = [
+        ...new Set([...Object.keys(before), ...Object.keys(after)]),
+      ];
+      const pick = (
+        rec: Record<string, string>,
+        keep: (p: string) => boolean,
+      ) => Object.fromEntries(parts.filter(keep).map((p) => [p, rec[p]]));
+      // Every part not listed as a departure is unchanged (diffs show values).
+      expect(pick(after, (p) => !listed.has(p))).toEqual(
+        pick(before, (p) => !listed.has(p)),
+      );
+      // A listed departure must still be a departure, of a part that exists.
+      expect(
+        [...listed].filter(
+          (p) => !(p in before || p in after) || after[p] === before[p],
+        ),
+      ).toEqual([]);
     },
   );
 
   it('lists departures only for known cases, each with a note', () => {
     const ids = new Set(baselineCases.map((c) => c.id));
-    for (const d of departures) {
-      expect(ids.has(d.case), d.case).toBe(true);
-      expect(d.note.trim()).not.toBe('');
-    }
+    const unknownCases = departures
+      .filter((d) => !ids.has(d.case))
+      .map((d) => d.case);
+    const emptyNoteCases = departures
+      .filter((d) => d.note.trim() === '')
+      .map((d) => d.case);
+    expect(unknownCases).toEqual([]);
+    expect(emptyNoteCases).toEqual([]);
   });
 });

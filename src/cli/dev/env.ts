@@ -12,7 +12,7 @@ export const inferDefaultStage = (verbose: boolean): string => {
 /**
  * Resolve the effective stage for dev according to precedence:
  * 1) CLI --stage
- * 2) getdotenv.config.json -> plugins.smoz.stage (string)
+ * 2) `getdotenv.config.json` → `plugins.smoz.stage` (string)
  * 3) process.env.STAGE
  * 4) inferDefaultStage() fallback ("dev")
  *

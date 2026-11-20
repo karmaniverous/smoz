@@ -147,15 +147,7 @@
     },
     "hooks": {
       "after:init": [
-        "npm run lint",
-        "npm run typecheck",
-        "npm run test",
-        "npm run knip",
-        "npm run build",
-        "npm run verify:package",
-        "npm run templates:typecheck",
-        "npm run templates:lint",
-        "npm run format:check"
+        "npm run verify"
       ],
       "after:release": [
         "git switch -c release/${version}",
@@ -201,7 +193,8 @@
     "templates:lint:fix": "tsx scripts/templates-lint.ts --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify:package": "tsx scripts/verify-package.ts"
+    "verify:package": "tsx scripts/verify-package.ts",
+    "verify": "npm run lint && npm run typecheck && git diff --exit-code && npm test && npm run knip && npm run build && npm run verify:package && npm run templates:typecheck && npm run templates:lint && npm run format:check && npm run docs"
   },
   "type": "module",
   "version": "0.6.0",

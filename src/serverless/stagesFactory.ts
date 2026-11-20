@@ -31,7 +31,7 @@ export type StagesFactoryOutput<
   GlobalParams extends Record<string, unknown>,
   StageParams extends Record<string, unknown>,
 > = {
-  /** Serverless 'params' object: { default: { params: GlobalParams }, <stage>: { params: StageParams } } */
+  /** Serverless 'params' object: `{ default: { params: GlobalParams }, <stage>: { params: StageParams } }` */
   stages: { default: { params: GlobalParams } } & {
     [K in keyof Dict<StageParams>]: { params: StageParams };
   };

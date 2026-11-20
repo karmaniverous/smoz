@@ -28,7 +28,7 @@ export const getDotenvInstallHint = (bin: string, pkg: string): string =>
 /**
  * True when `error` is Node's failure to resolve the get-dotenv package
  * itself (`ERR_MODULE_NOT_FOUND`, "Cannot find package
- * '@karmaniverous/get-dotenv'"). A different missing module, even one
+ * '\@karmaniverous/get-dotenv'"). A different missing module, even one
  * imported from inside get-dotenv, is not.
  */
 export const isMissingGetDotenv = (error: unknown): boolean => {

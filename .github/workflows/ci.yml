@@ -31,42 +31,11 @@ jobs:
       - name: Install dependencies with npm 11.19.1
         run: npx --yes --package npm@11.19.1 npm ci
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      # typecheck regenerates app/generated registers; fail if the committed
-      # copies are stale.
-      - name: Generated files up to date
-        run: git diff --exit-code
-
-      - name: Test
-        run: npm test
-
-      - name: Knip
-        run: npm run knip
-
-      - name: Build
-        run: npm run build
-
-      # Packed package without get-dotenv (an optional peer): main entry,
-      # ./cli, the bin's install hint, tsc with skipLibCheck: false.
-      - name: Verify package
-        run: npm run verify:package
-
-      - name: Template typecheck
-        run: npm run templates:typecheck
-
-      - name: Template lint
-        run: npm run templates:lint
-
-      - name: Format check
-        run: npm run format:check
-
-      - name: Docs
-        run: npm run docs
+      # Every check, in the order release-it's after:init runs them: lint,
+      # typecheck, generated files up to date, test, knip, build, packed
+      # package, template typecheck and lint, format, docs.
+      - name: Verify
+        run: npm run verify
 
       - name: Audit (production dependencies, high and critical)
         run: npm audit --omit=dev --audit-level=high

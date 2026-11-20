@@ -49,10 +49,12 @@ type EnvKeysOf<F extends { handler: (business: never) => unknown }> =
     ? keyof E
     : never;
 
-/** Assert on the `options.env` type of a defined function. */
-const envOf = <F extends { handler: (business: never) => unknown }>(fn: F) => {
+/** The `options.env` type of a defined function, as a type-only value for expectTypeOf. */
+const envOf = <F extends { handler: (business: never) => unknown }>(
+  fn: F,
+): EnvOf<F> => {
   expect(typeof fn.handler).toBe('function');
-  return expectTypeOf<EnvOf<F>>();
+  return undefined as unknown as EnvOf<F>;
 };
 
 const savedEnv = { ...process.env };
@@ -70,7 +72,7 @@ describe('options.env typing (#39 D3)', () => {
       callerModuleUrl: import.meta.url,
       endpointsRootAbs: root,
     });
-    envOf(fn).toEqualTypeOf<{
+    expectTypeOf(envOf(fn)).toEqualTypeOf<{
       REGION: string;
       STAGE: string;
       PROFILE: string;
@@ -104,7 +106,7 @@ describe('options.env typing (#39 D3)', () => {
       callerModuleUrl: import.meta.url,
       endpointsRootAbs: root,
     });
-    envOf(fn).toEqualTypeOf<{
+    expectTypeOf(envOf(fn)).toEqualTypeOf<{
       REGION: string;
       STAGE: string;
       PROFILE: string;
