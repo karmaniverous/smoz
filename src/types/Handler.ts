@@ -83,7 +83,8 @@ export type HandlerOptions<
  * Business handler signature used by SMOZ.
  *
  * @typeParam EventSchema - validated before the handler; shapes the event
- * @typeParam ResponseSchema - validated after the handler; types the return
+ * @typeParam ResponseSchema - validated after the handler; the handler returns
+ * the schema's input (`z.input`), which is what the runtime validates and sends
  * @typeParam EventType - the base event type
  * @typeParam Env - the typed env in `options.env`
  * @returns the raw payload; the wrapper applies HTTP shaping when applicable.
@@ -98,5 +99,5 @@ export type Handler<
   context: Context,
   options: HandlerOptions<Env>,
 ) => Promise<
-  ResponseSchema extends z.ZodType ? z.infer<ResponseSchema> : unknown
+  ResponseSchema extends z.ZodType ? z.input<ResponseSchema> : unknown
 >;

@@ -23,7 +23,16 @@ describe('Handler type', () => {
   it('returns a promise of the response schema payload', () => {
     expectTypeOf<
       ReturnType<Handler<E, R, APIGatewayProxyEvent>>
-    >().toEqualTypeOf<Promise<z.infer<R>>>();
+    >().toEqualTypeOf<Promise<z.input<R>>>();
+  });
+
+  it('returns the response schema input, which the runtime validates (#39)', () => {
+    type Res = z.ZodObject<{
+      n: z.ZodPipe<z.ZodString, z.ZodTransform<number, string>>;
+    }>;
+    expectTypeOf<ReturnType<Handler<undefined, Res, SQSEvent>>>().toEqualTypeOf<
+      Promise<{ n: string }>
+    >();
   });
 
   it('returns a promise of unknown without a response schema', () => {
