@@ -134,8 +134,10 @@ For SQS/Step/etc., author the same way but skip HTTP options:
 // lambda.ts (non‑HTTP)
 export const fn = app.defineFunction({
   eventType: 'sqs',
-  eventSchema: z.any(),
-  responseSchema: z.any().optional(),
+  // Validated before the handler (a failure throws); omit to skip validation.
+  eventSchema: z.object({
+    Records: z.array(z.object({ body: z.string() }).loose()),
+  }),
   callerModuleUrl: import.meta.url,
 });
 ```

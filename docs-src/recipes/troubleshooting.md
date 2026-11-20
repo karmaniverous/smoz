@@ -54,6 +54,7 @@ rimraf .tsbuild .rollup.cache dist
 ## Validation 400s
 
 - The HTTP stack maps Zod validation failures to 400. Check your `eventSchema` and `responseSchema`.
+- Non-HTTP functions (SQS, Step Functions, Cognito, ...) validate too: an invalid event throws `Invalid event` before the handler, an invalid response throws `Invalid response` after it. The error carries the Zod `issues`. See [Validation and the handler event](./validation.md).
 
 ## HEAD routes
 

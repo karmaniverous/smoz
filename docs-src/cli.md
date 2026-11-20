@@ -111,12 +111,12 @@ export const eventSchema = z.object({
 });
 
 export const handler = fn.handler(async (event) => {
-  const id = event.pathParameters.id; // typed via ShapedEvent
-  return { ok: true } as const;
+  const id = event.pathParameters.id; // string: the schema's parsed output
+  return { ok: true };
 });
 ```
 
-- Numeric id (coerce to number for handler convenience):
+- Numeric id (coerce to number; the handler receives a `number` at runtime, not just in its type). See [Validation and the handler event](./recipes/validation.md):
 
 ```ts
 export const eventSchema = z.object({
