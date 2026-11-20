@@ -13,7 +13,7 @@ describe('multipart body parser: package not installed', () => {
     vi.doMock('@middy/http-multipart-body-parser', () => {
       throw new Error('Cannot find package');
     });
-    const { makeMultipartBodyParser } = await import('./defaultSteps');
+    const { makeMultipartBodyParser } = await import('./bodySteps');
     const step = makeMultipartBodyParser({});
 
     const event = createApiGatewayV1Event('POST', {
