@@ -25,6 +25,8 @@ const entryPoints = {
   // get-dotenv plugin entry (`@karmaniverous/smoz/cli`). The only entry that
   // loads get-dotenv, an optional peer.
   cli: 'src/cli.ts',
+  // ESLint plugin (@karmaniverous/smoz/eslint): rules for smoz apps.
+  eslint: 'src/eslint.ts',
 };
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

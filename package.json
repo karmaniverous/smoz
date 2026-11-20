@@ -93,6 +93,10 @@
       "types": "./dist/cli.d.ts",
       "default": "./dist/mjs/cli.js"
     },
+    "./eslint": {
+      "types": "./dist/eslint.d.ts",
+      "default": "./dist/mjs/eslint.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -214,6 +218,7 @@
     "@middy/http-multipart-body-parser": "^7.9.2",
     "@middy/http-response-serializer": "^7.7.0",
     "@serverless/typescript": "^4.30.0",
+    "eslint": ">=9.0.0",
     "zod-openapi": "^6.0.0"
   },
   "peerDependenciesMeta": {
@@ -248,6 +253,9 @@
       "optional": true
     },
     "@serverless/typescript": {
+      "optional": true
+    },
+    "eslint": {
       "optional": true
     },
     "zod-openapi": {
