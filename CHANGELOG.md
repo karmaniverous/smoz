@@ -2,7 +2,32 @@
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
 
+#### [0.6.0](https://github.com/karmaniverous/smoz/compare/0.5.0...0.6.0)
+
+- feat!: typed handler events and checked responses without casts (#39) [`#40`](https://github.com/karmaniverous/smoz/pull/40)
+- [GH-39] test(core): split defineFunction tests under the 300-line limit [`0a95cc4`](https://github.com/karmaniverous/smoz/commit/0a95cc467190d42bde1f406aae46f163f2c74214)
+- [GH-39] test(http): split compute and multipart tests under the 300-line limit [`f95cca5`](https://github.com/karmaniverous/smoz/commit/f95cca5688c52b3de8cf958c882898d485e55958)
+- [GH-39] updated dependencies [`7f8a883`](https://github.com/karmaniverous/smoz/commit/7f8a883486329baaedfd9d21d09db4d4a24735f0)
+- [GH-39] refactor(http): split error and body steps out of defaultSteps; statusForError [`9974502`](https://github.com/karmaniverous/smoz/commit/99745023b769ec5040e8207a12bb1bb672e30e2b)
+- [GH-39] feat(types)!: shape handler events from the schema output; type options.env per function [`8183cef`](https://github.com/karmaniverous/smoz/commit/8183ceff96acfcfba5e171fd023d8fb04b8d1415)
+- [GH-39] fix(runtime)!: handlers receive the parsed event; non-HTTP functions enforce their schemas [`3b0e2d7`](https://github.com/karmaniverous/smoz/commit/3b0e2d7e4bbc5e89ad58b6e79eb1ecb2111a5812)
+- [GH-39] docs(examples): walkthroughs match the CLI; add rest-step [`68b99b0`](https://github.com/karmaniverous/smoz/commit/68b99b01f9c287a0a7c542341a4654c35cc8a20c)
+- [GH-39] fix(types): env key parameters default to never; shorten App.create overloads [`af14d02`](https://github.com/karmaniverous/smoz/commit/af14d0289ae32565d4880ce3caf17cf9c4c5563f)
+- [GH-39] feat(template)!: no casts in the template or smoz add stubs; scaffold a literal eventType [`5310350`](https://github.com/karmaniverous/smoz/commit/5310350561320144c23d97bcf4f82a8aba35f440)
+- [GH-39] docs: validation recipe; typed events, parsed overlay, non-HTTP failures, typed env [`f778f03`](https://github.com/karmaniverous/smoz/commit/f778f03b8f1680f4897efeebebdd6d6304e238f1)
+- [GH-39] refactor(core): move AppInit to its own module [`5b264c6`](https://github.com/karmaniverous/smoz/commit/5b264c620a7170c1cb2aa7ae64b684b7561e1197)
+- [GH-39] fix(http)!: answer a response that fails responseSchema with 500, not 400 [`e8654ce`](https://github.com/karmaniverous/smoz/commit/e8654ce5bae58516118987d49df299c347ee4424)
+- [GH-39] fix(runtime): never log validated payloads; pin that responses are returned untransformed [`6b4e908`](https://github.com/karmaniverous/smoz/commit/6b4e908a2700ce701d28e08a37841549167b8eed)
+- [GH-39] fix(types): overlay only declared schema keys (z.object({}) and loose objects keep the base event) [`ed0d6d1`](https://github.com/karmaniverous/smoz/commit/ed0d6d16f0033308bcd5d150c1d6fb9bab3a2d69)
+- [GH-39] docs: fix validation recipe (400 for responses, canonical header names, every token); scaffold writes eventType [`0ed977b`](https://github.com/karmaniverous/smoz/commit/0ed977b1e9ba72274706a1eeceea7e5f7141289c)
+- [GH-39] fix(cli): smoz add formats with the app's own Prettier config [`0450370`](https://github.com/karmaniverous/smoz/commit/04503701547dae5d2bfae983b7d96f0e5c7e55ef)
+- [GH-39] test(template): fail the typecheck when an endpoint event widens or collapses to never [`da5435e`](https://github.com/karmaniverous/smoz/commit/da5435e0e8787ac6b6c1400b0239805e156b46b8)
+- [GH-39] feat(types)!: handlers return the response schema input [`1a7206d`](https://github.com/karmaniverous/smoz/commit/1a7206d9845888f444c257baf8d706b48f7b93ea)
+- [GH-39] test(baseline): list the init smoz dependency as a departure (main CI red since v0.5.0) [`18a212c`](https://github.com/karmaniverous/smoz/commit/18a212c0c07814eb3865a43702d6eebc3e3dd9d5)
+
 #### [0.5.0](https://github.com/karmaniverous/smoz/compare/0.4.1...0.5.0)
+
+> 17 November 2026
 
 - [GH-37] fix(init): skip template dependencies and repository metadata [`#38`](https://github.com/karmaniverous/smoz/pull/38)
 - feat: smoz on get-dotenv 8 (optional peer, ./cli, launcher bin) [`#36`](https://github.com/karmaniverous/smoz/pull/36)
@@ -24,6 +49,7 @@ All notable changes to this project will be documented in this file. Dates are d
 - [GH-33] chore(deps): approve dependency install scripts [`722d936`](https://github.com/karmaniverous/smoz/commit/722d936bac14aa7e3e68fa902379c60889931602)
 - [GH-33] fix(init): scaffold the selected working directory [`fe89ff2`](https://github.com/karmaniverous/smoz/commit/fe89ff2eff2ef0786752993ffa1b7e9bf86ff73b)
 - [GH-33] test: cover CLI host in process [`882bb13`](https://github.com/karmaniverous/smoz/commit/882bb13278f24a9f3e7f34e3dd0c544374fb0918)
+- chore: release v0.5.0 [`968791f`](https://github.com/karmaniverous/smoz/commit/968791fcac6db150825c3f2736fe7da16a09dcbe)
 
 #### [0.4.1](https://github.com/karmaniverous/smoz/compare/0.4.0...0.4.1)
 
