@@ -92,6 +92,20 @@ describe('ShapedEvent: parsed output replaces declared keys (#39)', () => {
     >().not.toBeNever();
   });
 
+  it('keeps the base event for an empty object schema (Record<string, never> output)', () => {
+    shapedOver<APIGatewayProxyEvent>()(z.object({}))
+      .toHaveProperty('httpMethod')
+      .toEqualTypeOf<string>();
+  });
+
+  it('overlays only the declared keys of a loose object schema', () => {
+    const shaped = shapedOver<APIGatewayProxyEvent>()(
+      z.looseObject({ body: z.string() }),
+    );
+    shaped.toHaveProperty('body').toEqualTypeOf<string>();
+    shaped.toHaveProperty('httpMethod').toEqualTypeOf<string>();
+  });
+
   it('leaves the base event as is for a schema with unknown output', () => {
     shapedOver<SQSEvent>()(z.unknown()).toEqualTypeOf<SQSEvent>();
   });

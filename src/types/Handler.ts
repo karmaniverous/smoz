@@ -11,6 +11,27 @@ import type { z } from 'zod';
 import type { ConsoleLogger } from '@/src/types/Loggable';
 
 /**
+ * `T` without index signatures: only its declared keys.
+ *
+ * Zod 4 types `z.object({})` as `Record<string, never>` and `z.looseObject`
+ * with a `[k: string]: unknown` signature; neither declares a key, so neither
+ * should replace a base event key.
+ *
+ * @typeParam T - an object type
+ */
+export type DeclaredKeys<T> = {
+  [
+    K in keyof T as string extends K
+      ? never
+      : number extends K
+        ? never
+        : symbol extends K
+          ? never
+          : K
+  ]: T[K];
+};
+
+/**
  * The event a business handler receives, matching what the runtime delivers.
  *
  * Without an event schema, the base event. With one, the schema's parsed
@@ -36,7 +57,7 @@ export type ShapedEvent<
         ? Output extends readonly unknown[]
           ? Output
           : Output extends object
-            ? Omit<EventType, keyof Output> & Output
+            ? Omit<EventType, keyof DeclaredKeys<Output>> & DeclaredKeys<Output>
             : Output
         : never
       : never
