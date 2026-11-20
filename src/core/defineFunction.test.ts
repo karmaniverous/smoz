@@ -76,7 +76,10 @@ const makeApp = (
   } satisfies AppInit<
     typeof globalParamsSchema,
     typeof stageParamsSchema,
-    typeof eventTypeMapSchema
+    typeof eventTypeMapSchema,
+    never,
+    never,
+    TestEnvKey
   >);
 
 type FnOut = {

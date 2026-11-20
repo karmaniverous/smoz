@@ -29,7 +29,7 @@ export const handlerFactory = <
 >(
   httpEventTypeTokens: readonly string[],
   httpConfig: AppHttpConfig,
-  functionDefaults?: Pick<FunctionDefaults, 'http' | 'contentType'>,
+  functionDefaults?: Pick<FunctionDefaults<string>, 'http' | 'contentType'>,
 ) => {
   return (
     functionConfig: FunctionConfig<

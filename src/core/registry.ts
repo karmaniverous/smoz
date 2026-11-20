@@ -47,7 +47,7 @@ export const createRegistry = <
     stage: EnvSchemaNode<StageParamsSchema>;
   };
   http: AppHttpConfig;
-  functionDefaults?: FunctionDefaults;
+  functionDefaults?: FunctionDefaults<string>;
 }) => {
   const map = new Map<string, RegistryEntry>();
   return {

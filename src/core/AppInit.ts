@@ -20,17 +20,20 @@ import type { AppHttpConfig } from '@/src/http/middleware/httpStackCustomization
  * @typeParam GlobalEnvKey - keys of `global.envKeys` (inferred as literals; types `options.env`)
  * @typeParam StageEnvKey - keys of `stage.envKeys` (inferred as literals; types `options.env`)
  * @typeParam DefaultFnEnvKey - keys of `functionDefaults.fnEnvKeys` (inferred as literals; types `options.env`)
+ *
+ * The key parameters default to `never`: pass an object literal to
+ * `App.create` and they're inferred. Annotating a value as
+ * `AppInit<G, S, E>` admits no env keys; name them
+ * (`AppInit<G, S, E, 'REGION', 'STAGE'>`) so `options.env` stays exact.
  */
 export interface AppInit<
   GlobalParamsSchema extends ZodObj,
   StageParamsSchema extends ZodObj,
   EventTypeMapSchema extends ZodObj,
-  GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> =
-    keyof z.infer<GlobalParamsSchema>,
-  StageEnvKey extends keyof z.infer<StageParamsSchema> =
-    keyof z.infer<StageParamsSchema>,
+  GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> = never,
+  StageEnvKey extends keyof z.infer<StageParamsSchema> = never,
   DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> =
-    ParamsKey<GlobalParamsSchema, StageParamsSchema>,
+    never,
 > {
   appRootAbs: string;
   globalParamsSchema: GlobalParamsSchema;

@@ -31,7 +31,7 @@ export interface ResolveFunctionContext {
   eventTypeKeys: readonly string[];
   /** Event tokens treated as HTTP. */
   httpEventTypeTokens: readonly string[];
-  functionDefaults?: FunctionDefaults | undefined;
+  functionDefaults?: FunctionDefaults<string> | undefined;
 }
 
 /**

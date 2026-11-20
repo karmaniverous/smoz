@@ -11,7 +11,7 @@
  */
 
 export { App } from './core/App';
-export type { AppInit } from './core/AppInit';
+export type { AppInit, ParamsKey } from './core/AppInit';
 export type {
   DefineFunctionOptions,
   FunctionDefaults,
@@ -38,7 +38,13 @@ export type { StagesFactoryOutput } from './serverless/stagesFactory';
 
 // Types
 export type { FunctionConfig, MethodKey } from './types/FunctionConfig';
-export type { Handler, HandlerOptions, ShapedEvent } from './types/Handler';
+export type { FunctionEnv } from './types/FunctionEnv';
+export type {
+  DeclaredKeys,
+  Handler,
+  HandlerOptions,
+  ShapedEvent,
+} from './types/Handler';
 export { type HttpContext, httpContexts } from './types/HttpContext';
 export type { LambdaEvent } from './types/LambdaEvent';
 export type { ConsoleLogger } from './types/Loggable';

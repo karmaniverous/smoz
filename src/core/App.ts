@@ -40,6 +40,9 @@ import { buildAllOpenApiPaths as buildPaths } from '@/src/openapi/buildOpenApi';
 import { buildAllServerlessFunctions as buildFns } from '@/src/serverless/buildServerless';
 import type { FunctionEnv } from '@/src/types/FunctionEnv';
 
+/** The default event type map schema. */
+type BaseMap = typeof baseEventTypeMapSchema;
+
 /**
  * Application class. *
  * @typeParam GlobalParamsSchema - Zod object schema for global parameters
@@ -52,12 +55,10 @@ import type { FunctionEnv } from '@/src/types/FunctionEnv';
   GlobalParamsSchema extends ZodObj,
   StageParamsSchema extends ZodObj,
   EventTypeMapSchema extends ZodObj,
-  GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> =
-    keyof z.infer<GlobalParamsSchema>,
-  StageEnvKey extends keyof z.infer<StageParamsSchema> =
-    keyof z.infer<StageParamsSchema>,
+  GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> = never,
+  StageEnvKey extends keyof z.infer<StageParamsSchema> = never,
   DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> =
-    ParamsKey<GlobalParamsSchema, StageParamsSchema>,
+    never,
 > {
   /** Helper alias for stage artifacts type */
   private static readonly _stageArtifactsType = null as unknown as ReturnType<
@@ -169,85 +170,37 @@ import type { FunctionEnv } from '@/src/types/FunctionEnv';
    */
   // Env keys are inferred as literal unions (no `as const` needed); absent
   // ones default to never, so `options.env` holds exactly the declared keys.
+  // G, S, E, GK, SK, DK: the class's type parameters, in order.
   // Overload 1: eventTypeMapSchema provided → infer from provided schema (typed)
   static create<
-    GlobalParamsSchema extends ZodObj,
-    StageParamsSchema extends ZodObj,
-    EventTypeMapSchema extends ZodObj,
-    GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> = never,
-    StageEnvKey extends keyof z.infer<StageParamsSchema> = never,
-    DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> =
-      never,
-  >(
-    init: AppInit<
-      GlobalParamsSchema,
-      StageParamsSchema,
-      EventTypeMapSchema,
-      GlobalEnvKey,
-      StageEnvKey,
-      DefaultFnEnvKey
-    >,
-  ): App<
-    GlobalParamsSchema,
-    StageParamsSchema,
-    EventTypeMapSchema,
-    GlobalEnvKey,
-    StageEnvKey,
-    DefaultFnEnvKey
-  >;
+    G extends ZodObj,
+    S extends ZodObj,
+    E extends ZodObj,
+    GK extends keyof z.infer<G> = never,
+    SK extends keyof z.infer<S> = never,
+    DK extends ParamsKey<G, S> = never,
+  >(init: AppInit<G, S, E, GK, SK, DK>): App<G, S, E, GK, SK, DK>;
   // Overload 2: eventTypeMapSchema omitted → default to baseEventTypeMapSchema (typed)
   static create<
-    GlobalParamsSchema extends ZodObj,
-    StageParamsSchema extends ZodObj,
-    GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> = never,
-    StageEnvKey extends keyof z.infer<StageParamsSchema> = never,
-    DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> =
-      never,
+    G extends ZodObj,
+    S extends ZodObj,
+    GK extends keyof z.infer<G> = never,
+    SK extends keyof z.infer<S> = never,
+    DK extends ParamsKey<G, S> = never,
   >(
-    init: Omit<
-      AppInit<
-        GlobalParamsSchema,
-        StageParamsSchema,
-        typeof baseEventTypeMapSchema,
-        GlobalEnvKey,
-        StageEnvKey,
-        DefaultFnEnvKey
-      >,
-      'eventTypeMapSchema'
-    > & { eventTypeMapSchema?: undefined },
-  ): App<
-    GlobalParamsSchema,
-    StageParamsSchema,
-    typeof baseEventTypeMapSchema,
-    GlobalEnvKey,
-    StageEnvKey,
-    DefaultFnEnvKey
-  >;
+    init: Omit<AppInit<G, S, BaseMap, GK, SK, DK>, 'eventTypeMapSchema'> & {
+      eventTypeMapSchema?: undefined;
+    },
+  ): App<G, S, BaseMap, GK, SK, DK>;
   // Implementation (must come after overload signatures)
   static create<
-    GlobalParamsSchema extends ZodObj,
-    StageParamsSchema extends ZodObj,
-    EventTypeMapSchema extends ZodObj,
-    GlobalEnvKey extends keyof z.infer<GlobalParamsSchema>,
-    StageEnvKey extends keyof z.infer<StageParamsSchema>,
-    DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema>,
-  >(
-    init: AppInit<
-      GlobalParamsSchema,
-      StageParamsSchema,
-      EventTypeMapSchema,
-      GlobalEnvKey,
-      StageEnvKey,
-      DefaultFnEnvKey
-    >,
-  ): App<
-    GlobalParamsSchema,
-    StageParamsSchema,
-    EventTypeMapSchema,
-    GlobalEnvKey,
-    StageEnvKey,
-    DefaultFnEnvKey
-  > {
+    G extends ZodObj,
+    S extends ZodObj,
+    E extends ZodObj,
+    GK extends keyof z.infer<G>,
+    SK extends keyof z.infer<S>,
+    DK extends ParamsKey<G, S>,
+  >(init: AppInit<G, S, E, GK, SK, DK>): App<G, S, E, GK, SK, DK> {
     return new App(init);
   }
   /**
