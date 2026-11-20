@@ -41,7 +41,7 @@ The CLI scans `app/functions/**` for `lambda.ts`, `openapi.ts`, and optional `se
 - Build CLI (if packaged locally): `npm run cli:build`
 - Register: `npx smoz register`
   - Idempotent: rewrites files only when content changes
-  - Formats output with Prettier when available
+  - Formats output with this project's Prettier and its config
 
 Tip: Commit `app/generated/register.*.ts` so typecheck is stable without running the CLI. Teams often keep `app/generated/openapi.json` untracked in VCS (optional).
 

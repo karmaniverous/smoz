@@ -10,11 +10,13 @@
  * - HTTP: lambda.ts, handler.ts, openapi.ts
  * - non-HTTP: lambda.ts, handler.ts
  *
- * Idempotent and formatted (uses Prettier if available).
+ * Idempotent; formatted with the project's Prettier when it has one.
  */
 import { existsSync } from 'node:fs';
 import { promises as fs } from 'node:fs';
 import { dirname, join, posix } from 'node:path';
+
+import { formatWithProjectPrettier } from '@/src/cli/util/projectPrettier';
 
 const HTTP_METHODS = new Set([
   'get',
@@ -26,25 +28,6 @@ const HTTP_METHODS = new Set([
   'options',
   'trace',
 ]);
-
-/**
- * Format a scaffolded file with the app's Prettier config, when Prettier is
- * installed. `resolveConfig` searches upward from the file's own directory,
- * so it finds the app's config (given the app root, it would start at the
- * root's parent and miss it).
- */
-const formatMaybe = async (filePath: string, source: string) => {
-  try {
-    const prettier = (await import('prettier')) as unknown as {
-      resolveConfig: (p: string) => Promise<Record<string, unknown> | null>;
-      format: (s: string, o: Record<string, unknown>) => string;
-    };
-    const cfg = (await prettier.resolveConfig(filePath)) ?? {};
-    return prettier.format(source, { ...cfg, filepath: filePath });
-  } catch {
-    return source;
-  }
-};
 
 const writeIfAbsent = async (
   outFile: string,
@@ -264,7 +247,7 @@ export const runAdd = async (
   const skipped: string[] = [];
   for (const f of files) {
     if (!f.enabled) continue;
-    const formatted = await formatMaybe(f.path, f.content);
+    const formatted = await formatWithProjectPrettier(root, f.path, f.content);
     const { created: c } = await writeIfAbsent(f.path, formatted);
     if (c) created.push(posix.normalize(f.path));
     else skipped.push(posix.normalize(f.path));

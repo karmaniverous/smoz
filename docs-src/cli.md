@@ -71,7 +71,7 @@ Scans `app/functions/**` for:
 - `openapi.ts` → register.openapi.ts
 - `serverless.ts` → register.serverless.ts (non‑HTTP)
 
-One‑shot, idempotent, POSIX‑sorted, formatted when Prettier is available. For a live authoring loop that keeps registers (and OpenAPI) fresh, use `smoz dev` instead of a register watcher.
+One‑shot, idempotent, POSIX‑sorted, formatted with the project's own Prettier and config when it has Prettier installed (found like Prettier in [openapi](#openapi); smoz never uses its own copy). `smoz add` formats what it scaffolds the same way. For a live authoring loop that keeps registers (and OpenAPI) fresh, use `smoz dev` instead of a register watcher.
 
 ## add
 
