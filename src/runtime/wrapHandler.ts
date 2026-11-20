@@ -25,11 +25,14 @@ import {
 } from '@/src/runtime/envBuilder';
 import type { FunctionConfig } from '@/src/types/FunctionConfig';
 import type { Handler, ShapedEvent } from '@/src/types/Handler';
+import { parseWithZod, shapeEvent } from '@/src/util/zodValidate';
 
 /**
  * Wrap a business handler with SMOZ runtime. *
  * - HTTP event tokens receive the full Middy pipeline (validation, shaping, CORS, etc.)
- * - Non‑HTTP tokens bypass Middy and call the business function directly.
+ * - Non-HTTP tokens skip Middy: the event is validated against `eventSchema`
+ *   (parsed output overlaid on the raw event) and the result against
+ *   `responseSchema`; failures throw `Invalid event` / `Invalid response`.
  *
  * @typeParam GlobalParamsSchema - global params schema type
  * @typeParam StageParamsSchema  - stage params schema type
@@ -126,11 +129,15 @@ export function wrapHandler<
       functionConfig.eventType as unknown as string,
     );
     if (!isHttp) {
-      return business(
-        event as ShapedEvent<EventSchema, EventTypeMap[EventType]>,
+      // Non-HTTP: validate around the business call; failures throw.
+      const shaped = shapeEvent(event, functionConfig.eventSchema, logger);
+      const result = await business(
+        shaped as ShapedEvent<EventSchema, EventTypeMap[EventType]>,
         context,
         { env, logger },
       );
+      parseWithZod(result, functionConfig.responseSchema, logger, 'response');
+      return result;
     }
     // HTTP: build middleware stack
     const fnHttp = (functionConfig as { http?: FunctionHttpConfig }).http;
