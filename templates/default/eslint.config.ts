@@ -1,14 +1,23 @@
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import eslint from '@eslint/js';
+import smoz from '@karmaniverous/smoz/eslint';
+import vitestPlugin from '@vitest/eslint-plugin';
+import { defineConfig } from 'eslint/config';
 import prettierConfig from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
 import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort';
-import { dirname } from 'path';
+import tsdocPlugin from 'eslint-plugin-tsdoc';
 import tseslint from 'typescript-eslint';
-import { fileURLToPath } from 'url';
 
 const tsconfigRootDir = dirname(fileURLToPath(import.meta.url));
 
-export default [
+/**
+ * Every TypeScript file is linted with full type information: the project
+ * service gives each file the nearest `tsconfig.json`.
+ */
+export default defineConfig(
   {
     ignores: [
       '.serverless/**',
@@ -21,29 +30,44 @@ export default [
     ],
   },
   eslint.configs.recommended,
-  ...tseslint.configs.strictTypeChecked,
-  prettierConfig,
   {
+    files: ['**/*.{ts,mts,cts}'],
+    extends: [tseslint.configs.strictTypeChecked],
     languageOptions: {
-      parser: tseslint.parser,
-      parserOptions: {
-        project: ['./tsconfig.eslint.json'],
-        tsconfigRootDir,
-      },
+      parserOptions: { projectService: true, tsconfigRootDir },
     },
     plugins: {
       prettier: prettierPlugin,
       'simple-import-sort': simpleImportSortPlugin,
+      tsdoc: tsdocPlugin,
     },
     rules: {
-      'prettier/prettier': 'error',
-      'simple-import-sort/imports': 'error',
-      'simple-import-sort/exports': 'error',
       '@typescript-eslint/no-empty-object-type': 'off',
-      '@typescript-eslint/no-unused-vars': 'error',
-      '@typescript-eslint/no-unsafe-assignment': 'error',
-      '@typescript-eslint/no-unsafe-member-access': 'error',
-      '@typescript-eslint/no-unsafe-return': 'error',
+      'prettier/prettier': 'error',
+      'simple-import-sort/exports': 'error',
+      'simple-import-sort/imports': 'error',
+      'tsdoc/syntax': 'warn',
     },
   },
-];
+  {
+    // A function never imports another function's modules: bundled into the
+    // importer, its lambda.ts would derive its options from the wrong folder.
+    files: ['app/functions/**/*.ts'],
+    ignores: ['**/*.test.ts'],
+    plugins: { smoz },
+    rules: { 'smoz/no-cross-function-imports': 'error' },
+  },
+  {
+    files: ['**/*.test.ts'],
+    plugins: { vitest: vitestPlugin },
+    rules: {
+      ...vitestPlugin.configs.recommended.rules,
+      // Type assertions (expectTypeOf) are assertions too.
+      'vitest/expect-expect': [
+        'error',
+        { assertFunctionNames: ['expect', 'expectTypeOf'] },
+      ],
+    },
+  },
+  prettierConfig,
+);

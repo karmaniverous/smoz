@@ -3,7 +3,8 @@
     "outDir": ".tsbuild",
     "paths": {
       "@/*": ["./*"],
-      "@karmaniverous/smoz": ["../../dist/index", "../../dist/index.d.ts"]
+      "@karmaniverous/smoz": ["../../dist/index", "../../dist/index.d.ts"],
+      "@karmaniverous/smoz/*": ["../../dist/*"]
     },
     "typeRoots": ["./types", "../../node_modules/@types"],
     "tsBuildInfoFile": ".tsbuild/tsconfig.tsbuildinfo"
