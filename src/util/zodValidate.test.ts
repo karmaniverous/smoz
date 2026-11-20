@@ -48,6 +48,30 @@ describe('parseWithZod', () => {
   });
 });
 
+describe('parseWithZod logging', () => {
+  it('never logs the validated payload', () => {
+    const log: ConsoleLogger = {
+      debug: vi.fn(),
+      info: vi.fn(),
+      error: vi.fn(),
+      log: vi.fn(),
+    };
+    const secret = 'user@example.test';
+    const schema = z.object({ email: z.email(), n: z.number() });
+    parseWithZod({ email: secret, n: 1 }, schema, log, 'event');
+    expect(() =>
+      parseWithZod({ email: secret, n: 'x' }, schema, log, 'event'),
+    ).toThrow('Invalid event');
+    const logged = JSON.stringify(
+      Object.values(log).flatMap((fn) => vi.mocked(fn).mock.calls),
+    );
+    expect(logged).not.toContain(secret);
+    expect(log.error).toHaveBeenCalledWith('zod event validation failed', [
+      expect.objectContaining({ path: ['n'] }),
+    ]);
+  });
+});
+
 describe('overlayParsed', () => {
   it('replaces declared keys and keeps undeclared ones', () => {
     expect(

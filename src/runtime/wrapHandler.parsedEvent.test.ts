@@ -4,7 +4,7 @@
 - #39 D4: CORS still sees the raw Origin header when the schema doesn't declare headers.
 - #39 D5: non-HTTP event and response schema failures throw.
 */
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { App } from '@/src/core/App';
@@ -40,9 +40,17 @@ const app = App.create({
   },
 });
 
-process.env.SERVICE_NAME = 'svc';
-process.env.REGION = 'us-east-1';
-process.env.STAGE = 'dev';
+const savedEnv = { ...process.env };
+beforeAll(() => {
+  Object.assign(process.env, {
+    SERVICE_NAME: 'svc',
+    REGION: 'us-east-1',
+    STAGE: 'dev',
+  });
+});
+afterAll(() => {
+  process.env = savedEnv;
+});
 
 type HttpRes = {
   statusCode: number;
@@ -137,6 +145,20 @@ describe('non-HTTP: schemas are enforced around the handler', () => {
       fn.handler(business)({ Records: [1], batch: 1 }, createLambdaContext()),
     ).rejects.toMatchObject({ name: 'ZodError', message: 'Invalid event' });
     expect(business).not.toHaveBeenCalled();
+  });
+
+  it('returns the handler result as is: responseSchema validates, it does not transform', async () => {
+    const fn = app.defineFunction({
+      functionName: 'sqs_raw_response',
+      eventType: 'sqs',
+      responseSchema: z.object({ n: z.string().transform((v) => v.length) }),
+      callerModuleUrl: import.meta.url,
+      endpointsRootAbs: root,
+    });
+    const handler = fn.handler(async () => ({ n: 'abc' }));
+    expect(await handler({ Records: [] }, createLambdaContext())).toEqual({
+      n: 'abc',
+    });
   });
 
   it('throws Invalid response when the result fails responseSchema', async () => {

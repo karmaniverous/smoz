@@ -30,17 +30,18 @@ export const parseWithZod = (
   kind: ZodValidationKind,
 ): unknown => {
   if (!schema) return value;
-  logger.debug('validating with zod', value);
+  // Log the outcome, never the payload: events can carry PII (Cognito
+  // attributes, message bodies) and run on every invocation.
   const result = schema.safeParse(value);
   if (result.success) {
-    logger.debug('zod validation succeeded', pojofy(result));
+    logger.debug(`zod ${kind} validation succeeded`);
     return result.data;
   }
 
-  logger.error('zod validation failed', pojofy(result));
+  logger.error(`zod ${kind} validation failed`, pojofy(result.error.issues));
 
-  // "Invalid event"/"Invalid response" let HTTP mode map the error to 400;
-  // non-HTTP and internal mode simply throw it.
+  // The HTTP stack maps "Invalid event"/"Invalid response" to 400;
+  // non-HTTP functions throw it.
   const msg = kind === 'event' ? 'Invalid event' : 'Invalid response';
   throw Object.assign(new Error(msg), {
     name: 'ZodError',
