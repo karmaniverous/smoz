@@ -5,6 +5,8 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   test: {
+    // Show a test's console output only when it fails.
+    silent: 'passed-only',
     environment: 'node',
     // Avoid picking up transformed caches and keep node_modules excluded
     exclude: [
