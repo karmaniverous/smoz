@@ -8,7 +8,6 @@
  */
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 import { localPackageDir } from '@/src/cli/util/command';
 
@@ -30,11 +29,12 @@ export const loadProjectPrettier = async (
   const dir = localPackageDir(root, 'prettier');
   if (!dir) return undefined;
   try {
-    // Resolve the entry through the package's own exports (self-reference).
-    const entry = createRequire(path.join(dir, 'package.json')).resolve(
-      'prettier',
+    // Require the package through its own exports (self-reference), which
+    // selects Prettier's CommonJS build. An ESM import of that build would
+    // expose the API only as `default` under Node.
+    return await Promise.resolve(
+      createRequire(path.join(dir, 'package.json'))('prettier') as PrettierApi,
     );
-    return (await import(pathToFileURL(entry).href)) as PrettierApi;
   } catch {
     return undefined;
   }

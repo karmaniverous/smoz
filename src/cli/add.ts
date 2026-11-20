@@ -209,7 +209,8 @@ export const runAdd = async (
     files.push({
       path: lambdaPath,
       content: lambdaTemplate({
-        heading: `${method!.toUpperCase()} ${pathTemplate}`,
+        // In backticks: TSDoc reads a bare {param} as an inline tag.
+        heading: `\`${method!.toUpperCase()} ${pathTemplate}\``,
         eventType: token,
         // Derived basePath is the folder path; write it only when it differs.
         basePath: basePath === dirSegs.join('/') ? undefined : basePath,

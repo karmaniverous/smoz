@@ -1,4 +1,3 @@
-import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { App, toPosixPath } from '@karmaniverous/smoz';
@@ -56,7 +55,3 @@ export const app = App.create({
     envKeys: ['STAGE'],
   },
 });
-
-export const ENDPOINTS_ROOT_REST = toPosixPath(
-  join(APP_ROOT_ABS, 'functions', 'rest'),
-);

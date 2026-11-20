@@ -32,7 +32,10 @@ const tempRoot = () => {
   return root;
 };
 
-/** Install a fake prettier in `root` that stamps what it formats. */
+/**
+ * Install a fake prettier in `root` that stamps what it formats. Laid out like
+ * Prettier 3: a CommonJS build under the `require` condition, ESM otherwise.
+ */
 const installFakePrettier = (root: string) => {
   const dir = join(root, 'node_modules', 'prettier');
   mkdirSync(dir, { recursive: true });
@@ -40,16 +43,20 @@ const installFakePrettier = (root: string) => {
     join(dir, 'package.json'),
     JSON.stringify({
       name: 'prettier',
-      type: 'module',
-      exports: { '.': './index.js' },
+      exports: { '.': { require: './index.cjs', default: './index.mjs' } },
     }),
   );
+  const api = [
+    'const resolveConfig = async () => ({ stamp: "project" });',
+    'const format = async (s, o) => `// ${o.stamp} prettier\\n${s}`;',
+  ].join('\n');
   writeFileSync(
-    join(dir, 'index.js'),
-    [
-      'export const resolveConfig = async () => ({ stamp: "project" });',
-      'export const format = async (s, o) => `// ${o.stamp} prettier\\n${s}`;',
-    ].join('\n'),
+    join(dir, 'index.cjs'),
+    `${api}\n// Built like Prettier's: no named exports an ESM import can see.\nmodule.exports = Object.assign({}, { resolveConfig, format });\n`,
+  );
+  writeFileSync(
+    join(dir, 'index.mjs'),
+    `${api}\nexport { resolveConfig, format };\n`,
   );
 };
 

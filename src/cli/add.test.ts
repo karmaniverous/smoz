@@ -114,7 +114,7 @@ describe('CLI: add', () => {
       const httpLambda = readFileSync(join(httpBase, 'lambda.ts'), 'utf8');
       expect(httpLambda).not.toMatch(derivable);
       expect(httpLambda).toMatch(/callerModuleUrl: import\.meta\.url/);
-      expect(httpLambda).toMatch(/Registration: GET \/foo\n/);
+      expect(httpLambda).toMatch(/Registration: `GET \/foo`\n/);
       expect(httpLambda).toMatch(/eventType: (['"])rest\1/);
       expectUncastHandler(httpBase);
       // Second run should skip the same files

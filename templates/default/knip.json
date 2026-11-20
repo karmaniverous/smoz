@@ -1,11 +1,11 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
-    "serverless.ts",
     "app/config/openapi.ts",
     "app/generated/register.*.ts",
     "app/functions/**/handler.ts"
   ],
   "project": ["**/*.ts"],
-  "ignoreExportsUsedInFile": true
+  "ignoreExportsUsedInFile": true,
+  "ignoreDependencies": ["tsx"]
 }
