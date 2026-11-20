@@ -98,6 +98,14 @@ export const departures: Departure[] = [
     issueOrDecision: 'D36',
     note: 'The app gets @karmaniverous/get-dotenv ^8.0.0 as a devDependency, so its smoz bin runs.',
   },
+  // The app's smoz dependency tracks the running smoz version, so it departs
+  // from 0.4.1 with every release (v0.5.0 turned main's CI red; fixed in #39).
+  {
+    case: 'init',
+    part: 'package.json:dependencies',
+    issueOrDecision: '#39',
+    note: 'The app depends on the running smoz version (^0.5.0 and later), not ^0.4.1.',
+  },
   // Dependency updates.
   {
     case: 'init',
