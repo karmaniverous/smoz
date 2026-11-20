@@ -6,12 +6,11 @@ sidebar_position: 4
 
 # Templates
 
-The package ships a default app template and a shared “project” baseline.
+The package ships one app template, `default`.
 
 ## Layout
 
-- templates/project — shared boilerplate (tsconfig/eslint/prettier/vitest/typedoc)
-- templates/default — a small app:
+- templates/default — a small app, with its tooling (tsconfig, ESLint, Prettier, Vitest, knip, TypeDoc):
   - app/config/app.config.ts
   - app/functions/rest/hello/get/{lambda,handler,openapi}.ts
   - app/functions/rest/openapi/get/{lambda,handler,openapi}.ts
@@ -73,19 +72,29 @@ export const APP_ROOT_ABS = toPosixPath(
 );
 ```
 
-## Lint & typecheck (unified for all templates)
+## The app's checks
 
-- Lint (ESLint drives Prettier):
+An app made from the template checks itself with one script:
+
+```bash
+npm run verify
+```
+
+It runs `smoz register`, typecheck, lint, format check, knip, tests, then `npm run package` (`smoz openapi`, then `serverless package`). Lint enforces `smoz/no-cross-function-imports`; packaging loads every `lambda.ts` the way a deploy does. See [Project structure rules](./recipes/project-structure.md). Serverless Framework v4 needs a login to package: in CI, set `SERVERLESS_ACCESS_KEY`.
+
+## Lint & typecheck (in this repo)
+
+- Lint, with the template's own ESLint config:
   ```bash
   npm run templates:lint      # check
   npm run templates:lint:fix  # fix
   ```
-  A single ESLint flat config discovers all templates (no per‑template wiring).
+  The config imports `@karmaniverous/smoz/eslint`; the script links this package (built first) into the template for the run.
 - Typecheck:
   ```bash
   npm run templates:typecheck
   ```
-  A small script finds `templates/*/tsconfig.json` and runs `tsc -p --noEmit` per template. Adding a new template directory requires no script changes.
+  Runs `tsc -p --noEmit` for each `templates/*/tsconfig.json`, and again on a copy with `smoz add` output.
 
 ## Authoring guidelines
 
@@ -99,7 +108,7 @@ export const APP_ROOT_ABS = toPosixPath(
 
 ## Adding a new template
 
-Create a new folder under `templates/*` with a `tsconfig.json`. Lint/typecheck will pick it up automatically via the unified config and the typecheck script.
+Create a new folder under `templates/*` with a `tsconfig.json` and an `eslint.config.ts`. `templates:typecheck` picks it up automatically; `templates:lint` currently lints `templates/default` only.
 
 ## Commit registers?
 

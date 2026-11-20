@@ -41,6 +41,21 @@ Fix:
 
 - Upgrade SMOZ: 0.4.0 measured the path against `appRootAbs`, which points inside the bundle once esbuild inlines `app.config.ts`. Later versions derive from the function file's own location; see [Bundled or not, the same result](../overview.md#bundled-or-not-the-same-result).
 - If it persists, check that the file is under `functions/<eventType>/` with `<eventType>` a key of `eventTypeMapSchema`, or pass `eventType` explicitly.
+- If the path in the error is another function's folder, that function imports this one's `lambda.ts` or `handler.ts`; see the next section.
+
+## `cannot apply functionDefaults.functionName` (or `cannot derive eventType`) in a deployed function only
+
+Symptoms:
+
+- A deployed function fails at cold start with `defineFunction: cannot apply functionDefaults.functionName for /var/task/app/functions/<other function>: it is not under ...`, or registers under the wrong name, while unit tests pass.
+
+Cause and fix:
+
+- Another function imports this function's `lambda.ts` (directly or through its `handler.ts`). Bundled there, it sees the importer's `import.meta.url`. Move the shared code to a module outside `app/functions`. The ESLint rule `smoz/no-cross-function-imports` catches this; see [Project structure rules](./project-structure.md).
+
+## `Top-level await is currently not supported with the "cjs" output format`
+
+- Serverless compiles `serverless.ts` to CommonJS, loading every `lambda.ts` and its imports. Move the `await` into the handler (or an initialisation function it calls). `npm run package` and `npm run verify` catch this before deploy; see [Project structure rules](./project-structure.md#2-every-lambdats-loads-at-build-time).
 
 ## serverless‑offline loops or stale artifacts
 
