@@ -13,7 +13,8 @@ import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { z } from 'zod';
 
-import { App, type AppInit } from '@/src/core/App';
+import { App } from '@/src/core/App';
+import type { AppInit } from '@/src/core/AppInit';
 import {
   type BaseEventTypeMap,
   baseEventTypeMapSchema,

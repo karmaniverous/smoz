@@ -10,8 +10,8 @@
  * @packageDocumentation
  */
 
-export type { AppInit } from './core/App';
 export { App } from './core/App';
+export type { AppInit } from './core/AppInit';
 export type {
   DefineFunctionOptions,
   FunctionDefaults,
