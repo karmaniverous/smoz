@@ -53,13 +53,15 @@ export const eventSchema = z.unknown();
 export const responseSchema = z.unknown();
 
 export const fn = app.defineFunction({
+  // A literal eventType types the handler's event.
+  eventType: 'rest',
   eventSchema,
   responseSchema,
   callerModuleUrl: import.meta.url,
 });
 ```
 
-Everything else derives from the folder and the app's defaults: event type `rest`, method `get`, base path `foo`, the function name, the `public` context and `application/json`. Set a field explicitly only to override it; see "What `defineFunction` derives from the path" in the [Overview](./overview.md).
+`eventType` would derive from the folder too, but only the literal narrows the handler's event to `APIGatewayProxyEvent`. Everything else derives from the folder and the app's defaults: method `get`, base path `foo`, the function name, the `public` context and `application/json`. Set a field explicitly only to override it; see "What `defineFunction` derives from the path" in the [Overview](./overview.md).
 
 ## 3) Register endpoints (side‑effects)
 
@@ -134,8 +136,10 @@ For SQS/Step/etc., author the same way but skip HTTP options:
 // lambda.ts (non‑HTTP)
 export const fn = app.defineFunction({
   eventType: 'sqs',
-  eventSchema: z.any(),
-  responseSchema: z.any().optional(),
+  // Validated before the handler (a failure throws); omit to skip validation.
+  eventSchema: z.object({
+    Records: z.array(z.object({ body: z.string() }).loose()),
+  }),
   callerModuleUrl: import.meta.url,
 });
 ```

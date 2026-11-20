@@ -25,10 +25,11 @@ export const handlerFactory = <
   EventType extends keyof EventTypeMapResolved,
   EventSchema extends z.ZodType | undefined,
   ResponseSchema extends z.ZodType | undefined,
+  Env extends Record<string, unknown> = Record<string, unknown>,
 >(
   httpEventTypeTokens: readonly string[],
   httpConfig: AppHttpConfig,
-  functionDefaults?: Pick<FunctionDefaults, 'http' | 'contentType'>,
+  functionDefaults?: Pick<FunctionDefaults<string>, 'http' | 'contentType'>,
 ) => {
   return (
     functionConfig: FunctionConfig<
@@ -43,7 +44,8 @@ export const handlerFactory = <
     business: Handler<
       EventSchema,
       ResponseSchema,
-      EventTypeMapResolved[EventType]
+      EventTypeMapResolved[EventType],
+      Env
     >,
   ) => {
     // Lazy-load wrapHandler to avoid pulling @middy/core into the static

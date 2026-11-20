@@ -112,6 +112,7 @@ import { app } from '@/app/config/app.config';
 export const responseSchema = z.object({ ok: z.boolean() });
 
 export const fn = app.defineFunction({
+  eventType: 'rest', // types the handler's event; smoz add writes it for you
   responseSchema,
   callerModuleUrl: import.meta.url,
 });
@@ -121,14 +122,12 @@ The method (`get`), base path (`hello`), function name, security context (`publi
 
 ```ts
 // app/functions/rest/hello/get/handler.ts
-import type { z } from 'zod';
-import type { responseSchema } from './lambda';
 import { fn } from './lambda';
-type Response = z.infer<typeof responseSchema>;
-export const handler = fn.handler(
-  async () => ({ ok: true }) satisfies Response,
-);
+// The return value is checked against responseSchema; no casts needed.
+export const handler = fn.handler(async () => ({ ok: true }));
 ```
+
+The handler receives the event as validated by `eventSchema` (parsed values on the keys it declares) and returns what `responseSchema` validates. See [Validation and the handler event](./recipes/validation.md).
 
 ```ts
 // app/functions/rest/hello/get/openapi.ts

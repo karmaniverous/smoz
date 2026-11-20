@@ -1,7 +1,7 @@
 /* REQUIREMENTS ADDRESSED (TEST)
 - CLI add: scaffolds HTTP and non-HTTP trees idempotently with expected files.
 */
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -10,11 +10,44 @@ import { describe, expect, it } from 'vitest';
 
 import { runAdd } from '@/src/cli/add';
 
-/** Fields defineFunction derives from the folder or functionDefaults. */
+/**
+ * Fields defineFunction derives from the folder or functionDefaults, so the
+ * scaffold doesn't write them. `eventType` derives too, but is written as a
+ * literal because only a literal types the handler's event (#39 D1).
+ */
 const derivable =
-  /eventType|method:|basePath|contentType|httpContexts|endpointsRootAbs|functionName|APP_ROOT_ABS|node:path/;
+  /method:|basePath|contentType|httpContexts|endpointsRootAbs|functionName|APP_ROOT_ABS|node:path/;
+
+/** Read a scaffolded file. */
+const read = (dir: string, file: string) =>
+  readFileSync(join(dir, file), 'utf8');
+
+/** The handler stub keeps defineFunction's inference: no casts. */
+const expectUncastHandler = (dir: string) => {
+  const body = read(dir, 'handler.ts');
+  expect(body).toMatch(/fn\.handler\(/);
+  expect(body).not.toMatch(/\bas\b\s+(unknown|Response|any)\b/);
+};
 
 describe('CLI: add', () => {
+  it.each([
+    [{ singleQuote: true }, "eventType: 'rest'"],
+    [{ singleQuote: false }, 'eventType: "rest"'],
+  ])(
+    "formats with the app's own Prettier config (%o)",
+    async (config, expected) => {
+      const root = mkdtempSync(join(tmpdir(), 'smoz-add-prettier-'));
+      try {
+        writeFileSync(join(root, '.prettierrc.json'), JSON.stringify(config));
+        await runAdd(root, 'rest/q/get');
+        const dir = join(root, 'app', 'functions', 'rest', 'q', 'get');
+        expect(read(dir, 'lambda.ts')).toContain(expected);
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    },
+  );
+
   it('accepts :id, {id} and [id] as the same path parameter', async () => {
     const root = mkdtempSync(join(tmpdir(), 'smoz-add-params-'));
     try {
@@ -69,6 +102,8 @@ describe('CLI: add', () => {
       expect(httpLambda).not.toMatch(derivable);
       expect(httpLambda).toMatch(/callerModuleUrl: import\.meta\.url/);
       expect(httpLambda).toMatch(/Registration: GET \/foo\n/);
+      expect(httpLambda).toMatch(/eventType: (['"])rest\1/);
+      expectUncastHandler(httpBase);
       // Second run should skip the same files
       const http2 = await runAdd(root, 'rest/foo/get');
       expect(http2.created.length).toBe(0);
@@ -120,7 +155,8 @@ describe('CLI: add', () => {
       const nonLambda = readFileSync(join(nonBase, 'lambda.ts'), 'utf8');
       expect(nonLambda).not.toMatch(derivable);
       expect(nonLambda).toMatch(/Registration: internal step function/);
-      expect(existsSync(join(nonBase, 'handler.ts'))).toBe(true);
+      expect(nonLambda).toMatch(/eventType: (['"])step\1/);
+      expectUncastHandler(nonBase);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

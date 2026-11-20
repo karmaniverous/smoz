@@ -20,13 +20,11 @@ import type { AWS } from '@serverless/typescript';
 import type { z } from 'zod';
 import type { ZodOpenApiPathsObject } from 'zod-openapi';
 
+import type { AppInit, ParamsKey } from '@/src/core/AppInit';
 import { baseEventTypeMapSchema } from '@/src/core/baseEventTypeMapSchema';
 import { buildStageArtifacts } from '@/src/core/buildStageArtifacts';
 import type { EnvSchemaNode } from '@/src/core/defineAppConfig';
-import type {
-  DefineFunctionOptions,
-  FunctionDefaults,
-} from '@/src/core/functionOptions';
+import type { DefineFunctionOptions } from '@/src/core/functionOptions';
 import {
   defaultHttpEventTypeTokens,
   validateEventTypeMapSchemaIncludesBase,
@@ -40,53 +38,27 @@ import type { ZodObj } from '@/src/core/types';
 import type { AppHttpConfig } from '@/src/http/middleware/httpStackCustomization';
 import { buildAllOpenApiPaths as buildPaths } from '@/src/openapi/buildOpenApi';
 import { buildAllServerlessFunctions as buildFns } from '@/src/serverless/buildServerless';
+import type { FunctionEnv } from '@/src/types/FunctionEnv';
 
-export interface AppInit<
-  GlobalParamsSchema extends ZodObj,
-  StageParamsSchema extends ZodObj,
-  EventTypeMapSchema extends ZodObj,
-> {
-  appRootAbs: string;
-  globalParamsSchema: GlobalParamsSchema;
-  stageParamsSchema: StageParamsSchema;
-  eventTypeMapSchema?: EventTypeMapSchema;
-  /** Accept raw serverless config; App will parse it internally. */
-  serverless: z.input<typeof serverlessConfigSchema>;
-  global: {
-    params: z.infer<GlobalParamsSchema>;
-    envKeys: readonly (keyof z.infer<GlobalParamsSchema>)[];
-  };
-  stage: {
-    /** Accept raw stage param objects; App will parse with (global.partial + stage) */
-    params: Record<string, Record<string, unknown>>;
-    envKeys: readonly (keyof z.infer<StageParamsSchema>)[];
-  };
-  /**
-   * HTTP tokens to treat as HTTP at runtime (widenable).
-   * Defaults to ['rest', 'http'].
-   */
-  httpEventTypeTokens?: readonly (keyof z.infer<EventTypeMapSchema>)[];
-  /**
-   * Optional app-level HTTP middleware customization (defaults & profiles).
-   */
-  http?: AppHttpConfig;
-  /**
-   * Optional defaults applied to every function registered with
-   * `defineFunction` (env keys, HTTP contexts, content type, per-function
-   * HTTP customization, Serverless properties, name style). Explicit
-   * per-function values win.
-   */
-  functionDefaults?: FunctionDefaults;
-}
+/** The default event type map schema. */
+type BaseMap = typeof baseEventTypeMapSchema;
+
 /**
  * Application class. *
  * @typeParam GlobalParamsSchema - Zod object schema for global parameters
  * @typeParam StageParamsSchema  - Zod object schema for per‑stage parameters
  * @typeParam EventTypeMapSchema - Zod object schema mapping event tokens to runtime types
+ * @typeParam GlobalEnvKey - the app's global `envKeys` (every function's env)
+ * @typeParam StageEnvKey - the app's stage `envKeys` (every function's env)
+ * @typeParam DefaultFnEnvKey - `functionDefaults.fnEnvKeys` (every function's env)
  */ export class App<
   GlobalParamsSchema extends ZodObj,
   StageParamsSchema extends ZodObj,
   EventTypeMapSchema extends ZodObj,
+  GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> = never,
+  StageEnvKey extends keyof z.infer<StageParamsSchema> = never,
+  DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> =
+    never,
 > {
   /** Helper alias for stage artifacts type */
   private static readonly _stageArtifactsType = null as unknown as ReturnType<
@@ -125,7 +97,14 @@ export interface AppInit<
   >;
 
   private constructor(
-    init: AppInit<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema>,
+    init: AppInit<
+      GlobalParamsSchema,
+      StageParamsSchema,
+      EventTypeMapSchema,
+      GlobalEnvKey,
+      StageEnvKey,
+      DefaultFnEnvKey
+    >,
   ) {
     this.appRootAbs = init.appRootAbs.replace(/\\/g, '/');
     this.globalParamsSchema = init.globalParamsSchema;
@@ -189,36 +168,39 @@ export interface AppInit<
    * @param init - initialization object (schemas, serverless defaults, params/envKeys)
    * @returns a new App instance
    */
+  // Env keys are inferred as literal unions (no `as const` needed); absent
+  // ones default to never, so `options.env` holds exactly the declared keys.
+  // G, S, E, GK, SK, DK: the class's type parameters, in order.
   // Overload 1: eventTypeMapSchema provided → infer from provided schema (typed)
   static create<
-    GlobalParamsSchema extends ZodObj,
-    StageParamsSchema extends ZodObj,
-    EventTypeMapSchema extends ZodObj,
-  >(
-    init: AppInit<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema>,
-  ): App<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema>;
+    G extends ZodObj,
+    S extends ZodObj,
+    E extends ZodObj,
+    GK extends keyof z.infer<G> = never,
+    SK extends keyof z.infer<S> = never,
+    DK extends ParamsKey<G, S> = never,
+  >(init: AppInit<G, S, E, GK, SK, DK>): App<G, S, E, GK, SK, DK>;
   // Overload 2: eventTypeMapSchema omitted → default to baseEventTypeMapSchema (typed)
   static create<
-    GlobalParamsSchema extends ZodObj,
-    StageParamsSchema extends ZodObj,
+    G extends ZodObj,
+    S extends ZodObj,
+    GK extends keyof z.infer<G> = never,
+    SK extends keyof z.infer<S> = never,
+    DK extends ParamsKey<G, S> = never,
   >(
-    init: Omit<
-      AppInit<
-        GlobalParamsSchema,
-        StageParamsSchema,
-        typeof baseEventTypeMapSchema
-      >,
-      'eventTypeMapSchema'
-    > & { eventTypeMapSchema?: undefined },
-  ): App<GlobalParamsSchema, StageParamsSchema, typeof baseEventTypeMapSchema>;
+    init: Omit<AppInit<G, S, BaseMap, GK, SK, DK>, 'eventTypeMapSchema'> & {
+      eventTypeMapSchema?: undefined;
+    },
+  ): App<G, S, BaseMap, GK, SK, DK>;
   // Implementation (must come after overload signatures)
   static create<
-    GlobalParamsSchema extends ZodObj,
-    StageParamsSchema extends ZodObj,
-    EventTypeMapSchema extends ZodObj,
-  >(
-    init: AppInit<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema>,
-  ): App<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema> {
+    G extends ZodObj,
+    S extends ZodObj,
+    E extends ZodObj,
+    GK extends keyof z.infer<G>,
+    SK extends keyof z.infer<S>,
+    DK extends ParamsKey<G, S>,
+  >(init: AppInit<G, S, E, GK, SK, DK>): App<G, S, E, GK, SK, DK> {
     return new App(init);
   }
   /**
@@ -237,6 +219,7 @@ export interface AppInit<
    * @typeParam EventType      - A key from your eventTypeMapSchema (e.g., 'rest' | 'http' | 'sqs' | 'step'). Inferred as a literal when `eventType` is passed; when omitted it widens to all keys of the map (the runtime value is still derived from the path), so pass `eventType` when the handler needs the narrowed event type.
    * @typeParam EventSchema    - Optional Zod schema validated BEFORE the handler (refines event shape)
    * @typeParam ResponseSchema - Optional Zod schema validated AFTER the handler (refines response shape)
+   * @typeParam FnEnvKey       - This function's `fnEnvKeys` (inferred as literals); with the app's env keys they type `options.env`
    * @param options - per‑function configuration
    * @returns a per‑function API: { handler(business), openapi(baseOperation), serverless(extras) }
    * @throws Error when `eventType` is omitted and the caller isn't under `<appRootAbs>/functions/<eventType>/` for a key of eventTypeMapSchema, or it is an HTTP token and the method or base path can't be derived; when `functionName` duplicates another function's; or when an HTTP function selects (or `functionDefaults.http` selects) a profile that isn't in `http.profiles`
@@ -245,17 +228,25 @@ export interface AppInit<
     EventType extends Extract<keyof z.infer<EventTypeMapSchema>, string>,
     EventSchema extends z.ZodType | undefined,
     ResponseSchema extends z.ZodType | undefined,
+    FnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> = never,
   >(
     options: DefineFunctionOptions<
       EventType,
       EventSchema,
       ResponseSchema,
-      keyof (z.infer<GlobalParamsSchema> & z.infer<StageParamsSchema>)
+      FnEnvKey
     >,
   ) {
-    return this.registry.defineFunction<EventType, EventSchema, ResponseSchema>(
-      options,
-    );
+    return this.registry.defineFunction<
+      EventType,
+      EventSchema,
+      ResponseSchema,
+      FunctionEnv<
+        z.infer<GlobalParamsSchema>,
+        z.infer<StageParamsSchema>,
+        GlobalEnvKey | StageEnvKey | DefaultFnEnvKey | FnEnvKey
+      >
+    >(options);
   }
 
   /**

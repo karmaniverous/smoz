@@ -51,6 +51,7 @@ npx smoz add rest/foo/get
 - [10-minute tour](./docs-src/tour-10-minutes.md)
 - [HTTP Middleware](https://docs.karmanivero.us/smoz/documents/HTTP_middleware.html)
 - [Recipes](./docs-src/recipes/index.md)
+  - [Validation and the handler event](./docs-src/recipes/validation.md)
   - [SQS function](./docs-src/recipes/sqs.md)
   - [Step Functions function](./docs-src/recipes/step.md)
   - [Contexts + Cognito authorizer](./docs-src/recipes/contexts-auth.md) - [Custom middleware insertion](./docs-src/recipes/custom-middleware.md)

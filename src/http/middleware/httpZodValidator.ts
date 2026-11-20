@@ -1,14 +1,19 @@
 /**
- * Requirements:
- * - Validate incoming events before the handler (when schema provided).
- * - Validate outgoing responses after the handler (when schema provided).
- * - Throw errors with messages "Invalid event"/"Invalid response" for mapping in HTTP mode; internal mode will simply throw.
- */ import type { MiddlewareObj } from '@middy/core';
+ * Middy validator for HTTP functions: validates the event before the handler
+ * and hands the handler the parsed output overlaid on the raw event;
+ * validates the response after it.
+ *
+ * Errors are "Invalid event"/"Invalid response" so HTTP mode can map them
+ * (event → 400, response → 500); non-HTTP functions throw them (see wrapHandler).
+ *
+ * @packageDocumentation
+ */
+import type { MiddlewareObj } from '@middy/core';
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import type { z } from 'zod';
 
 import type { ConsoleLogger, Loggable } from '@/src/types/Loggable';
-import { pojofy } from '@/src/util/pojofy';
+import { parseWithZod, shapeEvent } from '@/src/util/zodValidate';
 
 export type HttpZodValidatorOptions<
   EventSchema extends z.ZodType | undefined,
@@ -18,37 +23,11 @@ export type HttpZodValidatorOptions<
   eventSchema?: EventSchema;
   responseSchema?: ResponseSchema;
 } & Partial<Loggable<Logger>>;
-const assertWithZod = (
-  value: unknown,
-  schema: z.ZodType | undefined,
-  logger: ConsoleLogger,
-  kind: 'event' | 'response',
-): void => {
-  if (!schema) return;
-  logger.debug('validating with zod', value);
-  const result = schema.safeParse(value);
-  if (result.success) {
-    logger.debug('zod validation succeeded', pojofy(result));
-    return;
-  }
-
-  // Log a structured object for easier debugging.
-  logger.error('zod validation failed', pojofy(result));
-
-  // Throw a readable error that upstream layers can interpret.
-  // We intentionally use "Invalid event"/"Invalid response" so HTTP mode can map to 400,
-  // while internal mode simply throws.
-  const msg = kind === 'event' ? 'Invalid event' : 'Invalid response';
-  const err = Object.assign(new Error(msg), {
-    name: 'ZodError',
-    issues: result.error.issues,
-  });
-  throw err;
-};
 
 /**
- * Validate the *incoming* event before business logic runs, and the *outgoing*
- * response after it returns (unless a shaped HTTP envelope or a raw string).
+ * Validate the *incoming* event before business logic runs (replacing it with
+ * the parsed output overlaid on the raw event), and the *outgoing* response
+ * after it returns (unless a shaped HTTP envelope or a raw string).
  */
 export const httpZodValidator = <
   EventSchema extends z.ZodType | undefined,
@@ -63,8 +42,9 @@ export const httpZodValidator = <
   Context
 > => ({
   before: async (request) => {
-    const event = (request as unknown as { event?: unknown }).event;
-    assertWithZod(event, eventSchema, logger, 'event');
+    if (!eventSchema) return;
+    const container = request as unknown as { event?: unknown };
+    container.event = shapeEvent(container.event, eventSchema, logger);
   },
   after: async (request) => {
     const container = request as unknown as { response?: unknown };
@@ -81,6 +61,6 @@ export const httpZodValidator = <
     // ...or a raw string (serializer will pass it through).
     if (looksShaped || typeof res === 'string') return;
 
-    assertWithZod(res, responseSchema, logger, 'response');
+    parseWithZod(res, responseSchema, logger, 'response');
   },
 });

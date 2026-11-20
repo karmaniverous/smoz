@@ -88,7 +88,7 @@ Scaffold:
 
 Paths must follow the convention under `app/functions/<eventType>/...`.
 
-The generated `lambda.ts` sets only the schemas and `callerModuleUrl`. The event type, method, base path, function name, contexts and content type derive from the folder and the app's `functionDefaults` (see "What `defineFunction` derives from the path" in the [Overview](./overview.md)); add a field to override it.
+The generated `lambda.ts` sets the schemas, `callerModuleUrl` and a literal `eventType` (it derives from the folder too, but only a literal types the handler's event; see [Validation and the handler event](./recipes/validation.md)). The method, base path, function name, contexts and content type derive from the folder and the app's `functionDefaults` (see "What `defineFunction` derives from the path" in the [Overview](./overview.md)); add a field to override it.
 
 Path parameters
 
@@ -111,12 +111,12 @@ export const eventSchema = z.object({
 });
 
 export const handler = fn.handler(async (event) => {
-  const id = event.pathParameters.id; // typed via ShapedEvent
-  return { ok: true } as const;
+  const id = event.pathParameters.id; // string: the schema's parsed output
+  return { ok: true };
 });
 ```
 
-- Numeric id (coerce to number for handler convenience):
+- Numeric id (coerce to number; the handler receives a `number` at runtime, not just in its type). See [Validation and the handler event](./recipes/validation.md):
 
 ```ts
 export const eventSchema = z.object({

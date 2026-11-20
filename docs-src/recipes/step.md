@@ -53,9 +53,8 @@ export const fn = app.defineFunction({
 import { fn } from './lambda';
 
 export const handler = fn.handler(async (event) => {
-  // The wrapper event may include Payload; validate its structure as needed.
-  const payload = (event as { Payload?: unknown }).Payload as
-    { foo?: string } | undefined;
+  // Payload is the eventSchema's parsed output: { foo: string } | undefined.
+  const foo = event.Payload?.foo;
   // ... do work ...
 });
 ```

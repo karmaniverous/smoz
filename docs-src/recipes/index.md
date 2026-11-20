@@ -3,6 +3,7 @@ title: Recipes
 sidebar_label: Recipes
 sidebar_position: 6
 children:
+  - ./validation.md
   - ./sqs.md
   - ./step.md
   - ./contexts-auth.md
@@ -17,6 +18,7 @@ children:
 
 Concrete patterns you can lift into your app. Each recipe links to a focusedpage with short snippets.
 
+- [Validation and the handler event](./validation.md)
 - [SQS function](./sqs.md)
 - [Step Functions function](./step.md)
 - [Contexts + Cognito authorizer](./contexts-auth.md)

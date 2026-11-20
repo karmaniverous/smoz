@@ -62,8 +62,8 @@ SMOZ is a tiny, pragmatic toolkit that favors explicit design over magic:
   - `npm run package` lets Serverless package using the registry’s outputs.
 - HTTP defaults you don’t have to babysit:
   - HEAD short‑circuit, header/event normalization, content negotiation, safe
-    JSON body parsing (multipart opt-in), Zod validation before/after, error exposure with 400
-    mapping, CORS, shaping, and serialization.
+    JSON body parsing (multipart opt-in), Zod validation before/after, error exposure (invalid event
+    400, invalid response 500), CORS, shaping, and serialization.
 - Non‑HTTP stays lean:
   - Same handler signature, no Middy stack; just your business code.
 
@@ -83,13 +83,9 @@ export const fn = app.defineFunction({
 
 ```ts
 // app/functions/rest/hello/get/handler.ts
-import type { z } from 'zod';
-import type { responseSchema } from './lambda';
 import { fn } from './lambda';
-type Response = z.infer<typeof responseSchema>;
-export const handler = fn.handler(async (): Promise<Response> => ({
-  ok: true,
-}));
+// Typed event in, checked response out: no casts, no re-parsing.
+export const handler = fn.handler(async () => ({ ok: true }));
 ```
 
 ## Easy to try & adopt
@@ -112,8 +108,11 @@ npx smoz dev -p 3000
 
 - Schema‑first types that stick:
   - `Handler<EventSchema, ResponseSchema, EventType>` with a `ShapedEvent` that
-    reflects Zod overrides.
-  - Typed env: list per‑function extras via `fnEnvKeys`; the app supplies
+    matches what the runtime delivers: the handler receives the
+    `eventSchema`'s parsed output on the keys it declares, and its type says
+    so ([Validation and the handler event](./recipes/validation.md)).
+  - Typed env: `options.env` is typed as exactly the keys the function
+    receives. List per‑function extras via `fnEnvKeys`; the app supplies
     provider‑level env from global/stage keys.
 - A stack that feels right:
   - Robust defaults + opt‑in customization via profiles, options, extend,

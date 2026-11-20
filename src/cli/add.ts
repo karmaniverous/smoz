@@ -27,13 +27,19 @@ const HTTP_METHODS = new Set([
   'trace',
 ]);
 
-const formatMaybe = async (root: string, filePath: string, source: string) => {
+/**
+ * Format a scaffolded file with the app's Prettier config, when Prettier is
+ * installed. `resolveConfig` searches upward from the file's own directory,
+ * so it finds the app's config (given the app root, it would start at the
+ * root's parent and miss it).
+ */
+const formatMaybe = async (filePath: string, source: string) => {
   try {
     const prettier = (await import('prettier')) as unknown as {
       resolveConfig: (p: string) => Promise<Record<string, unknown> | null>;
       format: (s: string, o: Record<string, unknown>) => string;
     };
-    const cfg = (await prettier.resolveConfig(root)) ?? {};
+    const cfg = (await prettier.resolveConfig(filePath)) ?? {};
     return prettier.format(source, { ...cfg, filepath: filePath });
   } catch {
     return source;
@@ -74,16 +80,20 @@ const toPathSeg = (s: string): string =>
   isParamSeg(s) ? `{${getParamName(s)}}` : s;
 
 /**
- * `lambda.ts` for a new function. `eventType`, `method`, `basePath`,
- * `functionName`, `httpContexts` and `contentType` derive from the folder
- * and the app's `functionDefaults`, so only real overrides are written:
- * `basePath` when a path parameter folder (`[id]`) maps to `{id}`.
+ * `lambda.ts` for a new function. `method`, `basePath`, `functionName`,
+ * `httpContexts` and `contentType` derive from the folder and the app's
+ * `functionDefaults`, so only real overrides are written: `basePath` when a
+ * path parameter folder (`[id]`) maps to `{id}`. `eventType` is written as a
+ * literal: at runtime it derives from the folder too, but only a literal
+ * types the handler's event (#39 D1).
  */
 const lambdaTemplate = ({
   heading,
+  eventType,
   basePath,
 }: {
   heading: string;
+  eventType: string;
   basePath?: string | undefined;
 }) => `/**
  * Registration: ${heading}
@@ -96,24 +106,30 @@ export const eventSchema = z.unknown();
 export const responseSchema = z.unknown();
 
 export const fn = app.defineFunction({
+  // A literal eventType types the handler's event.
+  eventType: '${eventType}',
 ${basePath === undefined ? '' : `  // Folder [param] is served as {param}.\n  basePath: '${basePath}',\n`}  eventSchema,
   responseSchema,
   callerModuleUrl: import.meta.url,
 });
 `;
 
-const handlerHttpTemplate = () => `/**
- * Handler: replace with your business logic.
+/**
+ * `handler.ts` for a new function (HTTP or not). No casts: the event is
+ * typed by `eventType` and `eventSchema`, the return value is checked
+ * against `responseSchema`.
  */
-import { z } from 'zod';
-
-import type { responseSchema } from './lambda';
+const handlerTemplate = () => `/**
+ * Handler: replace with your business logic.
+ *
+ * \`event\` is typed by eventType and eventSchema; the return value is
+ * checked against responseSchema.
+ */
 import { fn } from './lambda';
 
-type Response = z.infer<typeof responseSchema>;
-
-export const handler = fn.handler(async (): Promise<Response> => {
-  return {} as Response;
+export const handler = fn.handler(async () => {
+  await Promise.resolve();
+  return {};
 });
 `;
 
@@ -160,21 +176,6 @@ ${paramsBlock}  requestBody: {
 export {};
 `;
 };
-
-const handlerInternalTemplate = () => `/**
- * Handler: replace with your business logic.
- */
-import { z } from 'zod';
-
-import type { responseSchema } from './lambda';
-import { fn } from './lambda';
-
-type Response = z.infer<typeof responseSchema>;
-
-export const handler = fn.handler(async (): Promise<Response> => {
-  return {} as Response;
-});
-`;
 
 export const runAdd = async (
   root: string,
@@ -226,6 +227,7 @@ export const runAdd = async (
       path: lambdaPath,
       content: lambdaTemplate({
         heading: `${method!.toUpperCase()} ${pathTemplate}`,
+        eventType: token,
         // Derived basePath is the folder path; write it only when it differs.
         basePath: basePath === dirSegs.join('/') ? undefined : basePath,
       }),
@@ -233,7 +235,7 @@ export const runAdd = async (
     });
     files.push({
       path: handlerPath,
-      content: handlerHttpTemplate(),
+      content: handlerTemplate(),
       enabled: true,
     });
     files.push({
@@ -244,12 +246,15 @@ export const runAdd = async (
   } else {
     files.push({
       path: lambdaPath,
-      content: lambdaTemplate({ heading: `internal ${token} function` }),
+      content: lambdaTemplate({
+        heading: `internal ${token} function`,
+        eventType: token,
+      }),
       enabled: true,
     });
     files.push({
       path: handlerPath,
-      content: handlerInternalTemplate(),
+      content: handlerTemplate(),
       enabled: true,
     });
     files.push({ path: openapiPath, content: '', enabled: false });
@@ -259,7 +264,7 @@ export const runAdd = async (
   const skipped: string[] = [];
   for (const f of files) {
     if (!f.enabled) continue;
-    const formatted = await formatMaybe(root, f.path, f.content);
+    const formatted = await formatMaybe(f.path, f.content);
     const { created: c } = await writeIfAbsent(f.path, formatted);
     if (c) created.push(posix.normalize(f.path));
     else skipped.push(posix.normalize(f.path));

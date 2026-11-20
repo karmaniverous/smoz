@@ -29,7 +29,7 @@ Why this stack?
 - HTTP runtime wrapper
   - Event/body normalization, content negotiation
   - Zod validation before/after the handler
-  - Error exposure with 400 mapping for validation
+  - Error exposure: invalid event → 400, invalid response → 500
   - CORS, JSON, HEAD short‑circuit
 - Non‑HTTP stays lean
   - Bypass Middy entirely; same options surface
@@ -77,7 +77,7 @@ import { app } from '@/app/config/app.config';
 export const responseSchema = z.array(z.object({ id: z.string() }));
 
 export const fn = app.defineFunction({
-  eventType: 'rest', // optional; see below
+  eventType: 'rest', // derivable, but only a literal types the event; see below
   responseSchema,
   callerModuleUrl: import.meta.url,
 });
@@ -85,7 +85,7 @@ export const fn = app.defineFunction({
 
 An explicit field always wins over a derived one, so set `basePath` or `functionName` where a function departs from its folder. If `eventType` is omitted and the file isn't under `functions/<eventType>/`, or that folder isn't a key of `eventTypeMapSchema`, `defineFunction` throws when the module loads, naming the fix. It also throws when the derived `eventType` is HTTP and the method or base path can't be derived (e.g. `functions/rest/lambda.ts`, or `functions/rest/users/lambda.ts` where `users` isn't a method): put the file in `functions/rest/<path>/<method>/` or pass `method` and `basePath`. With an explicit `eventType` there is no such check, and a function without a derivable route gets no HTTP event and no OpenAPI path.
 
-`eventType` is worth passing even though it can be derived: given explicitly, the literal token types the handler's event (e.g. `APIGatewayProxyEvent` for `'rest'`). Omitted, the handler's event type widens to the union of all event types in the map.
+`eventType` is worth passing even though it can be derived: given explicitly, the literal token types the handler's event (e.g. `APIGatewayProxyEvent` for `'rest'`). Omitted, the handler's event type widens to the union of all event types in the map. `smoz init` and `smoz add` write it into every function they scaffold. How `eventSchema` then shapes the event is in [Validation and the handler event](./recipes/validation.md).
 
 ### Bundled or not, the same result
 
