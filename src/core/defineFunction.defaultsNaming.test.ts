@@ -78,6 +78,22 @@ describe('functionDefaults', () => {
         /cannot apply functionDefaults\.functionName .* Pass functionName explicitly/,
       );
     });
+
+    it('names the cross-function import when a bundle gives the wrong caller path (#42)', () => {
+      // A REST function's lambda.ts, bundled into a Cognito trigger, sees the
+      // trigger's import.meta.url.
+      const app = makeApp({ functionDefaults: { functionName: 'kebab' } });
+      expect(() =>
+        app.defineFunction({
+          eventType: 'rest',
+          method: 'get',
+          basePath: 'user',
+          callerModuleUrl: at('functions/cognito-userpool/customMessage'),
+        }),
+      ).toThrow(
+        /another function importing this function's lambda\.ts or handler\.ts.*smoz\/no-cross-function-imports/,
+      );
+    });
   });
 
   describe('http', () => {

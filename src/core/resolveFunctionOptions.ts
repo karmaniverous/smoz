@@ -84,6 +84,15 @@ const derivationRoot = (
   return ctx.appRootAbs;
 };
 
+/**
+ * Appended to the errors a wrong caller path produces. In a deployed bundle
+ * the usual cause is another function importing this one's modules (#42).
+ */
+export const crossFunctionImportHint =
+  " In a deployed bundle, the usual cause is another function importing this function's lambda.ts or handler.ts: " +
+  "its import.meta.url is then the importer's. Move shared code outside app/functions; the ESLint rule " +
+  'smoz/no-cross-function-imports catches this.';
+
 const deriveEventType = (
   callerDir: string,
   root: string,
@@ -95,7 +104,8 @@ const deriveEventType = (
     throw new Error(
       `defineFunction: cannot derive eventType for ${callerDir}: it is not under ${functionsRoot}/<eventType>/, ` +
         `and its path has no functions/<eventType>/ folder for an event type of this app (known: ${ctx.eventTypeKeys.join(', ')}). ` +
-        'Move the file under functions/<eventType>/ or pass eventType explicitly.',
+        'Move the file under functions/<eventType>/ or pass eventType explicitly.' +
+        crossFunctionImportHint,
     );
   }
   if (!ctx.eventTypeKeys.includes(eventType)) {
@@ -134,7 +144,8 @@ const applyNameStyle = (
   if (!segments) {
     throw new Error(
       `defineFunction: cannot apply functionDefaults.functionName for ${callerDir}: it is not under ${endpointsRootAbs}. ` +
-        'Pass functionName explicitly.',
+        'Pass functionName explicitly.' +
+        crossFunctionImportHint,
     );
   }
   const nameCtx: FunctionNameContext = { eventType, segments, defaultName };
