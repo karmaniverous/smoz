@@ -1,11 +1,5 @@
 {
   "author": "Jason Williscroft",
-  "auto-changelog": {
-    "output": "CHANGELOG.md",
-    "unreleased": true,
-    "commitLimit": false,
-    "hideCredit": true
-  },
   "bin": {
     "smoz": "dist/cli/index.mjs"
   },
@@ -42,7 +36,6 @@
     "@types/node": "^26.6.6",
     "@types/serverless": "^3.12.28",
     "@vitest/coverage-v8": "^5.1.1",
-    "auto-changelog": "^2.7.0",
     "esbuild": "^0.28.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
@@ -130,7 +123,7 @@
   },
   "release-it": {
     "git": {
-      "changelog": "npx auto-changelog --stdout --template https://raw.githubusercontent.com/release-it/release-it/main/templates/changelog-compact.hbs",
+      "changelog": "npx git-cliff --unreleased --strip header",
       "commitMessage": "chore: release v${version}",
       "requireBranch": "main"
     },
@@ -157,7 +150,7 @@
         "git switch ${branchName}"
       ],
       "after:bump": [
-        "npx auto-changelog -p",
+        "npx git-cliff --unreleased --tag ${version} --prepend CHANGELOG.md",
         "npm run docs",
         "git add CHANGELOG.md"
       ]
@@ -173,7 +166,7 @@
   "scripts": {
     "build": "rimraf dist && rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "baseline:record": "tsx scripts/baseline-record.ts",
-    "changelog": "auto-changelog",
+    "changelog": "git-cliff --unreleased --prepend CHANGELOG.md",
     "deploy": "tsx src/cli/index.ts register && serverless deploy",
     "diagrams": "cd diagrams/src && plantuml -tpng -o ../out -r .",
     "docs": "typedoc",
