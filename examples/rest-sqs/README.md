@@ -1,62 +1,61 @@
-# Example: REST + SQS (non‑HTTP)
+# Example: REST + SQS (non-HTTP)
 
-A minimal example that adds a non‑HTTP SQS function to the template.
+Adds a non-HTTP SQS function, triggered by a queue, to the default template.
 
 Prerequisites
 
-- Node 22.x
+- Node 22.19 or later
 - A package manager (npm/pnpm/yarn/bun)
 
 Steps
 
 1. Create a fresh directory and initialize the template:
    ```bash
-   mkdir -p /tmp/smoz-rest-sqs && cd /tmp/smoz-rest-sqs
-   npx smoz init --yes
+   mkdir smoz-rest-sqs && cd smoz-rest-sqs
+   npx -p @karmaniverous/get-dotenv@^8.0.0 -p @karmaniverous/smoz smoz init --yes
    ```
-2. Add an SQS function (non‑HTTP):
+2. Add an SQS function:
    ```bash
    npx smoz add sqs/tick
    ```
-   This creates:
-   - `app/functions/sqs/tick/lambda.ts`
-   - `app/functions/sqs/tick/handler.ts`
-3. Attach an SQS event (serverless extras)
-
-   Create `app/functions/sqs/tick/serverless.ts`:
+   This creates `app/functions/sqs/tick/lambda.ts` (with `eventType: 'sqs'`) and `handler.ts`. The handler's event is typed as `SQSEvent`.
+3. Validate what the handler relies on. In `lambda.ts`:
+   ```ts
+   export const eventSchema = z.object({
+     Records: z.array(z.looseObject({ body: z.string() })),
+   });
+   export const responseSchema = z.void();
+   ```
+   An event that fails the schema throws `Invalid event`; for SQS the batch fails, is retried, then goes to the dead-letter queue if one is configured. The handler stub returns `{}`; change it to return nothing to match `z.void()`.
+4. Attach the SQS trigger. Create `app/functions/sqs/tick/serverless.ts`:
 
    ```ts
    import { fn } from './lambda';
 
-   // Attach SQS trigger (replace ARN with your queue)
+   // Replace the ARN with your queue's.
    fn.serverless([
      { sqs: { arn: 'arn:aws:sqs:us-east-1:123456789012:my-queue' } },
    ]);
    ```
 
-4. Generate registers and OpenAPI:
+5. Generate registers and OpenAPI, then typecheck:
    ```bash
    npx smoz register
    npm run openapi
+   npm run typecheck
    ```
-5. Package with Serverless (no deploy):
+   Non-HTTP functions don't appear in `openapi.json`.
+6. Package with Serverless (no deploy):
    ```bash
    npm run package
    ```
+   Serverless Framework v4 asks you to log in (or set `SERVERLESS_ACCESS_KEY`) first.
 
 Notes
 
-- Non‑HTTP flows bypass the HTTP middleware; your handler receives raw events (shaped only by any Zod schemas you provide).
-- The registry aggregates serverless extras from per‑function `serverless.ts`; ensure your top‑level `serverless.ts` imports `@/app/generated/register.serverless`.
+- Non-HTTP functions bypass the HTTP middleware, but the wrapper still runs `eventSchema` before the handler and `responseSchema` after it. The handler receives the parsed output on the keys the schema declares. See [Validation and the handler event](../../docs-src/recipes/validation.md).
+- The registry aggregates the extras in each function's `serverless.ts`; the template's top-level `serverless.ts` already imports `@/app/generated/register.serverless`.
 
 Troubleshooting
 
-- If “module not found” for `app/generated/register.*`, run:
-  ```bash
-  npx smoz register
-  ```
-- To exercise the HTTP path too, you can additionally add and package a simple endpoint:
-  ```bash
-  npx smoz add rest/hello/get
-  npx smoz register && npm run openapi && npm run package
-  ```
+- "module not found" for `app/generated/register.*`: run `npx smoz register`.

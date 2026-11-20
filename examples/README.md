@@ -1,42 +1,22 @@
 # SMOZ Examples
 
-This folder hosts small, focused examples you can run locally. Each example is kept minimal and uses the SMOZ CLI to generate registers and OpenAPI.
+Each example is a short walkthrough: scaffold an app with `smoz init`, add functions with `smoz add`, then generate registers and OpenAPI. No example code is checked in; the CLI writes it.
 
-Status
+- [rest-only](./rest-only/README.md): the default template plus a path-parameter endpoint.
+- [rest-sqs](./rest-sqs/README.md): adds a non-HTTP SQS function with a queue trigger.
+- [rest-step](./rest-step/README.md): adds a non-HTTP Step Functions task.
 
-- rest-only: ready (instructions below and in `examples/rest-only/README.md`)
-- rest-sqs: ready (see `examples/rest-sqs/README.md`)
-- rest-step: ready (see `examples/rest-step/README.md`)
+Every example starts the same way:
 
-Quick start (rest-only)
+```bash
+mkdir smoz-example && cd smoz-example
+npx -p @karmaniverous/get-dotenv@^8.0.0 -p @karmaniverous/smoz smoz init --yes
+```
 
-1. Create a new folder outside this repository (or anywhere you prefer):
-   ```bash
-   mkdir -p /tmp/smoz-rest-only && cd /tmp/smoz-rest-only
-   ```
-2. Initialize a minimal app:
-   ```bash
-   npx smoz init --template minimal --yes
-   ```
-3. Add a hello endpoint:
-   ```bash
-   npx smoz add rest/hello/get
-   ```
-4. Generate registers and OpenAPI:
-   ```bash
-   npx smoz register
-   npm run openapi
-   ```
-5. Package (no deploy):
-   ```bash
-   npm run package
-   ```
+`smoz init` copies the `default` template (the only one) and installs its dependencies. The app already has two endpoints, `GET /hello` and `GET /openapi`.
 
 Notes
 
-- The template includes everything you need to typecheck and package. Read the comments in the generated files for guidance.
-- The CLI `add` command supports native path parameters. For example:
-  ```bash
-  npx smoz add rest/users/:id/get
-  ```
-  This creates `app/functions/rest/users/[id]/get/*` on disk, emits `basePath: 'users/{id}'`, and adds an OpenAPI parameters entry for `id`.
+- Scaffolded `lambda.ts` files set a literal `eventType`, which types the handler's event. See [Validation and the handler event](../docs-src/recipes/validation.md).
+- `smoz add` accepts native path parameters: `npx smoz add rest/users/:id/get` creates `app/functions/rest/users/[id]/get/*`, writes `basePath: 'users/{id}'`, and adds an OpenAPI parameters entry for `id`.
+- `smoz add` never overwrites a file that exists, so adding an endpoint the template already has (`rest/hello/get`) does nothing.
