@@ -151,10 +151,12 @@ export type FunctionNameStyle =
  *
  * `httpContexts`, `contentType` and `http` only affect HTTP functions;
  * non-HTTP functions ignore them.
+ *
+ * @typeParam EnvKey - keys allowed in `fnEnvKeys` (in `App.create`, the app's params keys)
  */
-export interface FunctionDefaults {
+export interface FunctionDefaults<EnvKey extends PropertyKey = string> {
   /** Env keys exposed to every function; merged with each function's `fnEnvKeys` (unique, defaults first). */
-  fnEnvKeys?: readonly string[];
+  fnEnvKeys?: readonly EnvKey[];
   /** Default security contexts for HTTP functions (built-in default `['public']`). */
   httpContexts?: readonly HttpContext[];
   /**

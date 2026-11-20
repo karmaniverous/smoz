@@ -52,6 +52,7 @@ export function wrapHandler<
   EventType extends keyof EventTypeMap,
   EventSchema extends z.ZodType | undefined,
   ResponseSchema extends z.ZodType | undefined,
+  Env extends Record<string, unknown> = Record<string, unknown>,
 >(
   functionConfig: FunctionConfig<
     EventSchema,
@@ -62,7 +63,7 @@ export function wrapHandler<
     EventType
   > &
     EnvAttached<GlobalParamsSchema, StageParamsSchema>,
-  business: Handler<EventSchema, ResponseSchema, EventTypeMap[EventType]>,
+  business: Handler<EventSchema, ResponseSchema, EventTypeMap[EventType], Env>,
   opts?: {
     httpEventTypeTokens?: readonly string[];
     httpConfig?: AppHttpConfig;
@@ -117,10 +118,12 @@ export function wrapHandler<
       envConfig.global.paramsSchema,
       envConfig.stage.paramsSchema,
     );
+    // The schema picks exactly the keys Env names, typed from the same
+    // params schemas; Env is that type, stated once at definition.
     const env = parseTypedEnv(
       envSchema,
       process.env as Record<string, unknown>,
-    );
+    ) as Env;
     const logger = console;
 
     // Non-HTTP: call business directly

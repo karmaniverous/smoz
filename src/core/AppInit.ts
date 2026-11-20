@@ -17,11 +17,20 @@ import type { AppHttpConfig } from '@/src/http/middleware/httpStackCustomization
  * @typeParam GlobalParamsSchema - Zod object schema for global parameters
  * @typeParam StageParamsSchema - Zod object schema for per-stage parameters
  * @typeParam EventTypeMapSchema - Zod object schema mapping event tokens to runtime types
+ * @typeParam GlobalEnvKey - keys of `global.envKeys` (inferred as literals; types `options.env`)
+ * @typeParam StageEnvKey - keys of `stage.envKeys` (inferred as literals; types `options.env`)
+ * @typeParam DefaultFnEnvKey - keys of `functionDefaults.fnEnvKeys` (inferred as literals; types `options.env`)
  */
 export interface AppInit<
   GlobalParamsSchema extends ZodObj,
   StageParamsSchema extends ZodObj,
   EventTypeMapSchema extends ZodObj,
+  GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> =
+    keyof z.infer<GlobalParamsSchema>,
+  StageEnvKey extends keyof z.infer<StageParamsSchema> =
+    keyof z.infer<StageParamsSchema>,
+  DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> =
+    ParamsKey<GlobalParamsSchema, StageParamsSchema>,
 > {
   appRootAbs: string;
   globalParamsSchema: GlobalParamsSchema;
@@ -31,12 +40,14 @@ export interface AppInit<
   serverless: z.input<typeof serverlessConfigSchema>;
   global: {
     params: z.infer<GlobalParamsSchema>;
-    envKeys: readonly (keyof z.infer<GlobalParamsSchema>)[];
+    /** Global params exposed to every function's env. */
+    envKeys: readonly GlobalEnvKey[];
   };
   stage: {
     /** Accept raw stage param objects; App will parse with (global.partial + stage) */
     params: Record<string, Record<string, unknown>>;
-    envKeys: readonly (keyof z.infer<StageParamsSchema>)[];
+    /** Stage params exposed to every function's env. */
+    envKeys: readonly StageEnvKey[];
   };
   /**
    * HTTP tokens to treat as HTTP at runtime (widenable).
@@ -53,5 +64,14 @@ export interface AppInit<
    * HTTP customization, Serverless properties, name style). Explicit
    * per-function values win.
    */
-  functionDefaults?: FunctionDefaults;
+  functionDefaults?: FunctionDefaults<DefaultFnEnvKey>;
 }
+
+/** A key of the app's global or stage params. */
+export type ParamsKey<
+  GlobalParamsSchema extends ZodObj,
+  StageParamsSchema extends ZodObj,
+> = Extract<
+  keyof (z.infer<GlobalParamsSchema> & z.infer<StageParamsSchema>),
+  string
+>;

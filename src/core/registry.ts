@@ -55,6 +55,7 @@ export const createRegistry = <
       EventType extends Extract<keyof z.infer<EventTypeMapSchema>, string>,
       EventSchema extends z.ZodType | undefined,
       ResponseSchema extends z.ZodType | undefined,
+      Env extends Record<string, unknown> = Record<string, unknown>,
     >(
       options: DefineFunctionOptions<
         EventType,
@@ -93,7 +94,8 @@ export const createRegistry = <
           business: Handler<
             EventSchema,
             ResponseSchema,
-            (z.infer<EventTypeMapSchema> & BaseEventTypeMap)[EventType]
+            (z.infer<EventTypeMapSchema> & BaseEventTypeMap)[EventType],
+            Env
           >,
         ) => {
           type GlobalParams = z.infer<GlobalParamsSchema>;
@@ -117,7 +119,8 @@ export const createRegistry = <
             EventTypeMapResolved,
             EventType,
             EventSchema,
-            ResponseSchema
+            ResponseSchema,
+            Env
           >(deps.httpEventTypeTokens, deps.http, deps.functionDefaults);
           return make(fnConfig, business);
         },

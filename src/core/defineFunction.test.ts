@@ -46,10 +46,13 @@ const eventTypeMapSchema = baseEventTypeMapSchema.extend({
   custom: z.unknown(),
 });
 
+/** Env keys of the test app's params. */
+type TestEnvKey = 'REGION' | 'STAGE';
+
 const makeApp = (
   extra: {
     appRootAbs?: string;
-    functionDefaults?: FunctionDefaults;
+    functionDefaults?: FunctionDefaults<TestEnvKey>;
     http?: AppHttpConfig;
   } = {},
 ) =>
@@ -391,7 +394,10 @@ describe('defineFunction: app config bundled into the function (#29)', () => {
   /** An app as it runs inside the bundle of the function at `<root>/<rel>`. */
   const bundledApp = (
     rel: string,
-    extra: { functionDefaults?: FunctionDefaults; root?: string } = {},
+    extra: {
+      functionDefaults?: FunctionDefaults<TestEnvKey>;
+      root?: string;
+    } = {},
   ) =>
     makeApp({
       appRootAbs: bundledRoot(rel, extra.root),
@@ -430,7 +436,7 @@ describe('defineFunction: app config bundled into the function (#29)', () => {
   it.each(styles)(
     'resolves exactly as unbundled with %s',
     (_, functionName) => {
-      const functionDefaults: FunctionDefaults = functionName
+      const functionDefaults: FunctionDefaults<TestEnvKey> = functionName
         ? { functionName }
         : {};
       const op: BaseOperation = { summary: 'op', responses: {} };

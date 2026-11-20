@@ -20,7 +20,7 @@ import type { AWS } from '@serverless/typescript';
 import type { z } from 'zod';
 import type { ZodOpenApiPathsObject } from 'zod-openapi';
 
-import type { AppInit } from '@/src/core/AppInit';
+import type { AppInit, ParamsKey } from '@/src/core/AppInit';
 import { baseEventTypeMapSchema } from '@/src/core/baseEventTypeMapSchema';
 import { buildStageArtifacts } from '@/src/core/buildStageArtifacts';
 import type { EnvSchemaNode } from '@/src/core/defineAppConfig';
@@ -38,16 +38,26 @@ import type { ZodObj } from '@/src/core/types';
 import type { AppHttpConfig } from '@/src/http/middleware/httpStackCustomization';
 import { buildAllOpenApiPaths as buildPaths } from '@/src/openapi/buildOpenApi';
 import { buildAllServerlessFunctions as buildFns } from '@/src/serverless/buildServerless';
+import type { FunctionEnv } from '@/src/types/FunctionEnv';
 
 /**
  * Application class. *
  * @typeParam GlobalParamsSchema - Zod object schema for global parameters
  * @typeParam StageParamsSchema  - Zod object schema for per‑stage parameters
  * @typeParam EventTypeMapSchema - Zod object schema mapping event tokens to runtime types
+ * @typeParam GlobalEnvKey - the app's global `envKeys` (every function's env)
+ * @typeParam StageEnvKey - the app's stage `envKeys` (every function's env)
+ * @typeParam DefaultFnEnvKey - `functionDefaults.fnEnvKeys` (every function's env)
  */ export class App<
   GlobalParamsSchema extends ZodObj,
   StageParamsSchema extends ZodObj,
   EventTypeMapSchema extends ZodObj,
+  GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> =
+    keyof z.infer<GlobalParamsSchema>,
+  StageEnvKey extends keyof z.infer<StageParamsSchema> =
+    keyof z.infer<StageParamsSchema>,
+  DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> =
+    ParamsKey<GlobalParamsSchema, StageParamsSchema>,
 > {
   /** Helper alias for stage artifacts type */
   private static readonly _stageArtifactsType = null as unknown as ReturnType<
@@ -86,7 +96,14 @@ import { buildAllServerlessFunctions as buildFns } from '@/src/serverless/buildS
   >;
 
   private constructor(
-    init: AppInit<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema>,
+    init: AppInit<
+      GlobalParamsSchema,
+      StageParamsSchema,
+      EventTypeMapSchema,
+      GlobalEnvKey,
+      StageEnvKey,
+      DefaultFnEnvKey
+    >,
   ) {
     this.appRootAbs = init.appRootAbs.replace(/\\/g, '/');
     this.globalParamsSchema = init.globalParamsSchema;
@@ -150,36 +167,87 @@ import { buildAllServerlessFunctions as buildFns } from '@/src/serverless/buildS
    * @param init - initialization object (schemas, serverless defaults, params/envKeys)
    * @returns a new App instance
    */
+  // Env keys are inferred as literal unions (no `as const` needed); absent
+  // ones default to never, so `options.env` holds exactly the declared keys.
   // Overload 1: eventTypeMapSchema provided → infer from provided schema (typed)
   static create<
     GlobalParamsSchema extends ZodObj,
     StageParamsSchema extends ZodObj,
     EventTypeMapSchema extends ZodObj,
+    GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> = never,
+    StageEnvKey extends keyof z.infer<StageParamsSchema> = never,
+    DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> =
+      never,
   >(
-    init: AppInit<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema>,
-  ): App<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema>;
+    init: AppInit<
+      GlobalParamsSchema,
+      StageParamsSchema,
+      EventTypeMapSchema,
+      GlobalEnvKey,
+      StageEnvKey,
+      DefaultFnEnvKey
+    >,
+  ): App<
+    GlobalParamsSchema,
+    StageParamsSchema,
+    EventTypeMapSchema,
+    GlobalEnvKey,
+    StageEnvKey,
+    DefaultFnEnvKey
+  >;
   // Overload 2: eventTypeMapSchema omitted → default to baseEventTypeMapSchema (typed)
   static create<
     GlobalParamsSchema extends ZodObj,
     StageParamsSchema extends ZodObj,
+    GlobalEnvKey extends keyof z.infer<GlobalParamsSchema> = never,
+    StageEnvKey extends keyof z.infer<StageParamsSchema> = never,
+    DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> =
+      never,
   >(
     init: Omit<
       AppInit<
         GlobalParamsSchema,
         StageParamsSchema,
-        typeof baseEventTypeMapSchema
+        typeof baseEventTypeMapSchema,
+        GlobalEnvKey,
+        StageEnvKey,
+        DefaultFnEnvKey
       >,
       'eventTypeMapSchema'
     > & { eventTypeMapSchema?: undefined },
-  ): App<GlobalParamsSchema, StageParamsSchema, typeof baseEventTypeMapSchema>;
+  ): App<
+    GlobalParamsSchema,
+    StageParamsSchema,
+    typeof baseEventTypeMapSchema,
+    GlobalEnvKey,
+    StageEnvKey,
+    DefaultFnEnvKey
+  >;
   // Implementation (must come after overload signatures)
   static create<
     GlobalParamsSchema extends ZodObj,
     StageParamsSchema extends ZodObj,
     EventTypeMapSchema extends ZodObj,
+    GlobalEnvKey extends keyof z.infer<GlobalParamsSchema>,
+    StageEnvKey extends keyof z.infer<StageParamsSchema>,
+    DefaultFnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema>,
   >(
-    init: AppInit<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema>,
-  ): App<GlobalParamsSchema, StageParamsSchema, EventTypeMapSchema> {
+    init: AppInit<
+      GlobalParamsSchema,
+      StageParamsSchema,
+      EventTypeMapSchema,
+      GlobalEnvKey,
+      StageEnvKey,
+      DefaultFnEnvKey
+    >,
+  ): App<
+    GlobalParamsSchema,
+    StageParamsSchema,
+    EventTypeMapSchema,
+    GlobalEnvKey,
+    StageEnvKey,
+    DefaultFnEnvKey
+  > {
     return new App(init);
   }
   /**
@@ -198,6 +266,7 @@ import { buildAllServerlessFunctions as buildFns } from '@/src/serverless/buildS
    * @typeParam EventType      - A key from your eventTypeMapSchema (e.g., 'rest' | 'http' | 'sqs' | 'step'). Inferred as a literal when `eventType` is passed; when omitted it widens to all keys of the map (the runtime value is still derived from the path), so pass `eventType` when the handler needs the narrowed event type.
    * @typeParam EventSchema    - Optional Zod schema validated BEFORE the handler (refines event shape)
    * @typeParam ResponseSchema - Optional Zod schema validated AFTER the handler (refines response shape)
+   * @typeParam FnEnvKey       - This function's `fnEnvKeys` (inferred as literals); with the app's env keys they type `options.env`
    * @param options - per‑function configuration
    * @returns a per‑function API: { handler(business), openapi(baseOperation), serverless(extras) }
    * @throws Error when `eventType` is omitted and the caller isn't under `<appRootAbs>/functions/<eventType>/` for a key of eventTypeMapSchema, or it is an HTTP token and the method or base path can't be derived; when `functionName` duplicates another function's; or when an HTTP function selects (or `functionDefaults.http` selects) a profile that isn't in `http.profiles`
@@ -206,17 +275,25 @@ import { buildAllServerlessFunctions as buildFns } from '@/src/serverless/buildS
     EventType extends Extract<keyof z.infer<EventTypeMapSchema>, string>,
     EventSchema extends z.ZodType | undefined,
     ResponseSchema extends z.ZodType | undefined,
+    FnEnvKey extends ParamsKey<GlobalParamsSchema, StageParamsSchema> = never,
   >(
     options: DefineFunctionOptions<
       EventType,
       EventSchema,
       ResponseSchema,
-      keyof (z.infer<GlobalParamsSchema> & z.infer<StageParamsSchema>)
+      FnEnvKey
     >,
   ) {
-    return this.registry.defineFunction<EventType, EventSchema, ResponseSchema>(
-      options,
-    );
+    return this.registry.defineFunction<
+      EventType,
+      EventSchema,
+      ResponseSchema,
+      FunctionEnv<
+        z.infer<GlobalParamsSchema>,
+        z.infer<StageParamsSchema>,
+        GlobalEnvKey | StageEnvKey | DefaultFnEnvKey | FnEnvKey
+      >
+    >(options);
   }
 
   /**
