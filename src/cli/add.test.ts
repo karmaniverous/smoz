@@ -1,7 +1,7 @@
 /* REQUIREMENTS ADDRESSED (TEST)
 - CLI add: scaffolds HTTP and non-HTTP trees idempotently with expected files.
 */
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -30,6 +30,24 @@ const expectUncastHandler = (dir: string) => {
 };
 
 describe('CLI: add', () => {
+  it.each([
+    [{ singleQuote: true }, "eventType: 'rest'"],
+    [{ singleQuote: false }, 'eventType: "rest"'],
+  ])(
+    "formats with the app's own Prettier config (%o)",
+    async (config, expected) => {
+      const root = mkdtempSync(join(tmpdir(), 'smoz-add-prettier-'));
+      try {
+        writeFileSync(join(root, '.prettierrc.json'), JSON.stringify(config));
+        await runAdd(root, 'rest/q/get');
+        const dir = join(root, 'app', 'functions', 'rest', 'q', 'get');
+        expect(read(dir, 'lambda.ts')).toContain(expected);
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    },
+  );
+
   it('accepts :id, {id} and [id] as the same path parameter', async () => {
     const root = mkdtempSync(join(tmpdir(), 'smoz-add-params-'));
     try {

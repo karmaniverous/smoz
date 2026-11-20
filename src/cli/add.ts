@@ -27,13 +27,19 @@ const HTTP_METHODS = new Set([
   'trace',
 ]);
 
-const formatMaybe = async (root: string, filePath: string, source: string) => {
+/**
+ * Format a scaffolded file with the app's Prettier config, when Prettier is
+ * installed. `resolveConfig` searches upward from the file's own directory,
+ * so it finds the app's config (given the app root, it would start at the
+ * root's parent and miss it).
+ */
+const formatMaybe = async (filePath: string, source: string) => {
   try {
     const prettier = (await import('prettier')) as unknown as {
       resolveConfig: (p: string) => Promise<Record<string, unknown> | null>;
       format: (s: string, o: Record<string, unknown>) => string;
     };
-    const cfg = (await prettier.resolveConfig(root)) ?? {};
+    const cfg = (await prettier.resolveConfig(filePath)) ?? {};
     return prettier.format(source, { ...cfg, filepath: filePath });
   } catch {
     return source;
@@ -258,7 +264,7 @@ export const runAdd = async (
   const skipped: string[] = [];
   for (const f of files) {
     if (!f.enabled) continue;
-    const formatted = await formatMaybe(root, f.path, f.content);
+    const formatted = await formatMaybe(f.path, f.content);
     const { created: c } = await writeIfAbsent(f.path, formatted);
     if (c) created.push(posix.normalize(f.path));
     else skipped.push(posix.normalize(f.path));
