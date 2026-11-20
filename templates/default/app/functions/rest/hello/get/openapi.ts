@@ -1,12 +1,6 @@
 import { fn, responseSchema } from './lambda';
 
-type FnOpenApiApi = {
-  openapi: (op: unknown) => void;
-};
-
-const reg = fn as unknown as FnOpenApiApi;
-
-reg.openapi({
+fn.openapi({
   summary: 'Hello',
   description: 'Return a simple OK payload.',
   responses: {

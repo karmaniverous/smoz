@@ -106,6 +106,12 @@ export const departures: Departure[] = [
     issueOrDecision: '#39',
     note: 'The app depends on the running smoz version (^0.5.0 and later), not ^0.4.1.',
   },
+  {
+    case: 'init',
+    part: 'files',
+    issueOrDecision: '#39',
+    note: 'The app gets test/types.test.ts, a type check that its endpoints keep typed events and checked responses.',
+  },
   // Dependency updates.
   {
     case: 'init',
