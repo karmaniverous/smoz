@@ -4,7 +4,7 @@
  * validates the response after it.
  *
  * Errors are "Invalid event"/"Invalid response" so HTTP mode can map them
- * (event → 400); non-HTTP functions throw them (see wrapHandler).
+ * (event → 400, response → 500); non-HTTP functions throw them (see wrapHandler).
  *
  * @packageDocumentation
  */

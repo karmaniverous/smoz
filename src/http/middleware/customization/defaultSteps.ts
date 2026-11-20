@@ -235,12 +235,18 @@ export const makeErrorExpose = (): M =>
         const msg = typeof maybe.message === 'string' ? maybe.message : '';
         (maybe as { expose?: boolean }).expose = true;
         if (
-          typeof (maybe as { statusCode?: unknown }).statusCode !== 'number' &&
-          ((typeof (maybe as { name?: unknown }).name === 'string' &&
-            (maybe as { name: string }).name.toLowerCase().includes('zod')) ||
-            /invalid (event|response)/i.test(msg))
+          typeof (maybe as { statusCode?: unknown }).statusCode !== 'number'
         ) {
-          (maybe as { statusCode?: number }).statusCode = 400;
+          // A response that fails responseSchema is the server's fault (500);
+          // an invalid event, or any other Zod error, is the client's (400).
+          if (/invalid response/i.test(msg))
+            (maybe as { statusCode?: number }).statusCode = 500;
+          else if (
+            (typeof (maybe as { name?: unknown }).name === 'string' &&
+              (maybe as { name: string }).name.toLowerCase().includes('zod')) ||
+            /invalid event/i.test(msg)
+          )
+            (maybe as { statusCode?: number }).statusCode = 400;
         }
 
         // JSON-encode the error message so middy's httpErrorHandler emits

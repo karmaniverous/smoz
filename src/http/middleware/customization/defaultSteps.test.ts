@@ -31,12 +31,21 @@ describe('error-expose step', () => {
     });
   });
 
-  it('maps "Invalid event" / "Invalid response" messages to 400', async () => {
-    for (const message of ['Invalid event', 'Invalid response']) {
-      expect(await expose(new Error(message))).toMatchObject({
-        statusCode: 400,
-      });
-    }
+  it('maps "Invalid event" to 400: the client sent it', async () => {
+    expect(await expose(new Error('Invalid event'))).toMatchObject({
+      statusCode: 400,
+    });
+  });
+
+  it('maps "Invalid response" to 500 with its message, even as a ZodError', async () => {
+    const err = await expose(
+      Object.assign(new Error('Invalid response'), { name: 'ZodError' }),
+    );
+    expect(err).toMatchObject({ statusCode: 500, expose: true });
+    expect(JSON.parse(err.message)).toEqual({
+      statusCode: 500,
+      message: 'Invalid response',
+    });
   });
 
   it('keeps an existing status code', async () => {

@@ -64,7 +64,7 @@ Don't cast `fn` or the handler's return value; the types are already right, and 
 
 ## Failures
 
-- **HTTP** (`rest`, `http`, and any token in `httpEventTypeTokens`): an invalid event or an invalid response is returned as a `400` (`Invalid event` / `Invalid response`).
+- **HTTP** (`rest`, `http`, and any token in `httpEventTypeTokens`): an invalid event is a `400` (`Invalid event`: the client's fault); a response that fails `responseSchema` is a `500` (`Invalid response`: the handler's fault).
 - **Non-HTTP:** the wrapper throws `Invalid event` before the handler runs, or `Invalid response` after it (an `Error` named `ZodError`, with the Zod `issues` attached). What a throw means depends on the source:
 
 | Event type                 | Effect of a throw                                                                                                      |

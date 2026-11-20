@@ -104,6 +104,35 @@ describe('HTTP: handler receives the parsed event', () => {
     )?.[1];
     expect(allow).toBe('https://example.test');
   });
+
+  it('answers an invalid event with 400', async () => {
+    const evt = createApiGatewayV1Event('GET', { Accept: 'application/json' });
+    evt.queryStringParameters = { limit: 'many' };
+    const res = (await handler(evt, createLambdaContext())) as HttpRes;
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body)).toMatchObject({ message: 'Invalid event' });
+  });
+
+  it('answers a response that fails responseSchema with 500', async () => {
+    const bad = app.defineFunction({
+      functionName: 'bad_response_get',
+      eventType: 'rest',
+      method: 'get',
+      basePath: 'bad-response',
+      httpContexts: ['public'],
+      responseSchema: z.object({ ok: z.boolean() }),
+      callerModuleUrl: import.meta.url,
+      endpointsRootAbs: root,
+    });
+    // The cast stands in for a handler bug the types would otherwise catch.
+    const badHandler = bad.handler(
+      async () => ({ ok: 'no' }) as unknown as { ok: boolean },
+    );
+    const evt = createApiGatewayV1Event('GET', { Accept: 'application/json' });
+    const res = (await badHandler(evt, createLambdaContext())) as HttpRes;
+    expect(res.statusCode).toBe(500);
+    expect(JSON.parse(res.body)).toMatchObject({ message: 'Invalid response' });
+  });
 });
 
 describe('non-HTTP: schemas are enforced around the handler', () => {

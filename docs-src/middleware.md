@@ -16,7 +16,7 @@ SMOZ builds a robust Middy stack around HTTP handlers. Non‑HTTP flows bypassMi
 4. Content negotiation (JSON, vendor +json)
 5. Safe JSON body parsing (no 415 surprises); opt‑in multipart/form‑data parsing (see [below](#multipart-form-data-opt-in))
 6. Zod validation (event before handler, response after handler)
-7. Error exposure + validation→400 mapping
+7. Error exposure: invalid event → 400, invalid response → 500
 8. http‑error‑handler with your logger
 9. CORS (credentials on; preserves computed origin)
 10. Preferred media types defaults across phases

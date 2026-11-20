@@ -40,8 +40,8 @@ export const parseWithZod = (
 
   logger.error(`zod ${kind} validation failed`, pojofy(result.error.issues));
 
-  // The HTTP stack maps "Invalid event"/"Invalid response" to 400;
-  // non-HTTP functions throw it.
+  // The HTTP stack maps "Invalid event" to 400 and "Invalid response" to
+  // 500; non-HTTP functions throw it.
   const msg = kind === 'event' ? 'Invalid event' : 'Invalid response';
   throw Object.assign(new Error(msg), {
     name: 'ZodError',

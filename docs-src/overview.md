@@ -29,7 +29,7 @@ Why this stack?
 - HTTP runtime wrapper
   - Event/body normalization, content negotiation
   - Zod validation before/after the handler
-  - Error exposure with 400 mapping for validation
+  - Error exposure: invalid event → 400, invalid response → 500
   - CORS, JSON, HEAD short‑circuit
 - Non‑HTTP stays lean
   - Bypass Middy entirely; same options surface
