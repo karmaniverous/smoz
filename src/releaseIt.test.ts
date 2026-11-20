@@ -1,4 +1,6 @@
 /* REQUIREMENTS ADDRESSED (TEST)
+- #3: release-it's after:bump prepends the release to CHANGELOG.md (git-cliff),
+  keeping entries git-cliff can't regenerate.
 - #18: GitHub releases are named `smoz@<version>` (the package name without
   its scope), and their notes are git-cliff's for the version being released.
 
@@ -10,7 +12,13 @@ repository, both before the release tag exists (release-it's `beforeRelease`)
 and after it.
 */
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import {
+  copyFileSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -26,7 +34,10 @@ interface GithubConfig {
 
 interface PackageJson {
   name: string;
-  'release-it': { github: Partial<GithubConfig> };
+  'release-it': {
+    github: Partial<GithubConfig>;
+    hooks: Record<string, string[]>;
+  };
 }
 
 const pkg = JSON.parse(
@@ -130,13 +141,17 @@ describe('release-it config (#18)', () => {
     // still the previous release.
     const notes = releaseNotes({ version: '1.1.0', latestTag: '1.0.0' });
     expect(notes).toMatch(
-      /^## \[1\.1\.0\]\(.*\/compare\/1\.0\.0\.\.\.1\.1\.0\)/,
+      /^## \[1\.1\.0\]\(.*\/compare\/1\.0\.0\.\.\.1\.1\.0\) - \d{4}-\d{2}-\d{2}/,
     );
     // The issue prefix is stripped, so the commit is grouped by its type.
-    expect(notes).toMatch(/### Bug Fixes\s+- Second fix/);
+    expect(notes).toMatch(/### .*Bug Fixes\s+- Second fix/);
     expect(notes).not.toContain('First feature');
     expect(notes).not.toContain('release v1.1.0');
-    expect(notes).not.toContain('[Unreleased]');
+    expect(notes).not.toContain('[unreleased]');
+    // Each entry links its commit.
+    expect(notes).toMatch(
+      /- Second fix \(\[[0-9a-f]{7}\]\(.*\/commit\/[0-9a-f]{40}\)\)/,
+    );
     expect(notes).not.toContain('# Changelog');
   });
 
@@ -144,7 +159,9 @@ describe('release-it config (#18)', () => {
     git('tag', '1.1.0');
     try {
       const notes = releaseNotes({ version: '1.1.0', latestTag: '1.0.0' });
-      expect(notes).toMatch(/^## \[1\.1\.0\]/);
+      expect(notes).toMatch(
+        /^## \[1\.1\.0\]\(.*\/compare\/1\.0\.0\.\.\.1\.1\.0\) - \d{4}-\d{2}-\d{2}/,
+      );
       expect(notes).toContain('Second fix');
       expect(notes).not.toContain('First feature');
     } finally {
@@ -174,6 +191,40 @@ describe('release-it config (#18)', () => {
     } finally {
       git('reset', '--hard', head);
       git('tag', '-d', '1.1.0-0');
+    }
+  });
+
+  it('after:bump prepends the release to CHANGELOG.md, keeping what is there (#3)', () => {
+    const hook = pkg['release-it'].hooks['after:bump']?.find((c) =>
+      c.startsWith('npx git-cliff '),
+    );
+    expect(hook).toBeDefined();
+    const command = format(hook ?? '', { version: '1.1.0' });
+    // Earlier history (0.1.0..0.2.10) is not reachable from main: never -o.
+    expect(command).not.toMatch(/ -o | --output /);
+    const changelog = path.join(repo, 'CHANGELOG.md');
+    writeFileSync(
+      changelog,
+      '# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n## [0.0.1] - 2020-01-01\n\n- Unreachable history\n',
+    );
+    try {
+      execFileSync(
+        process.execPath,
+        [cliffCli, ...command.split(' ').slice(2)],
+        {
+          cwd: repo,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        },
+      );
+      const text = readFileSync(changelog, 'utf8');
+      expect(text.match(/^# Changelog/gm)).toHaveLength(1);
+      expect(text.indexOf('## [1.1.0]')).toBeLessThan(
+        text.indexOf('## [0.0.1]'),
+      );
+      expect(text).toContain('- Unreachable history');
+      expect(text).toContain('Second fix');
+    } finally {
+      rmSync(changelog, { force: true });
     }
   });
 });
