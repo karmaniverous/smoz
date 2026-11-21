@@ -55,10 +55,11 @@
     "lint:fix": "eslint --fix .",
     "openapi": "smoz openapi",
     "package": "smoz openapi && serverless package",
+    "print": "serverless print",
     "register": "smoz register",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "verify": "smoz register && npm run typecheck && npm run lint && npm run format && npm run knip && npm test && npm run package"
+    "verify": "smoz register && npm run openapi && npm run typecheck && npm run lint && npm run format && npm run knip && npm test && npm run print"
   },
   "type": "module",
   "version": "0.0.0",

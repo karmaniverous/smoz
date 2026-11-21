@@ -59,8 +59,8 @@ Serverless compiles `serverless.ts` to CommonJS and runs it, which loads every `
 
 `lambda.ts` should import only schemas, the app and config. Business logic goes in `handler.ts`.
 
-`npm run package` (`smoz openapi`, then `serverless package`) loads the graph the same way, so it fails on either problem, naming the module. `npm run verify` runs it; run it in CI.
+`npm run print` (`serverless print`) resolves the config the same way, so it fails on either problem, naming the module, without building a package (`npm run package` would too). `npm run verify` runs it; run it in CI.
 
-Serverless Framework v4 asks for a login even to package: in CI, set `SERVERLESS_ACCESS_KEY`.
+Serverless Framework v4 asks for a login even to print: in CI, set `SERVERLESS_ACCESS_KEY`.
 
 See also: [Troubleshooting](./troubleshooting.md).
