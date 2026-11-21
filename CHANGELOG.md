@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1](https://github.com/karmaniverous/smoz/compare/0.7.0...0.7.1) - 2026-11-21
+
+### 🚀 Features
+
+- *(template)* Verify checks with serverless print instead of package (#50) ([5ed48ec](https://github.com/karmaniverous/smoz/commit/5ed48ecd91c7d3721bff6a7da2635dc7fbc56bd8))
 ## [0.7.0](https://github.com/karmaniverous/smoz/compare/0.6.0...0.7.0) - 2026-11-21
 
 ### 🚀 Features
