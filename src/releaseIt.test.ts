@@ -1,6 +1,7 @@
 /* REQUIREMENTS ADDRESSED (TEST)
 - #3: release-it's after:bump prepends the release to CHANGELOG.md (git-cliff),
   keeping entries git-cliff can't regenerate.
+- #48: merge commits of every kind stay out of the notes.
 - #18: GitHub releases are named `smoz@<version>` (the package name without
   its scope), and their notes are git-cliff's for the version being released.
 
@@ -119,6 +120,16 @@ beforeAll(async () => {
   git('tag', '1.0.0');
   // The add-issue hook prefixes commit messages with the branch's issue.
   git('commit', '-q', '--allow-empty', '-m', '[GH-18] fix: second fix');
+  // Merging main into a PR branch to resolve a conflict (#48).
+  git(
+    'commit',
+    '-q',
+    '--allow-empty',
+    '-m',
+    "[GH-18] Merge remote-tracking branch 'origin/main' into feature/x",
+    '-m',
+    '# Conflicts:\n#\tpackage.json',
+  );
   git('commit', '-q', '--allow-empty', '-m', 'chore: release v1.1.0');
 }, 60_000);
 
@@ -147,6 +158,8 @@ describe('release-it config (#18)', () => {
     expect(notes).toMatch(/### .*Bug Fixes\s+- Second fix/);
     expect(notes).not.toContain('First feature');
     expect(notes).not.toContain('release v1.1.0');
+    // Merge commits are skipped (#48).
+    expect(notes).not.toMatch(/Merge|Conflicts|Other/);
     expect(notes).not.toContain('[unreleased]');
     // Each entry links its commit.
     expect(notes).toMatch(
