@@ -55,7 +55,7 @@ Cause and fix:
 
 ## `Top-level await is currently not supported with the "cjs" output format`
 
-- Serverless compiles `serverless.ts` to CommonJS, loading every `lambda.ts` and its imports. Move the `await` into the handler (or an initialisation function it calls). `npm run package` and `npm run verify` catch this before deploy; see [Project structure rules](./project-structure.md).
+- Serverless compiles `serverless.ts` to CommonJS, loading every `lambda.ts` and its imports. Move the `await` into the handler (or an initialisation function it calls). `npm run print` (which `npm run verify` runs) and `npm run package` catch this before deploy; see [Project structure rules](./project-structure.md).
 
 ## serverless‑offline loops or stale artifacts
 

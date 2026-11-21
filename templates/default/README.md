@@ -25,14 +25,14 @@ This template provides a minimal, convention‑friendly baseline for new SMOZ ap
 1. Install dependencies: `npm install`
 2. Run every check: `npm run verify`
 
-`verify` runs, in order: `smoz register`, `typecheck`, `lint`, `format` (Prettier check), `knip`, `test`, then `package`. Each also runs on its own (`npm run lint:fix` and `npm run format:fix` fix what they can).
+`verify` runs, in order: `smoz register`, `openapi`, `typecheck`, `lint`, `format` (Prettier check), `knip`, `test`, then `print`. Each also runs on its own (`npm run lint:fix` and `npm run format:fix` fix what they can).
 
-`npm run package` generates `app/generated/openapi.json` (`smoz openapi`), then runs `serverless package`. Packaging loads every `lambda.ts` the way a deploy does, so it catches a top-level `await` or a module that needs live infrastructure at load. Serverless Framework v4 asks for a login even to package: run `npx serverless login` locally, and set `SERVERLESS_ACCESS_KEY` in CI.
+`npm run openapi` generates `app/generated/openapi.json`, loading every `openapi.ts`. `npm run print` (`serverless print`) resolves the Serverless config, which loads every `lambda.ts` the way a deploy does, so it catches a top-level `await` or a module that needs live infrastructure at load, without building a package. Serverless Framework v4 asks for a login even to print: run `npx serverless login` locally, and set `SERVERLESS_ACCESS_KEY` in CI. `npm run package` (`smoz openapi`, then `serverless package`) builds the deployment artifact.
 
 ## Project structure rules
 
 - A function never imports another function's modules (`lambda.ts`, `handler.ts`, ...). Shared code goes in a module outside `app/functions`. `npm run lint` enforces this (`smoz/no-cross-function-imports`).
-- Every `lambda.ts`, and what it imports, must load at build time: no top-level `await`, no connections or AWS calls at module level. `npm run package` catches this.
+- Every `lambda.ts`, and what it imports, must load at build time: no top-level `await`, no connections or AWS calls at module level. `npm run print` catches this.
 
 See [Project structure rules](https://github.com/karmaniverous/smoz/blob/main/docs-src/recipes/project-structure.md).
 

@@ -80,7 +80,7 @@ An app made from the template checks itself with one script:
 npm run verify
 ```
 
-It runs `smoz register`, typecheck, lint, format check, knip, tests, then `npm run package` (`smoz openapi`, then `serverless package`). Lint enforces `smoz/no-cross-function-imports`; packaging loads every `lambda.ts` the way a deploy does. See [Project structure rules](./recipes/project-structure.md). Serverless Framework v4 needs a login to package: in CI, set `SERVERLESS_ACCESS_KEY`.
+It runs `smoz register`, `npm run openapi` (`smoz openapi`; the handler serving the document imports it, so typecheck needs it), typecheck, lint, format check, knip, tests, then `npm run print` (`serverless print`). Lint enforces `smoz/no-cross-function-imports`; `print` resolves the Serverless config, loading every `lambda.ts` the way a deploy does, without building a package. See [Project structure rules](./recipes/project-structure.md). Serverless Framework v4 needs a login even to print: in CI, set `SERVERLESS_ACCESS_KEY`.
 
 ## Lint & typecheck (in this repo)
 
