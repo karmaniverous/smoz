@@ -49,8 +49,9 @@ commit_preprocessors = [
 filter_unconventional = false
 split_commits = false
 commit_parsers = [
-    { message = "^Merge pull request", skip = true },
-    { message = "^Merge branch", skip = true },
+    # Every merge commit: pull requests, branches, remote-tracking branches
+    # (merging origin/main into a PR branch to resolve a conflict).
+    { message = "^Merge ", skip = true },
     { message = "^feat", group = "<!-- 0 -->🚀 Features" },
     { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
     { message = "^doc", group = "<!-- 3 -->📚 Documentation" },
