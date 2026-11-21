@@ -190,7 +190,7 @@
     "verify": "npm run lint && npm run typecheck && git diff --exit-code && npm test && npm run knip && npm run build && npm run verify:package && npm run templates:typecheck && npm run templates:lint && npm run format:check && npm run docs"
   },
   "type": "module",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "volta": {
     "node": "22.23.4"
   },

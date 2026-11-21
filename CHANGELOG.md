@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0](https://github.com/karmaniverous/smoz/compare/0.6.0...0.7.0) - 2026-11-21
+
+### 🚀 Features
+
+- *(eslint)* Smoz/no-cross-function-imports rule, exported as @karmaniverous/smoz/eslint (#42, #43) ([1bf6b6c](https://github.com/karmaniverous/smoz/commit/1bf6b6c3b91b6f4b679a1e068792b31955daf061))
+- *(template)* Verify runs package; smoz ESLint rule, TSDoc, Vitest and knip checks (#43) ([743660d](https://github.com/karmaniverous/smoz/commit/743660d7f022f60c4b5d647539dfa564f4f4d66c))
+
+### 🐛 Bug Fixes
+
+- *(cli)* Register and add format with the project's own Prettier (#34) ([b5fa113](https://github.com/karmaniverous/smoz/commit/b5fa11310ad431000c19acd58dd5013cf371f13a))
+- *(core)* Wrong-path errors name the likely cause, a cross-function import (#42) ([b7ee78b](https://github.com/karmaniverous/smoz/commit/b7ee78b97ed359cc267b3e9fff34b40a9c5dea29))
+- *(cli)* Load the project's Prettier as CommonJS; scaffolds pass the template's own checks ([ed60acd](https://github.com/karmaniverous/smoz/commit/ed60acdd621804bed3f6ba2ae869dd6eae145603))
+- *(release)* Keep every merge commit out of the changelog (#48) ([289d24a](https://github.com/karmaniverous/smoz/commit/289d24a60967dcdbbba526587c37ec7d2781eb44))
+
+### 💼 Other
+
+- Updated dependencies ([70ec301](https://github.com/karmaniverous/smoz/commit/70ec301276585c70d15b639ceb981d394b39bbfd))
+
+### 📚 Documentation
+
+- Project structure rules, Cognito trigger recipe, the template's verify (#41, #42, #43) ([0fbd2b0](https://github.com/karmaniverous/smoz/commit/0fbd2b0c52bd006ed55b3095ea3fe1d6c99138a4))
+- Fix the troubleshooting link to project structure rules; lockfile for the eslint peer ([ebfc398](https://github.com/karmaniverous/smoz/commit/ebfc398c1e2a0463796f01bf98394c98c1cbb884))
+
+### ⚙️ Miscellaneous Tasks
+
+- One verify script for CI and release; TSDoc and Vitest lint rules at the root ([51eabe4](https://github.com/karmaniverous/smoz/commit/51eabe458ae9bd42ade4f02c8da3a9f52c1c8991))
+- Eslint peer as a caret range; quiet passing tests ([a0e9b86](https://github.com/karmaniverous/smoz/commit/a0e9b86c8383b80b7fd3f84ee11ea09b6335b108))
 ## [0.6.0](https://github.com/karmaniverous/smoz/compare/0.5.0...0.6.0) - 2026-11-20
 
 ### 🚀 Features
