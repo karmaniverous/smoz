@@ -4,8 +4,10 @@ sidebar_label: Recipes
 sidebar_position: 6
 children:
   - ./validation.md
+  - ./project-structure.md
   - ./sqs.md
   - ./step.md
+  - ./cognito-triggers.md
   - ./contexts-auth.md
   - ./custom-middleware.md
   - ./per-function-env.md
@@ -19,8 +21,10 @@ children:
 Concrete patterns you can lift into your app. Each recipe links to a focusedpage with short snippets.
 
 - [Validation and the handler event](./validation.md)
+- [Project structure rules](./project-structure.md)
 - [SQS function](./sqs.md)
 - [Step Functions function](./step.md)
+- [Cognito triggers](./cognito-triggers.md)
 - [Contexts + Cognito authorizer](./contexts-auth.md)
 - [Custom middleware (insertAfter 'shape')](./custom-middleware.md)
 - [Per‑function env (fnEnvKeys)](./per-function-env.md)

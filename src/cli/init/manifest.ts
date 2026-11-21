@@ -51,7 +51,7 @@ export const mergeAdditive = (
 };
 
 /**
- * Ensure a runtime dependency on @karmaniverous/smoz is present in the
+ * Ensure a runtime dependency on `@karmaniverous/smoz` is present in the
  * target manifest, using a caret version derived from the toolkit package.
  * Returns the merge descriptor string when added, else undefined.
  */

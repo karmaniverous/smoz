@@ -1,7 +1,13 @@
 /* REQUIREMENTS ADDRESSED (TEST)
 - CLI add: scaffolds HTTP and non-HTTP trees idempotently with expected files.
 */
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -38,6 +44,13 @@ describe('CLI: add', () => {
     async (config, expected) => {
       const root = mkdtempSync(join(tmpdir(), 'smoz-add-prettier-'));
       try {
+        // The app's own Prettier: link the real one into its node_modules.
+        mkdirSync(join(root, 'node_modules'));
+        symlinkSync(
+          join(process.cwd(), 'node_modules', 'prettier'),
+          join(root, 'node_modules', 'prettier'),
+          'junction',
+        );
         writeFileSync(join(root, '.prettierrc.json'), JSON.stringify(config));
         await runAdd(root, 'rest/q/get');
         const dir = join(root, 'app', 'functions', 'rest', 'q', 'get');
@@ -101,7 +114,7 @@ describe('CLI: add', () => {
       const httpLambda = readFileSync(join(httpBase, 'lambda.ts'), 'utf8');
       expect(httpLambda).not.toMatch(derivable);
       expect(httpLambda).toMatch(/callerModuleUrl: import\.meta\.url/);
-      expect(httpLambda).toMatch(/Registration: GET \/foo\n/);
+      expect(httpLambda).toMatch(/Registration: `GET \/foo`\n/);
       expect(httpLambda).toMatch(/eventType: (['"])rest\1/);
       expectUncastHandler(httpBase);
       // Second run should skip the same files

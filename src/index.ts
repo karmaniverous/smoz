@@ -1,11 +1,11 @@
 /**
  * SMOZ — Serverless + Middy + OpenAPI + Zod
  *
- * Config-time entry point. Import from '@karmaniverous/smoz' for App setup,
+ * Config-time entry point. Import from `@karmaniverous/smoz` for App setup,
  * schema definitions, types, and path utilities.
  *
  * For HTTP runtime (wrapHandler, middleware, transforms), import from
- * '@karmaniverous/smoz/http'.
+ * `@karmaniverous/smoz/http`.
  *
  * @packageDocumentation
  */

@@ -8,7 +8,7 @@ import type { SecurityContextHttpEventMap } from '@/src/types/SecurityContextHtt
  * Extracted to keep App.ts slim and focused on orchestration.
  */
 export const serverlessConfigSchema = z.object({
-  /** Context -> event fragment to merge into generated http events */
+  /** Context → event fragment to merge into generated http events */
   httpContextEventMap: z.custom<SecurityContextHttpEventMap>(),
   /** Used to construct default handler string if missing on a function */
   defaultHandlerFileName: z.string().min(1),

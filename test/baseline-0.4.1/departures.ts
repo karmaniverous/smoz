@@ -112,6 +112,13 @@ export const departures: Departure[] = [
     issueOrDecision: '#39',
     note: 'The app gets test/types.test.ts, a type check that its endpoints keep typed events and checked responses.',
   },
+  // #43: the app's checks (verify, knip, the smoz ESLint rule).
+  {
+    case: 'init',
+    part: 'package.json:scripts',
+    issueOrDecision: '#43',
+    note: 'The app gets verify (register, typecheck, lint, format, knip, test, package), format, knip, and a package script that generates openapi.json first.',
+  },
   // Dependency updates.
   {
     case: 'init',

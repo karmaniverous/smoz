@@ -1,7 +1,9 @@
 import eslint from '@eslint/js';
+import vitestPlugin from '@vitest/eslint-plugin';
 import prettierConfig from 'eslint-config-prettier';
 import prettierPlugin from 'eslint-plugin-prettier';
 import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort';
+import tsdocPlugin from 'eslint-plugin-tsdoc';
 import { dirname } from 'path';
 import tseslint from 'typescript-eslint';
 import { fileURLToPath } from 'url';
@@ -37,6 +39,7 @@ export default [
     plugins: {
       prettier: prettierPlugin,
       'simple-import-sort': simpleImportSortPlugin,
+      tsdoc: tsdocPlugin,
     },
     rules: {
       // Code-quality and sorting
@@ -53,6 +56,19 @@ export default [
       '@typescript-eslint/no-unsafe-assignment': 'error',
       '@typescript-eslint/no-unsafe-member-access': 'error',
       '@typescript-eslint/no-unsafe-return': 'error',
+      'tsdoc/syntax': 'warn',
+    },
+  },
+  {
+    files: ['**/*.test.ts'],
+    plugins: { vitest: vitestPlugin },
+    rules: {
+      ...vitestPlugin.configs.recommended.rules,
+      // Type assertions (expectTypeOf) are assertions too.
+      'vitest/expect-expect': [
+        'error',
+        { assertFunctionNames: ['expect', 'expectTypeOf'] },
+      ],
     },
   },
 ];

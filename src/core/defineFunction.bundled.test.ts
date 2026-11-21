@@ -23,8 +23,8 @@ import {
 
 describe('defineFunction: app config bundled into the function (#29)', () => {
   /**
-   * The `appRootAbs` the template's `APP_ROOT_ABS` (`new URL('..',
-   * import.meta.url)` in app/config/app.config.ts) gets once esbuild inlines
+   * The `appRootAbs` the template's `APP_ROOT_ABS`
+   * (`new URL('..', import.meta.url)` in app/config/app.config.ts) gets once esbuild inlines
    * the config into the bundle at `<root>/<rel>/handler.mjs`: the parent of
    * the bundle's folder.
    */

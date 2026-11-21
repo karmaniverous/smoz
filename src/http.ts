@@ -1,7 +1,7 @@
 /**
  * SMOZ HTTP runtime entry point.
  *
- * Import from '@karmaniverous/smoz/http' for runtime HTTP middleware,
+ * Import from `@karmaniverous/smoz/http` for runtime HTTP middleware,
  * handler wrapping, and middleware transform utilities.
  *
  * This subpath is separated from the main entry to avoid pulling middy

@@ -2,7 +2,7 @@
  * Function registry.
  *
  * Stores per‑function definitions keyed by functionName and exposes:
- *  - defineFunction(options) → { handler, openapi, serverless }
+ *  - defineFunction(options) → `{ handler, openapi, serverless }`
  *  - values() → iterable entries for aggregation
  *
  * Intended for internal use by {@link App}.

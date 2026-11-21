@@ -48,7 +48,6 @@
     { "tagName": "@hideCategories", "syntaxKind": "modifier" },
     { "tagName": "@showGroups", "syntaxKind": "modifier" },
     { "tagName": "@hideGroups", "syntaxKind": "modifier" },
-    { "tagName": "@hideconstructor", "syntaxKind": "modifier" },
-    { "tagName": "@jsx", "syntaxKind": "block" }
+    { "tagName": "@hideconstructor", "syntaxKind": "modifier" }
   ]
 }

@@ -1,0 +1,7 @@
+.serverless/
+.tsbuild/
+coverage/
+dist/
+docs/
+app/generated/
+package-lock.json

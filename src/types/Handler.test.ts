@@ -60,29 +60,31 @@ const querySchema = z.object({
 });
 type Q = typeof querySchema;
 
-/** Assert on the shaped event of a real schema over base `B`. */
+/** The shaped event of a real schema over base `B`, as a type-only value for expectTypeOf. */
 const shapedOver =
   <B>() =>
-  <S extends z.ZodType>(schema: S) => {
+  <S extends z.ZodType>(schema: S): ShapedEvent<S, B> => {
     expect(schema).toBeInstanceOf(z.ZodType);
-    return expectTypeOf<ShapedEvent<S, B>>();
+    return undefined as unknown as ShapedEvent<S, B>;
   };
 
 describe('ShapedEvent: parsed output replaces declared keys (#39)', () => {
   it('replaces an index-signature member with the schema output', () => {
     const shaped = shapedOver<APIGatewayProxyEvent>()(querySchema);
-    shaped
+    expectTypeOf(shaped)
       .toHaveProperty('queryStringParameters')
       .toEqualTypeOf<{ limit: number; q: string }>();
     // Undeclared keys keep their base types.
-    shaped
+    expectTypeOf(shaped)
       .toHaveProperty('headers')
       .toEqualTypeOf<APIGatewayProxyEvent['headers']>();
   });
 
   it('uses the output type, not the input type, of a transforming schema', () => {
-    shapedOver<APIGatewayProxyEvent>()(
-      z.object({ n: z.string().transform((v) => v.length) }),
+    expectTypeOf(
+      shapedOver<APIGatewayProxyEvent>()(
+        z.object({ n: z.string().transform((v) => v.length) }),
+      ),
     )
       .toHaveProperty('n')
       .toEqualTypeOf<number>();
@@ -102,7 +104,7 @@ describe('ShapedEvent: parsed output replaces declared keys (#39)', () => {
   });
 
   it('keeps the base event for an empty object schema (Record<string, never> output)', () => {
-    shapedOver<APIGatewayProxyEvent>()(z.object({}))
+    expectTypeOf(shapedOver<APIGatewayProxyEvent>()(z.object({})))
       .toHaveProperty('httpMethod')
       .toEqualTypeOf<string>();
   });
@@ -111,16 +113,18 @@ describe('ShapedEvent: parsed output replaces declared keys (#39)', () => {
     const shaped = shapedOver<APIGatewayProxyEvent>()(
       z.looseObject({ body: z.string() }),
     );
-    shaped.toHaveProperty('body').toEqualTypeOf<string>();
-    shaped.toHaveProperty('httpMethod').toEqualTypeOf<string>();
+    expectTypeOf(shaped).toHaveProperty('body').toEqualTypeOf<string>();
+    expectTypeOf(shaped).toHaveProperty('httpMethod').toEqualTypeOf<string>();
   });
 
   it('leaves the base event as is for a schema with unknown output', () => {
-    shapedOver<SQSEvent>()(z.unknown()).toEqualTypeOf<SQSEvent>();
+    expectTypeOf(shapedOver<SQSEvent>()(z.unknown())).toEqualTypeOf<SQSEvent>();
   });
 
   it('is the output itself when the output is not an object', () => {
-    shapedOver<SQSEvent>()(z.array(z.string())).toEqualTypeOf<string[]>();
+    expectTypeOf(shapedOver<SQSEvent>()(z.array(z.string()))).toEqualTypeOf<
+      string[]
+    >();
   });
 });
 

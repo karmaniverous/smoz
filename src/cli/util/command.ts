@@ -92,17 +92,34 @@ const ancestorNodeModules = (root: string): string[] => {
 };
 
 /**
+ * Directory of a package as installed for the project at `root`, or undefined
+ * when it isn't installed there.
+ *
+ * Finds the package the way Node does: the nearest copy wins, searching
+ * `root`'s own `node_modules` and then each ancestor's. That finds packages
+ * npm hoisted to a workspace root, and a project's own copy shadows a hoisted
+ * one. Global installs (`NODE_PATH`, Node's global folders) are ignored.
+ *
+ * @param root - project root (a directory containing package.json)
+ * @param pkg - package name, e.g. `prettier` or `@scope/name`
+ */
+export const localPackageDir = (
+  root: string,
+  pkg: string,
+): string | undefined =>
+  ancestorNodeModules(root)
+    .map((dir) => path.join(dir, pkg))
+    .find((dir) => existsSync(path.join(dir, 'package.json')));
+
+/**
  * Absolute path of a package's CLI script as installed for the project at
  * `root`, or undefined when the package isn't installed there or has no such
  * bin.
  *
- * Finds the package the way Node does: the nearest copy wins, searching
- * `root`'s own `node_modules` and then each ancestor's. That finds packages
- * npm hoisted to a workspace root (e.g. prettier at `<repo>/node_modules` for
- * a service in `<repo>/packages/service`), and a project's own copy shadows a
- * hoisted one. Global installs (`NODE_PATH`, Node's global folders) are
- * ignored. The script is read from the package's `bin` field, so it follows
- * the installed version's layout (e.g. serverless v4 ships `run.js`).
+ * Finds the package with {@link localPackageDir} (e.g. prettier hoisted to
+ * `<repo>/node_modules` for a service in `<repo>/packages/service`). The
+ * script is read from the package's `bin` field, so it follows the installed
+ * version's layout (e.g. serverless v4 ships `run.js`).
  *
  * @param root - project root (a directory containing package.json)
  * @param pkg - package name, e.g. `prettier` or `@scope/name`
@@ -114,9 +131,7 @@ export const localPackageBin = (
   pkg: string,
   binName: string = pkg.split('/').pop() ?? pkg,
 ): string | undefined => {
-  const pkgDir = ancestorNodeModules(root)
-    .map((dir) => path.join(dir, pkg))
-    .find((dir) => existsSync(path.join(dir, 'package.json')));
+  const pkgDir = localPackageDir(root, pkg);
   if (!pkgDir) return undefined;
 
   let bin: unknown;

@@ -62,6 +62,8 @@ The handler returns what `responseSchema` validates: its **input** type (`z.inpu
 
 Don't cast `fn` or the handler's return value; the types are already right, and a cast turns off the response check.
 
+A function that returns its (parsed) event, like a Cognito trigger, needs a `responseSchema` that describes the parsed event, not one that extends `eventSchema`: see [Cognito triggers](./cognito-triggers.md).
+
 ## Failures
 
 - **HTTP** (`rest`, `http`, and any token in `httpEventTypeTokens`): an invalid event is a `400` (`Invalid event`: the client's fault); a response that fails `responseSchema` is a `500` (`Invalid response`: the handler's fault).

@@ -3,8 +3,9 @@
 This template provides a minimal, convention‑friendly baseline for new SMOZ apps:
 
 - TypeScript configuration (strict, moduleResolution bundler)
-- ESLint (flat config) + typescript‑eslint + Prettier
+- ESLint (flat config) + typescript‑eslint + Prettier, with the smoz rule `no-cross-function-imports`
 - Vitest baseline config
+- knip (dead code and unused dependencies)
 - TypeDoc baseline config
 
 ## Conventions
@@ -21,18 +22,19 @@ This template provides a minimal, convention‑friendly baseline for new SMOZ ap
 
 ## Getting started
 
-1. Install dependencies
-   - Run: `npm install`
-2. Type checking
-   - Run: `npm run typecheck`
-3. Linting
-   - Run: `npm run lint` (or `npm run lint:fix` to auto‑fix)
-4. Tests (baseline suite OK)
-   - Run: `npm run test`
-5. Docs (TypeDoc baseline loads)
-   - Run: `npm run docs`
-6. Generate OpenAPI (if your app config and endpoints are present)
-   - Run: `npm run openapi`
+1. Install dependencies: `npm install`
+2. Run every check: `npm run verify`
+
+`verify` runs, in order: `smoz register`, `typecheck`, `lint`, `format` (Prettier check), `knip`, `test`, then `package`. Each also runs on its own (`npm run lint:fix` and `npm run format:fix` fix what they can).
+
+`npm run package` generates `app/generated/openapi.json` (`smoz openapi`), then runs `serverless package`. Packaging loads every `lambda.ts` the way a deploy does, so it catches a top-level `await` or a module that needs live infrastructure at load. Serverless Framework v4 asks for a login even to package: run `npx serverless login` locally, and set `SERVERLESS_ACCESS_KEY` in CI.
+
+## Project structure rules
+
+- A function never imports another function's modules (`lambda.ts`, `handler.ts`, ...). Shared code goes in a module outside `app/functions`. `npm run lint` enforces this (`smoz/no-cross-function-imports`).
+- Every `lambda.ts`, and what it imports, must load at build time: no top-level `await`, no connections or AWS calls at module level. `npm run package` catches this.
+
+See [Project structure rules](https://github.com/karmaniverous/smoz/blob/main/docs-src/recipes/project-structure.md).
 
 ## SMOZ CLI — register
 
@@ -41,7 +43,7 @@ The CLI scans `app/functions/**` for `lambda.ts`, `openapi.ts`, and optional `se
 - Build CLI (if packaged locally): `npm run cli:build`
 - Register: `npx smoz register`
   - Idempotent: rewrites files only when content changes
-  - Formats output with Prettier when available
+  - Formats output with this project's Prettier and its config
 
 Tip: Commit `app/generated/register.*.ts` so typecheck is stable without running the CLI. Teams often keep `app/generated/openapi.json` untracked in VCS (optional).
 

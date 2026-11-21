@@ -36,11 +36,13 @@
     "@types/node": "^26.6.6",
     "@types/serverless": "^3.12.28",
     "@vitest/coverage-v8": "^5.1.1",
+    "@vitest/eslint-plugin": "^1.6.28",
     "esbuild": "^0.28.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.7",
     "eslint-plugin-simple-import-sort": "^14.0.0",
+    "eslint-plugin-tsdoc": "^0.5.4",
     "fs-extra": "^11.4.1",
     "git-cliff": "^2.14.2",
     "knip": "^6.46.1",
@@ -85,6 +87,10 @@
     "./cli": {
       "types": "./dist/cli.d.ts",
       "default": "./dist/mjs/cli.js"
+    },
+    "./eslint": {
+      "types": "./dist/eslint.d.ts",
+      "default": "./dist/mjs/eslint.js"
     },
     "./package.json": "./package.json"
   },
@@ -134,15 +140,7 @@
     },
     "hooks": {
       "after:init": [
-        "npm run lint",
-        "npm run typecheck",
-        "npm run test",
-        "npm run knip",
-        "npm run build",
-        "npm run verify:package",
-        "npm run templates:typecheck",
-        "npm run templates:lint",
-        "npm run format:check"
+        "npm run verify"
       ],
       "after:release": [
         "git switch -c release/${version}",
@@ -184,11 +182,12 @@
     "test": "vitest run",
     "typecheck": "tsx src/cli/index.ts register && tsc -p tsconfig.json --noEmit",
     "templates:typecheck": "tsx scripts/templates-typecheck.ts",
-    "templates:lint": "eslint -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\"",
-    "templates:lint:fix": "eslint --fix -c templates/default/eslint.config.ts \"templates/default/**/*.{ts,tsx,js,jsx}\" \"templates/default/eslint.config.ts\"",
+    "templates:lint": "tsx scripts/templates-lint.ts",
+    "templates:lint:fix": "tsx scripts/templates-lint.ts --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify:package": "tsx scripts/verify-package.ts"
+    "verify:package": "tsx scripts/verify-package.ts",
+    "verify": "npm run lint && npm run typecheck && git diff --exit-code && npm test && npm run knip && npm run build && npm run verify:package && npm run templates:typecheck && npm run templates:lint && npm run format:check && npm run docs"
   },
   "type": "module",
   "version": "0.6.0",
@@ -207,6 +206,7 @@
     "@middy/http-multipart-body-parser": "^7.9.2",
     "@middy/http-response-serializer": "^7.7.0",
     "@serverless/typescript": "^4.30.0",
+    "eslint": "^10.0.0",
     "zod-openapi": "^6.0.0"
   },
   "peerDependenciesMeta": {
@@ -241,6 +241,9 @@
       "optional": true
     },
     "@serverless/typescript": {
+      "optional": true
+    },
+    "eslint": {
       "optional": true
     },
     "zod-openapi": {

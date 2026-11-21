@@ -92,7 +92,7 @@ describe('defineFunction: eventType and endpointsRootAbs from the path', () => {
     expect(() =>
       app.defineFunction({ callerModuleUrl: at('lib/users/get') }),
     ).toThrow(
-      /cannot derive eventType.*not under .*\/functions\/<eventType>\//,
+      /cannot derive eventType.*not under .*\/functions\/<eventType>\/.*smoz\/no-cross-function-imports/,
     );
   });
 

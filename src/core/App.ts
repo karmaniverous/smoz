@@ -221,7 +221,7 @@ type BaseMap = typeof baseEventTypeMapSchema;
    * @typeParam ResponseSchema - Optional Zod schema validated AFTER the handler (refines response shape)
    * @typeParam FnEnvKey       - This function's `fnEnvKeys` (inferred as literals); with the app's env keys they type `options.env`
    * @param options - per‑function configuration
-   * @returns a per‑function API: { handler(business), openapi(baseOperation), serverless(extras) }
+   * @returns a per‑function API: `{ handler(business), openapi(baseOperation), serverless(extras) }`
    * @throws Error when `eventType` is omitted and the caller isn't under `<appRootAbs>/functions/<eventType>/` for a key of eventTypeMapSchema, or it is an HTTP token and the method or base path can't be derived; when `functionName` duplicates another function's; or when an HTTP function selects (or `functionDefaults.http` selects) a profile that isn't in `http.profiles`
    */
   public defineFunction<
